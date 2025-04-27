@@ -1,0 +1,37 @@
+<div class="px-4 sm:px-6 lg:px-8">
+    <div class="mt-4 mb-4">
+        <button class="btn btn-outline flex items-center space-x-2 border-[#7F3D3D] text-[#7F3D3D] hover:bg-[#7F3D3D]/10" (click)="navigateTo('/home')">
+            <span class="material-symbols-outlined" style="font-size: 2rem;">
+                home
+            </span>
+            <span class="text-lg font-semibold">Inicio</span>
+        </button>
+    </div>
+    <br>
+    <div class="">
+        <h3 class="text-lg font-semibold mb-4">Lista de Usuarios</h3>    
+    </div>
+    <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+        <table class="table">
+            <!-- head -->
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Nombre</th>
+                    <th>Usuario</th>                    
+                    <th>Bodega</th>
+                    <th>Rol</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let user of users_list; let i = index">
+                    <th>{{ i + 1 }}</th>
+                    <td>{{ user.nombre }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.bodega }}</td>
+                    <td>{{ user.rol }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

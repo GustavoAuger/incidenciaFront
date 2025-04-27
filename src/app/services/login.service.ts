@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/enviroment';
 
 @Injectable({
   providedIn: 'root'
@@ -8,10 +9,7 @@ import { HttpClient } from '@angular/common/http';
 
 export class LoginService {
 
-  //private apiUrl = environment.apiUrl;
-
-  //Mockup API
-  private apiUrl = 'https://0d2c7ecf-6f81-4dea-b840-3cb58dae409c.mock.pstmn.io';
+  private apiUrl = environment.apiUrl;
   
   constructor(private http: HttpClient) { }
 

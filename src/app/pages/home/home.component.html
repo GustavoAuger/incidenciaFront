@@ -1,5 +1,5 @@
 <div class="grid grid-cols-3 gap-6 p-6 h-full">
-  <div (click)="navigateTo('resumen-incidencias')" class="card resumen-incidencias">
+  <div (click)="navigateTo('/resumen-incidencias')" class="card resumen-incidencias">
     <div class="card-content">
       <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
         assignment
@@ -12,7 +12,7 @@
     </div>
   </div>
 
-  <div (click)="navigateTo('incidencias-sin-resolver')" class="card incidencias-sin-resolver">
+  <div (click)="navigateTo('/incidencias-sin-resolver')" class="card incidencias-sin-resolver">
     <div class="card-content">
       <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
         pending
@@ -25,7 +25,7 @@
     </div>
   </div>
 
-  <div (click)="navigateTo('crear-incidencia')" class="card crear-incidencia">
+  <div (click)="navigateTo('/crear-incidencia')" class="card crear-incidencia">
     <div class="card-content">
       <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
         add_circle_outline
@@ -38,7 +38,7 @@
     </div>
   </div>
 
-  <div (click)="navigateTo('reclamos-transportista')" class="card reclamos-transportista">
+  <div (click)="navigateTo('/reclamos-transportista')" class="card reclamos-transportista">
     <div class="card-content">
       <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
         delivery_truck_speed
@@ -51,7 +51,7 @@
     </div>
   </div>
 
-  <div (click)="navigateTo('reportes-incidencias')" class="card reportes-incidencias">
+  <div (click)="navigateTo('/reportes-incidencias')" class="card reportes-incidencias">
     <div class="card-content">
       <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
         finance
@@ -64,7 +64,7 @@
     </div>
   </div>
 
-  <div [style.opacity]="user.id_rol !== 1 ? 0.5 : 1" [style.pointerEvents]="user.id_rol !== 1 ? 'none' : 'auto'" (click)="user.id_rol === 1 && navigateTo('administrar-usuarios')" class="card administrar-usuarios">
+  <div [style.opacity]="user.id_rol !== 1 ? 0.5 : 1" [style.pointerEvents]="user.id_rol !== 1 ? 'none' : 'auto'" (click)="user.id_rol === 1 && navigateTo('/administrar-usuarios')" class="card administrar-usuarios">
     <div class="card-content">      
       <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
         manage_accounts
