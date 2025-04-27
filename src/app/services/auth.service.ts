@@ -41,4 +41,8 @@ export class AuthService {
     localStorage.removeItem('is_admin');
     this.loggedIn = false;
   }
+
+  isAuthenticated() : boolean {
+    return this.loggedIn;
+  }
 }

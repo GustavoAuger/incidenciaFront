@@ -1,0 +1,44 @@
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  padding: 2rem;
+  height: 100%;
+}
+
+.card {
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.2s, filter 0.2s;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  filter: brightness(110%);
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.card-title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: white;
+}
+
+.resumen-incidencias { background-color: #16A085; }
+.incidencias-sin-resolver { background-color: #D35400; }
+.crear-incidencia { background-color: #2980B9; }
+.reclamos-transportista { background-color: #8E44AD; }
+.reportes-incidencias { background-color: #34495E; }
+.administrar-usuarios { background-color: #7F3D3D; }

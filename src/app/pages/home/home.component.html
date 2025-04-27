@@ -1,1 +1,79 @@
-<p>home works!</p>
+<div class="grid grid-cols-3 gap-6 p-6 h-full">
+  <div (click)="navigateTo('resumen-incidencias')" class="card resumen-incidencias">
+    <div class="card-content">
+      <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
+        assignment
+      </span>
+      <div class="card-body">
+        <h2 class="card-title">
+          Resumen de Incidencias
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <div (click)="navigateTo('incidencias-sin-resolver')" class="card incidencias-sin-resolver">
+    <div class="card-content">
+      <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
+        pending
+      </span>
+      <div class="card-body">
+        <h2 class="card-title">
+          Incidencias Sin Resolver          
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <div (click)="navigateTo('crear-incidencia')" class="card crear-incidencia">
+    <div class="card-content">
+      <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
+        add_circle_outline
+      </span>
+      <div class="card-body">
+        <h2 class="card-title">
+          Crear Incidencia
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <div (click)="navigateTo('reclamos-transportista')" class="card reclamos-transportista">
+    <div class="card-content">
+      <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
+        delivery_truck_speed
+      </span>
+      <div class="card-body">
+        <h2 class="card-title">
+          Incidencias con Reclamo
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <div (click)="navigateTo('reportes-incidencias')" class="card reportes-incidencias">
+    <div class="card-content">
+      <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
+        finance
+      </span>
+      <div class="card-body">
+        <h2 class="card-title">
+          Reportes de Incidencias
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <div [style.opacity]="user.id_rol !== 1 ? 0.5 : 1" [style.pointerEvents]="user.id_rol !== 1 ? 'none' : 'auto'" (click)="user.id_rol === 1 && navigateTo('administrar-usuarios')" class="card administrar-usuarios">
+    <div class="card-content">      
+      <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
+        manage_accounts
+      </span>
+      <div class="card-body">
+        <h2 class="card-title">
+          Administrar Usuarios          
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
