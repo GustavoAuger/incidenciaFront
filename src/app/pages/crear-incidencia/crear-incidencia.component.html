@@ -1,0 +1,63 @@
+<div class="container mx-auto px-4 min-h-[85vh] flex flex-col">
+  <div class="mt-4 mb-4 flex items-center justify-between">
+    <button class="btn btn-outline flex items-center space-x-2 border-[#7F3D3D] text-[#7F3D3D] hover:bg-[#7F3D3D]/10" (click)="navigateTo('/home')">
+      <span class="material-symbols-outlined" style="font-size: 2rem;">
+        home
+      </span>
+      <span class="text-lg font-semibold">Inicio</span>
+    </button> 
+    <h2 class="reporte-incidencia">Crear Incidencia</h2>
+  </div>
+
+  <div class="p-4" style="background-color: #D4D4D4;">
+    <div class="card bg-dark text-white mx-auto" style="width: 90%; max-width: 900px;">
+      <div class="card-body">
+        <form (ngSubmit)="onSubmit()" #incidenciaForm="ngForm">
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Origen de la mercadería</legend>
+            <select class="select">
+                <option disabled selected>Origen</option>
+                <option>APT-001 BODEGA CENTRAL</option>
+                <option>LO-001 LOCAL MATIAS COUSINO</option>
+                <option>LO-002 LOCAL EL BELLOTO</option>
+            </select>
+        </fieldset>
+
+        <fieldset class="fieldset">
+            <legend class="fieldset-legend">Transportista</legend>
+            <select class="select">
+                <option disabled selected>Transportista</option>
+                <option>Fedex</option>
+                <option>Head</option>
+                <option>Otro</option>
+            </select>
+        </fieldset>
+
+        <fieldset class="fieldset">
+            <legend class="fieldset-legend">OTS</legend>
+            <input type="text" class="input" placeholder="ots" />
+        </fieldset>
+
+        <fieldset class="fieldset">
+            <legend class="fieldset-legend">Fecha de recepcion</legend>
+            <input type="date" class="input" />
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">Seleccionar Imagen</legend>
+          <div style="display: flex; gap: 10px;">
+            <input type="file" class="file-input" />
+            <input type="file" class="file-input" />
+          </div>
+        </fieldset>
+
+        <fieldset class="fieldset">
+            <legend class="fieldset-legend">Observación</legend>
+            <textarea class="textarea h-24" placeholder="Observación"></textarea>
+          </fieldset>
+
+          <button class="btn btn-neutral" (click)="navigateTo('/crear-detalle-incidencia')">SIGUIENTE</button>
+      </form>
+    </div>
+  </div>
+</div>

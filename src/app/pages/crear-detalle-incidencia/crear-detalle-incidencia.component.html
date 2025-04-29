@@ -1,0 +1,125 @@
+<div class="container mx-auto px-4 min-h-[85vh] flex flex-col">
+    <div class="mt-4 mb-4 flex items-center justify-between">
+        <button class="btn btn-outline flex items-center space-x-2 border-[#7F3D3D] text-[#7F3D3D] hover:bg-[#7F3D3D]/10" (click)="navigateTo('/crear-incidencia')">
+            <span class="material-symbols-outlined" style="font-size: 2rem;">
+                arrow_back
+            </span>
+            <span class="text-lg font-semibold">Volver</span>
+        </button>
+        <h2 class="text-xl font-bold">Detalle de Incidencia</h2>
+    </div>
+
+    <div class="p-4" style="background-color: #D4D4D4;">
+        <div class="card bg-dark text-white mx-auto" style="width: 90%; max-width: 900px;">
+            <div class="card-body p-6">
+                <!-- Información de cabecera -->
+                <div class="grid grid-cols-4 gap-4 mb-6 text-orange-500">
+                    <div>
+                        <p class="font-bold">ORIGEN:</p>
+                        <p>{{incidencia?.origen}}</p>
+                    </div>
+                    <div>
+                        <p class="font-bold">TRANSPORTE:</p>
+                        <p>{{incidencia?.tipoTransporte}}</p>
+                    </div>
+                    <div>
+                        <p class="font-bold">OTS:</p>
+                        <p>{{incidencia?.ots}}</p>
+                    </div>
+                    <div>
+                        <p class="font-bold">FECHA RECEPCIÓN:</p>
+                        <p>{{incidencia?.fechaRecepcion}}</p>
+                    </div>
+                </div>
+
+                <!-- Formulario de detalle -->
+                <form (ngSubmit)="onSubmit()" #detalleForm="ngForm" class="space-y-4">
+                    <div class="grid grid-cols-3 gap-4">
+                        <!-- Primera columna -->
+                        <div class="space-y-4">
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Número de Documento</legend>
+                                <input type="text" class="input" placeholder="Ingrese el número de documento" />
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Tipo de Diferencia</legend>
+                                <select class="select">
+                                  <option disabled selected>Seleccione</option>
+                                  <option>Sobrante</option>
+                                  <option>Faltante</option>
+                                </select>
+                            </fieldset>
+        
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Número de Bulto</legend>
+                                <input type="text" class="input" placeholder="Ingrese el número de bulto" />
+                            </fieldset>
+                        </div>
+
+                        <!-- Segunda columna -->
+                        <div class="space-y-4">
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Peso origen</legend>
+                                <input type="text" class="input" placeholder="Ingrese el peso de origen" />
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Peso recepción</legend>
+                                <input type="text" class="input" placeholder="Ingrese el peso de recepción" />
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Cantidad</legend>
+                                <input type="text" class="input" placeholder="Ingrese la cantidad" />
+                            </fieldset>
+                        </div>
+
+                        <!-- Tercera columna -->
+                        <div class="space-y-4">
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Buscar (SKU/EAN13)</legend>
+                                <div class="flex space-x-2">
+                                    <input type="text" class="input" placeholder="Ingrese el SKU o EAN13" />
+                                    <button type="button" class="btn btn-primary" (click)="buscarProducto()">Buscar</button>
+                                </div>
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Descripción</legend>
+                                <input type="text" class="input" placeholder="Ingrese la descripción" />
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de detalles -->
+                    <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+                        <table class="table">
+                          <!-- head -->
+                          <thead>
+                            <tr>
+                              <th></th>
+                              <th>Tipo de Diferencia</th>
+                              <th>SKU</th>
+                              <th>Descripción</th>
+                              <th>Cantidad</th>
+                              <th>N° Documento</th>
+                              <th>N° Bulto</th>
+                              <th>Peso Origen</th>
+                              <th>Peso Recepción</th>
+                              <th></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                           
+                          </tbody>
+                        </table>
+                      </div>
+
+                    <!-- Botones de acción -->
+                    <div class="flex justify-end space-x-4 mt-6">
+                        <button type="button" class="btn btn-info" (click)="agregarDetalle()">AGREGAR</button>
+                        <button type="button" class="btn btn-primary" (click)="generarIncidencia()">GENERAR INCIDENCIA</button>
+                        <button type="button" class="btn btn-neutral" (click)="navigateTo('/crear-incidencia')">VOLVER</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
