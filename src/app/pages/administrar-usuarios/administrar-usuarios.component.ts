@@ -3,10 +3,12 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../services/user.service';
 import { User } from '../../interfaces/user';
+import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
 
 @Component({
   selector: 'app-administrar-usuarios',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, InitCapFirstPipe],
   templateUrl: './administrar-usuarios.component.html',
   styleUrls: ['./administrar-usuarios.component.css']
 })
@@ -17,9 +19,11 @@ export class AdministrarUsuariosComponent {
   constructor(private router: Router, private _userService: UserService) {}
 
   ngOnInit(): void {
-    this.getUsuarios();
+    if (this.users_list.length === 0) {
+      this.getUsuarios();
+    }
   }
-
+  
   navigateTo(route: string): void {    
     this.router.navigate([route]);
   }  
@@ -27,7 +31,6 @@ export class AdministrarUsuariosComponent {
   getUsuarios(): void {
     this._userService.getUsuarios().subscribe((users) => {
       this.users_list = users;
-      console.log(JSON.stringify(users));
     });
   }
 

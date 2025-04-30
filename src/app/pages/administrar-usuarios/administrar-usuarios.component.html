@@ -18,18 +18,27 @@
                 <tr>
                     <th></th>
                     <th>Nombre</th>
-                    <th>Usuario</th>                    
-                    <th>Bodega</th>
+                    <th>Email</th>                    
                     <th>Rol</th>
+                    <th>Bodega</th>
+                    <th>Acción</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let user of users_list; let i = index">
                     <th>{{ i + 1 }}</th>
                     <td>{{ user.nombre }}</td>
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.bodega }}</td>
-                    <td>{{ user.rol }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.rol! | initCapFirst }}</td>
+                    <td>{{ user.bodega! | initCapFirst }}</td>
+                    <td class="flex space-x-2">
+                        <button class="btn btn-ghost btn-xs">
+                            <span class="material-symbols-outlined text-blue-500">edit</span>
+                        </button>
+                        <button class="btn btn-ghost btn-xs">
+                            <span class="material-symbols-outlined text-red-500">delete</span>
+                        </button>
+                    </td>
                 </tr>
             </tbody>
         </table>
