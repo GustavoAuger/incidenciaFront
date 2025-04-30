@@ -7,32 +7,36 @@ import { User } from '../interfaces/user';
 })
 export class AuthService {
 
-  username : string = '';
+  username: string = '';
   loggedIn = false;
 
   constructor(private _loginService: LoginService) { }
 
-  async login(user : User) : Promise<boolean> {    
-    const response = await this._loginService.validateUserPassword(user.username, user.password).toPromise();
-    const valid = !!response && response.access_token !== undefined;
-    const isAdmin = response?.id_rol === 1;    
+  async login(user: User): Promise<boolean|undefined> {
+    if (user.password) {
+      const response = await this._loginService.validateUserPassword(user.email, user.password).toPromise();
+      const valid = !!response && response.access_token !== undefined;
+      const isAdmin = response?.id_rol === 1;
 
-    if(valid){
-      localStorage.setItem('access_token', response.access_token);
-      this.loggedIn = valid;
-      this.username = user.username;
-      localStorage.setItem('username', user.username);
-      if (response.id_rol) {
-        if (isAdmin) {
-          localStorage.setItem('is_admin', 'True');
+      if (valid) {
+        localStorage.setItem('access_token', response.access_token);
+        this.loggedIn = valid;
+        this.username = user.email;
+        localStorage.setItem('username', user.email);
+        if (response.id_rol) {
+          if (isAdmin) {
+            localStorage.setItem('is_admin', 'True');
+          }
+          else {
+            localStorage.setItem('is_admin', 'False');
+          }
         }
-        else {
-          localStorage.setItem('is_admin', 'False');
-        }
+        return true;
       }
-      return true;
+      return false;
     }
-    return false;    
+    return false;
+
   }
 
   logout() {
@@ -42,7 +46,7 @@ export class AuthService {
     this.loggedIn = false;
   }
 
-  isAuthenticated() : boolean {
+  isAuthenticated(): boolean {
     return this.loggedIn;
   }
 }

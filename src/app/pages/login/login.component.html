@@ -11,9 +11,9 @@
         <div class="card-body h-full flex flex-col justify-center">
           <fieldset class="fieldset">
             <label class="label font-semibold">Usuario</label>
-            <input type="text" class="input input-accent placeholder-gray-400" placeholder="Ingrese su usuario" />
+            <input type="text" class="input input-accent placeholder-gray-400" placeholder="Ingrese su usuario" [(ngModel)]="username" />
             <label class="label font-semibold">Contraseña</label>
-            <input type="password" class="input input-accent placeholder-gray-400" placeholder="Ingrese su contraseña" />
+            <input type="password" class="input input-accent placeholder-gray-400" placeholder="Ingrese su contraseña" [(ngModel)]="password" />
             <div><a class="link link-hover">¿Olvidó su contraseña?</a></div>
             <button class="btn mt-4 bg-orange-500 border-none text-white hover:bg-orange-600" (click)="onSubmit()">Iniciar Sesión</button>
           </fieldset>

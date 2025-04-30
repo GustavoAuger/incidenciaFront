@@ -11,7 +11,7 @@ export class HomeComponent {
   constructor(private router: Router) {}
 
   user: User = {
-    username: '',
+    email: '',
     password: '',
     id_rol: 1
   }

@@ -1,10 +1,14 @@
 export interface User {
     id?: number;
     nombre?: string;
-    username: string;
-    password: string;
-    id_rol: number;
-    rol?: string;
+    email: string;
     id_bodega?: number;
     bodega?: string;
+    estado?: boolean;
+    rol?: string;
+    id_rol: number;
+    password?: string;
+    
+    
+    
 }

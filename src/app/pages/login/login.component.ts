@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { User } from '../../interfaces/user';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -14,12 +15,12 @@ export class LoginComponent {
   username: string = '';
   password: string = '';
   errorMessage: string = '';
-  user: User = {username: '', password: '', id_rol: 0}
+  user: User = {email: '', password: '', id_rol: 0}
 
   constructor(private authService: AuthService,private router: Router){}
 
   async onSubmit(): Promise<void> {   
-    this.user.username = this.username;
+    this.user.email = this.username;
     this.user.password = this.password;
     this.authService.login(this.user).then((result) => {
       if (result) {
