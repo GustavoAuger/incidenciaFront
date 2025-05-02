@@ -22,6 +22,7 @@ export class AdministrarUsuariosComponent {
   roles: Rol[] = [];
   bodegas: Bodega[] = [];
   showCreateUserForm: boolean = false;
+  isLoading: boolean = true;
   newUser: User = {
     nombre: '',
     email: '',
@@ -48,6 +49,7 @@ export class AdministrarUsuariosComponent {
 
   //Obtener usuarios
   getUsuarios(): void {
+    this.isLoading = true;
     this._userService.getUsuarios().subscribe((users) => {
       this.users_list = users
         .filter(user => user.estado === true)
@@ -55,6 +57,7 @@ export class AdministrarUsuariosComponent {
           ...user, 
           isEditing: false
         }));
+        this.isLoading = false;
     });
   }
 

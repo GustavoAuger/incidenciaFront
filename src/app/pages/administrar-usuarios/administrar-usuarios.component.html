@@ -66,7 +66,13 @@
 
     <h3 class="text-lg font-semibold">Lista de Usuarios</h3>
     <br>
-    <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+    <!-- Loading Screen -->
+    <div *ngIf="isLoading" class="w-full h-full flex items-center justify-center">
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+
+    <!-- User List -->
+    <div *ngIf="!isLoading" class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
         <table class="table">
             <!-- head -->
             <thead>
