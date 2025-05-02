@@ -14,6 +14,7 @@ import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
 })
 export class AdministrarUsuariosComponent {
 
+  username: string = '';
   users_list: User[] = [];
 
   constructor(private router: Router, private _userService: UserService) {}
@@ -22,6 +23,8 @@ export class AdministrarUsuariosComponent {
     if (this.users_list.length === 0) {
       this.getUsuarios();
     }
+    this.username = localStorage.getItem('username') || '';
+
   }
   
   navigateTo(route: string): void {    

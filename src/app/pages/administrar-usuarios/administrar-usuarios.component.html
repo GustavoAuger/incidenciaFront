@@ -35,7 +35,7 @@
                         <button class="btn btn-ghost btn-xs">
                             <span class="material-symbols-outlined text-blue-500">edit</span>
                         </button>
-                        <button class="btn btn-ghost btn-xs">
+                        <button *ngIf="user.email !== username" class="btn btn-ghost btn-xs">
                             <span class="material-symbols-outlined text-red-500">delete</span>
                         </button>
                     </td>
