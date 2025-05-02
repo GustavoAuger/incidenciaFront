@@ -1,0 +1,127 @@
+<div class="container mx-auto px-4 min-h-[85vh] flex flex-col">
+    <div class="mt-4 mb-4 flex items-center justify-between">
+    </div>
+
+    <div class="p-4" style="background-color: #D4D4D4;">
+        <h2 class="text-xl font-bold text-right">Detalle de Incidencia</h2>
+        <div class="card" style="background-color: #000000" >
+            <div class="card-body p-4">
+                <!-- Información de cabecera -->
+                <div class="grid grid-cols-4 gap-3 mb-4">
+                    <div class="text-center p-2 bg-black rounded-lg shadow-md">
+                        <p class="font-bold text-orange-500 text-base mb-1">ORIGEN</p>
+                        <p class="text-orange-400 text-lg">{{incidencia.bodOrigen}}</p>
+                    </div>
+                    <div class="text-center p-2 bg-black rounded-lg shadow-md">
+                        <p class="font-bold text-orange-500 text-base mb-1">TRANSPORTE</p>
+                        <p class="text-orange-400 text-lg">{{incidencia.transportista}}</p>
+                    </div>
+                    <div class="text-center p-2 bg-black rounded-lg shadow-md">
+                        <p class="font-bold text-orange-500 text-base mb-1">OTS</p>
+                        <p class="text-orange-400 text-lg">{{incidencia.ots || ''}}</p>
+                    </div>
+                    <div class="text-center p-2 bg-black rounded-lg shadow-md">
+                        <p class="font-bold text-orange-500 text-base mb-1">FECHA RECEPCIÓN</p>
+                        <p class="text-orange-400 text-lg">{{incidencia.fechaRecepcion ? (incidencia.fechaRecepcion | date:'dd/MM/yyyy') : ''}}</p>
+                    </div>
+                </div>
+
+                <!-- Formulario de detalle -->
+                <form (ngSubmit)="onSubmit()" #detalleForm="ngForm" class="space-y-4">
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label class="label">Tipo de Diferencia</label>
+                            <select class="select w-full" [(ngModel)]="detalleIncidencia.tipoDiferencia" name="tipoDiferencia" required>
+                                <option value="">Seleccione tipo</option>
+                                <option *ngFor="let tipo of tiposDiferencia" [value]="tipo">{{tipo}}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="label">SKU</label>
+                            <div class="flex space-x-2">
+                                <input  class="input w-full" [(ngModel)]="detalleIncidencia.sku" name="sku" required placeholder="Ingrese SKU" />
+                                <button type="button" class="btn" style="margin-left: 5%" (click)="buscarProducto()">Buscar</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="label">Descripción</label>
+                            <input  class="input w-full" [(ngModel)]="detalleIncidencia.descripcion" name="descripcion" placeholder="Descripción del producto" readonly />
+                        </div>
+                        <div>
+                            <label class="label">Cantidad</label>
+                            <input type="number" class="input w-full" [(ngModel)]="detalleIncidencia.cantidad" name="cantidad" required min="1" step="1" placeholder="Ingrese cantidad" />
+                        </div>
+                        <div>
+                            <label class="label">N° Documento</label>
+                            <input type="number" class="input w-full" [(ngModel)]="detalleIncidencia.numGuia" name="numGuia" min="0" placeholder="Ingrese N° documento" />
+                        </div>
+                        <div>
+                            <label class="label">N° Bulto</label>
+                            <input  class="input w-full" [(ngModel)]="detalleIncidencia.numBulto" name="numBulto" placeholder="Ingrese N° bulto" />
+                        </div>
+                        <div>
+                            <label class="label">Peso Origen (Kg)</label>
+                            <input  class="input w-full" [(ngModel)]="detalleIncidencia.pesoOrigen" name="pesoOrigen" min="0" step="0.01" placeholder="Ingrese peso origen" />
+                        </div>
+                        <div>
+                            <label class="label">Peso Recepción (Kg)</label>
+                            <input  class="input w-full" [(ngModel)]="detalleIncidencia.pesoRecepcion" name="pesoRecepcion" min="0" step="0.01" placeholder="Ingrese peso recepción" />
+                        </div>
+                        <div class="flex items-end" style="width: 40%;">
+                            <button type="button" class="btn w-full" (click)="agregarDetalle()">Agregar Detalle</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+        </div>
+        <!-- Tabla de detalles -->
+        <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mt-6">
+            <table class="table">
+                <!-- head -->
+                <thead>
+                <tr class="text-black">
+                    <th>N°</th>
+                    <th>Tipo de Diferencia</th>
+                    <th>SKU</th>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>N° Documento</th>
+                    <th>N° Bulto</th>
+                    <th>Peso Origen</th>
+                    <th>Peso Recepción</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let detalle of detalles; let i = index" class="hover:bg-gray-100">
+                        <td>{{i + 1}}</td>
+                        <td>{{detalle.tipoDiferencia}}</td>
+                        <td>{{detalle.sku}}</td>
+                        <td>{{detalle.descripcion}}</td>
+                        <td>{{detalle.cantidad}}</td>
+                        <td>{{detalle.numGuia}}</td>
+                        <td>{{detalle.numBulto}}</td>
+                        <td>{{detalle.pesoOrigen}}</td>
+                        <td>{{detalle.pesoRecepcion}}</td>
+                        <td>
+                            <button class="btn btn-error btn-sm" (click)="eliminarDetalle(i)">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="detalles.length === 0">
+                        <td colspan="10" class="text-center py-4">No hay detalles agregados</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+
+        <!-- Botones de acción -->
+        <div class="flex justify-between space-x-4 mt-6">  
+            <button type="button" class="btn btn-neutral" (click)="navigateTo('/crear-incidencia')">VOLVER</button>
+            <button type="button" class="btn" style="background-color: #00AFD7; color: black;" (click)="generarIncidencia()">GENERAR INCIDENCIA</button>
+        </div>    
+    </div>
+    
+</div>

@@ -1,0 +1,53 @@
+.card { 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 99%;
+    margin: 0 auto;
+}
+
+.reporte-incidencia {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #d32b2b;
+}
+.fieldset-legend{
+    color: black;
+}
+.card-body {
+    padding: 1rem;
+}
+  
+.fieldset {
+    padding: 0.5rem;
+}
+
+.fieldset-legend {
+margin: 0 auto;
+font-weight: 500;
+font-size: 0.9rem;
+color: #ffffff;
+}
+
+.select, .input {
+margin: 0 auto;
+color: #000000;
+padding: 0.35rem;
+border-radius: 0.25rem;
+font-size: 0.9rem;
+background-color: #ffffff;
+transition: all 0.3s ease;
+}
+
+.table {
+background-color: #ffffff;
+color: #000000;
+}
+
+.text-xl {
+    margin-right: 2%;
+    color: #000000;
+}
+
+.btn{
+    background-color: #00AFD7;
+    color: black;
+}

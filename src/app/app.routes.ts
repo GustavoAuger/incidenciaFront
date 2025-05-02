@@ -4,7 +4,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AdministrarUsuariosComponent } from './pages/administrar-usuarios/administrar-usuarios.component';
 import { CrearIncidenciaComponent } from './pages/crear-incidencia/crear-incidencia.component';
-import { CrearDetalleIncidenciaComponent } from './pages/crear-detalle-incidencia/crear-detalle-incidencia.component';
+import { CrearDetalleIncidenciaComponent } from './pages/crear-incidencia/crear-detalle-incidencia.component';
 
 export const routes: Routes = [
 

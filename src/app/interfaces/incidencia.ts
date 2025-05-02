@@ -1,7 +1,7 @@
 export interface Incidencia {
     id?: number;
-    origen:string;
-    tipoTransporte: string;
+    bodOrigen:string;
+    transportista: string;
     ots: string;
     fechaRecepcion: string;
     observaciones?: string;

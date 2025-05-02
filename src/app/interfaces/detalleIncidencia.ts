@@ -1,3 +1,5 @@
+import { Incidencia } from "./incidencia";
+
 export interface DetalleIncidencia {
     id?: number;
     numGuia: number;
@@ -9,4 +11,6 @@ export interface DetalleIncidencia {
     sku: number;
     ean13: number;
     descripcion: string;
+    incidencia?: Incidencia[];
+    idIncidencia: number;
 }
