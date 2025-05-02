@@ -4,11 +4,9 @@ export interface User {
     email: string;
     id_bodega?: number;
     bodega?: string;
-    estado?: boolean;
+    estado?: boolean;   
     rol?: string;
     id_rol: number;
     password?: string;
-    
-    
-    
+    isEditing?: boolean;
 }

@@ -27,13 +27,30 @@
             <tbody>
                 <tr *ngFor="let user of users_list; let i = index">
                     <th>{{ i + 1 }}</th>
-                    <td>{{ user.nombre }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.rol! | initCapFirst }}</td>
-                    <td>{{ user.bodega! | initCapFirst }}</td>
+                    <td>
+                        <span *ngIf="!user.isEditing">{{ user.nombre }}</span>
+                        <input *ngIf="user.isEditing" type="text" [(ngModel)]="user.nombre" class="input input-bordered input-xs w-full max-w-xs">
+                    </td>
+                    <td>
+                        <span *ngIf="!user.isEditing">{{ user.email }}</span>
+                        <input *ngIf="user.isEditing" type="email" [(ngModel)]="user.email" class="input input-bordered input-xs w-full max-w-xs">
+                    </td>
+                    <td>
+                        <span *ngIf="!user.isEditing">{{ user.rol! | initCapFirst }}</span>
+                        <select *ngIf="user.isEditing" [(ngModel)]="user.rol" class="select select-bordered select-xs w-full max-w-xs">
+                            <option *ngFor="let role of roles" [value]="role.id">{{ role.nombre }}</option>
+                        </select>
+                    </td>
+                    <td>
+                        <span *ngIf="!user.isEditing">{{ user.bodega! | initCapFirst }}</span>
+                        <input *ngIf="user.isEditing" type="text" [(ngModel)]="user.bodega" class="input input-bordered input-xs w-full max-w-xs">
+                    </td>
                     <td class="flex space-x-2">
-                        <button class="btn btn-ghost btn-xs">
+                        <button *ngIf="!user.isEditing" class="btn btn-ghost btn-xs" (click)="startEditing(user)">
                             <span class="material-symbols-outlined text-blue-500">edit</span>
+                        </button>
+                        <button *ngIf="user.isEditing" class="btn btn-ghost btn-xs" (click)="saveUser(user)">
+                            <span class="material-symbols-outlined text-green-500">save</span>
                         </button>
                         <button *ngIf="user.email !== username" class="btn btn-ghost btn-xs">
                             <span class="material-symbols-outlined text-red-500">delete</span>

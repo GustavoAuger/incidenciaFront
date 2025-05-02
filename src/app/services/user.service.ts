@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/enviroment';
 import { User } from '../interfaces/user';
+import { Rol } from '../interfaces/rol';
 
 @Injectable({
   providedIn: 'root'
@@ -13,5 +14,26 @@ export class UserService {
   
   getUsuarios(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl + '/getUsers');
+  }
+
+  updateUser(user: User): Observable<boolean> {
+    if (!user.id) {
+      throw new Error('User ID is required for updating');
+    }
+    const body = {
+      id: user.id,
+      nombre: user.nombre,
+      email: user.email,
+      rol: user.rol,
+      bodega: user.bodega,
+      id_rol: user.id_rol,
+      id_bodega: user.id_bodega,
+      estado: user.estado
+    };
+    return this.http.post<boolean>(this.apiUrl+'/modifyUser', body);
+  }
+
+  getRoles(): Observable<Rol[]> {
+    return this.http.get<Rol[]>(this.apiUrl + '/getRol');
   }
 }
