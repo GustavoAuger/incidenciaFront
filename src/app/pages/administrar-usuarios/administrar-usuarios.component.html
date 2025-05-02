@@ -42,7 +42,7 @@
                     </div>
                     <select [(ngModel)]="newUser.id_rol" class="select select-bordered select-sm w-full">
                         <option disabled selected>Seleccione un rol</option>
-                        <option *ngFor="let role of roles" [value]="role.id">{{ role.nombre }}</option>
+                        <option *ngFor="let role of roles" [value]="role.id">{{ role.nombre | initCapFirst }}</option>
                     </select>
                 </label>
             </div>
@@ -53,7 +53,7 @@
                     </div>
                     <select [(ngModel)]="newUser.id_bodega" class="select select-bordered select-sm w-full">
                         <option disabled selected>Seleccione una bodega</option>
-                        <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{ bodega.nombre }}</option>
+                        <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{ bodega.nombre | initCapFirst }}</option>
                     </select>
                 </label>
             </div>
@@ -92,14 +92,14 @@
                     </td>
                     <td>
                         <span *ngIf="!user.isEditing">{{ user.rol! | initCapFirst }}</span>
-                        <select *ngIf="user.isEditing" [(ngModel)]="user.rol" class="select select-bordered select-xs w-full max-w-xs">
-                            <option *ngFor="let role of roles" [value]="role.id">{{ role.nombre }}</option>
+                        <select *ngIf="user.isEditing" [(ngModel)]="user.id_rol" class="select select-bordered select-xs w-full max-w-xs">
+                            <option *ngFor="let role of roles" [value]="role.id">{{ role.nombre | initCapFirst }}</option>
                         </select>
                     </td>
                     <td>
                         <span *ngIf="!user.isEditing">{{ user.bodega! | initCapFirst }}</span>
                         <select *ngIf="user.isEditing" [(ngModel)]="user.id_bodega" class="select select-bordered select-xs w-full max-w-xs">
-                            <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{ bodega.nombre }}</option>
+                            <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{ bodega.nombre | initCapFirst }}</option>
                         </select>
                     </td>
                     <td class="flex space-x-2">

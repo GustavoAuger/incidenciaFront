@@ -49,6 +49,6 @@ export class UserService {
   }
 
   getBodegas(): Observable<Bodega[]> {
-    return this.http.get<Bodega[]>(this.apiUrl + '/getBodega');
+    return this.http.get<Bodega[]>(this.apiUrl + '/getBodegas');
   }
 }
