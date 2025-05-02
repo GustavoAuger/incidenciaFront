@@ -1,16 +1,71 @@
 <div class="px-4 sm:px-6 lg:px-8">
-    <div class="mt-4 mb-4">
-        <button class="btn btn-outline flex items-center space-x-2 border-[#7F3D3D] text-[#7F3D3D] hover:bg-[#7F3D3D]/10" (click)="navigateTo('/home')">
-            <span class="material-symbols-outlined" style="font-size: 2rem;">
-                home
-            </span>
-            <span class="text-lg font-semibold">Inicio</span>
+    <div class="flex justify-between items-center mb-4 mt-6">
+        <h3 class="text-lg font-semibold"></h3>
+        <button class="btn btn-primary btn-sm flex items-center space-x-2" (click)="toggleCreateUserForm()">
+            <span class="material-symbols-outlined">add</span>
+            <span>Nuevo Usuario</span>
         </button>
     </div>
-    <br>
-    <div class="">
-        <h3 class="text-lg font-semibold mb-4">Lista de Usuarios</h3>    
+
+    <!-- User Creation Form -->
+    <div *ngIf="showCreateUserForm" class="bg-base-100 border border-base-content/10 rounded-lg p-6 mb-6">
+        <h4 class="text-lg font-semibold mb-4">Crear Nuevo Usuario</h4>
+        <div class="grid grid-cols-3 gap-4">
+            <div>
+                <label class="form-control w-full">
+                    <div class="label">
+                        <span class="label-text">Nombre</span>
+                    </div>
+                    <input type="text" [(ngModel)]="newUser.nombre" placeholder="Ingrese nombre" class="input input-bordered input-sm w-full" />
+                </label>
+            </div>
+            <div>
+                <label class="form-control w-full">
+                    <div class="label">
+                        <span class="label-text">Email</span>
+                    </div>
+                    <input type="email" [(ngModel)]="newUser.email" placeholder="Ingrese email" class="input input-bordered input-sm w-full" />
+                </label>
+            </div>
+            <div>
+                <label class="form-control w-full">
+                    <div class="label">
+                        <span class="label-text">Contraseña</span>
+                    </div>
+                    <input type="password" [(ngModel)]="newUser.password" placeholder="Ingrese contraseña" class="input input-bordered input-sm w-full" />
+                </label>
+            </div>
+            <div>
+                <label class="form-control w-full">
+                    <div class="label">
+                        <span class="label-text">Rol</span>
+                    </div>
+                    <select [(ngModel)]="newUser.id_rol" class="select select-bordered select-sm w-full">
+                        <option disabled selected>Seleccione un rol</option>
+                        <option *ngFor="let role of roles" [value]="role.id">{{ role.nombre }}</option>
+                    </select>
+                </label>
+            </div>
+            <div>
+                <label class="form-control w-full">
+                    <div class="label">
+                        <span class="label-text">Bodega</span>
+                    </div>
+                    <select [(ngModel)]="newUser.id_bodega" class="select select-bordered select-sm w-full">
+                        <option disabled selected>Seleccione una bodega</option>
+                        <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{ bodega.nombre }}</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+        <div class="flex justify-end mt-4 space-x-2">
+            <button class="btn btn-ghost btn-sm" (click)="toggleCreateUserForm()">Cancelar</button>
+            <button class="btn btn-primary btn-sm" (click)="createUser()">Crear Usuario</button>
+        </div>
     </div>
+
+    <h3 class="text-lg font-semibold">Lista de Usuarios</h3>
+    <br>
     <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
         <table class="table">
             <!-- head -->
@@ -43,7 +98,9 @@
                     </td>
                     <td>
                         <span *ngIf="!user.isEditing">{{ user.bodega! | initCapFirst }}</span>
-                        <input *ngIf="user.isEditing" type="text" [(ngModel)]="user.bodega" class="input input-bordered input-xs w-full max-w-xs">
+                        <select *ngIf="user.isEditing" [(ngModel)]="user.id_bodega" class="select select-bordered select-xs w-full max-w-xs">
+                            <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{ bodega.nombre }}</option>
+                        </select>
                     </td>
                     <td class="flex space-x-2">
                         <button *ngIf="!user.isEditing" class="btn btn-ghost btn-xs" (click)="startEditing(user)">
@@ -52,7 +109,7 @@
                         <button *ngIf="user.isEditing" class="btn btn-ghost btn-xs" (click)="saveUser(user)">
                             <span class="material-symbols-outlined text-green-500">save</span>
                         </button>
-                        <button *ngIf="user.email !== username" class="btn btn-ghost btn-xs">
+                        <button *ngIf="user.email !== username" class="btn btn-ghost btn-xs" (click)="deleteUser(user)">
                             <span class="material-symbols-outlined text-red-500">delete</span>
                         </button>
                     </td>

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/enviroment';
 import { User } from '../interfaces/user';
 import { Rol } from '../interfaces/rol';
+import { Bodega } from '../interfaces/bodega';
 
 @Injectable({
   providedIn: 'root'
@@ -23,9 +24,7 @@ export class UserService {
     const body = {
       id: user.id,
       nombre: user.nombre,
-      email: user.email,
-      rol: user.rol,
-      bodega: user.bodega,
+      email: user.email, 
       id_rol: user.id_rol,
       id_bodega: user.id_bodega,
       estado: user.estado
@@ -33,7 +32,23 @@ export class UserService {
     return this.http.post<boolean>(this.apiUrl+'/modifyUser', body);
   }
 
+  createUser(user: User): Observable<boolean> {
+    const body = {
+      nombre: user.nombre,
+      email: user.email,
+      contrasena: user.password,
+      rol: "admin",
+      id_bodega: user.id_bodega,
+      estado: true
+    };
+    return this.http.post<boolean>(this.apiUrl+'/createUser', body);
+  }
+
   getRoles(): Observable<Rol[]> {
     return this.http.get<Rol[]>(this.apiUrl + '/getRol');
+  }
+
+  getBodegas(): Observable<Bodega[]> {
+    return this.http.get<Bodega[]>(this.apiUrl + '/getBodega');
   }
 }
