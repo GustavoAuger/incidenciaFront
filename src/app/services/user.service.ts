@@ -37,7 +37,7 @@ export class UserService {
       nombre: user.nombre,
       email: user.email,
       contrasena: user.password,
-      rol: "admin",
+      id_rol: user.id_rol,
       id_bodega: user.id_bodega,
       estado: true
     };
