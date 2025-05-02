@@ -1,19 +1,19 @@
-<div class="h-full bg-[#00C2C9] flex items-center justify-center">
-  <div class="hero ">
-    <div class="hero-content flex flex-col lg:flex-row-reverse h-full">
-      <div class="text-center lg:text-left h-full flex flex-col justify-center">
+<div class="h-[calc(100vh-10vh-5vh)] bg-[#00C2C9] flex items-center justify-center">
+  <div class="hero w-full h-full">
+    <div class="hero-content flex flex-col lg:flex-row-reverse w-full h-full">
+      <div class="text-center lg:text-left w-full max-w-md">
         <h1 class="text-5xl font-bold text-white">Iniciar Sesión</h1>
         <p class="py-6 text-white">
           Ingrese sus datos para iniciar sesión.
         </p>
       </div>
-      <div class="card bg-gray-200 w-full h-full max-w-sm shrink-0 shadow-2xl">
-        <div class="card-body h-full flex flex-col justify-center">
-          <fieldset class="fieldset">
+      <div class="card bg-gray-200 w-full max-w-sm shrink-0 shadow-2xl">
+        <div class="card-body w-full">
+          <fieldset class="fieldset w-full">
             <label class="label font-semibold">Usuario</label>
-            <input type="text" class="input input-accent placeholder-gray-400" placeholder="Ingrese su usuario" [(ngModel)]="username" />
+            <input type="text" class="input input-accent placeholder-gray-400 w-full" placeholder="Ingrese su usuario" [(ngModel)]="username" />
             <label class="label font-semibold">Contraseña</label>
-            <input type="password" class="input input-accent placeholder-gray-400" placeholder="Ingrese su contraseña" [(ngModel)]="password" />
+            <input type="password" class="input input-accent placeholder-gray-400 w-full" placeholder="Ingrese su contraseña" [(ngModel)]="password" />
             <div><a class="link link-hover">¿Olvidó su contraseña?</a></div>
             <button class="btn mt-4 bg-orange-500 border-none text-white hover:bg-orange-600" (click)="onSubmit()">Iniciar Sesión</button>
           </fieldset>
