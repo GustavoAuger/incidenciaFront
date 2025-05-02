@@ -51,4 +51,8 @@ export class UserService {
   getBodegas(): Observable<Bodega[]> {
     return this.http.get<Bodega[]>(this.apiUrl + '/getBodegas');
   }
+
+  getUserByUsername(username: string): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/getUserByUsername/${username}`);
+  }
 }
