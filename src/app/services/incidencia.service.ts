@@ -3,6 +3,8 @@ import { environment } from '../../environments/enviroment';
 import { HttpClient } from '@angular/common/http';
 import { Incidencia } from '../interfaces/incidencia';
 import { Observable } from 'rxjs';
+import { EstadoIncidencia } from '../interfaces/estado-incidencia';
+import { Transportista } from '../interfaces/transportista';
 
 @Injectable({
   providedIn: 'root'
@@ -23,5 +25,13 @@ export class IncidenciaService {
       id_transportista: incidencia.id_transportista
     };
     return this.http.post<boolean>(this.apiUrl+'/createIncidencia', body);
+  }
+
+  getEstadoIncidencias(): Observable<EstadoIncidencia[]>{
+    return this.http.get<EstadoIncidencia[]>(this.apiUrl+'/getEstadoIncidencias');
+  }
+
+  getTransportistas(): Observable<Transportista[]>{
+    return this.http.get<Transportista[]>(this.apiUrl+'/getTransportistas');
   }
 }

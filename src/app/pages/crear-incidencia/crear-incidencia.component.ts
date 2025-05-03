@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Incidencia } from '../../interfaces/incidencia';
 import { UserService } from '../../services/user.service';
 import { Bodega } from '../../interfaces/bodega';
@@ -21,39 +22,9 @@ export class CrearIncidenciaComponent {
   // Listas para los dropdowns
   lista_bodegas: Bodega[] = [];
 
-  transportistas: Transportista[] = [
-    {
-      id: 1,
-      nombre: 'Transportes Rápidos'
-    },
-    {
-      id: 2,
-      nombre: 'Logística Express'
-    },
-    {
-      id: 3,
-      nombre: 'Cargas Nacionales'
-    },
-    {
-      id: 4,
-      nombre: 'Distribuidora Global'
-    }
-  ];
+  lista_transportistas: Transportista[] = [];
 
-  lista_estado_incidencia: EstadoIncidencia[] = [
-    {
-      id: 1,
-      nombre: 'Pendiente'
-    },
-    {
-      id: 2,
-      nombre: 'En Proceso'
-    },
-    {
-      id: 3,
-      nombre: 'Finalizada'
-    }
-  ];
+  lista_estado_incidencia: EstadoIncidencia[] = [];
 
   // Modelo para el formulario de incidencia
   incidencia: Incidencia = {
@@ -67,42 +38,60 @@ export class CrearIncidenciaComponent {
     id_transportista: 0
   };
 
-  nombre_usuario: string = '';
-  
-
-  constructor(private _userService: UserService, private _incidenciaService: IncidenciaService){}
+  constructor(
+    private _userService: UserService, 
+    private _incidenciaService: IncidenciaService,
+    private router: Router
+  ){}
 
   ngOnInit(): void {
-    this.getUserData();
+    this.getUserId();
+    this.getTransportistas();
     this.getBodegas();
   }
 
-  // Método para manejar el envío del formulario
   onSubmit() {
-    console.log('Incidencia a enviar:', this.incidencia);
-    this._incidenciaService.createIncidencia(this.incidencia).subscribe({
-      next: (response: boolean) => {
-        if(response){
-          console.log('Incidencia creada exitosamente');
-        }
+    // Crear la incidencia primero
+    this.createIncidencia();
+  }
+
+  createIncidencia() {
+    // Convertir id_bodega y id_transportista a números
+    const incidenciaToCreate = {
+      ...this.incidencia,
+      id_bodega: Number(this.incidencia.id_bodega),
+      id_transportista: Number(this.incidencia.id_transportista)
+    };
+
+    this._incidenciaService.createIncidencia(incidenciaToCreate).subscribe({
+      next: (incidencia) => {
+        console.log('Incidencia creada: ' + JSON.stringify(incidencia));
+        
+        // Guardar los datos de la incidencia en localStorage
+        localStorage.setItem('incidenciaData', JSON.stringify(incidencia));
+        
+        // Navegar a la siguiente página
+        this.router.navigate(['/crear-detalle-incidencia']);
       },
-      error: (error) => {
-        console.error('Error creating user', error);
+      error: (error: Error) => {
+        console.error('Error creating incidencia', error);
+        // Opcional: mostrar un mensaje de error al usuario
       }
     });
   }
 
-  // Método para manejar la selección de archivos
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      console.log('Archivo seleccionado:', file.name);
-      // Aquí puedes agregar lógica adicional para manejar el archivo
-      // Por ejemplo, subir el archivo, mostrar vista previa, etc.
-    }
+  getTransportistas() {
+    this._incidenciaService.getTransportistas().subscribe({
+      next: (transportistas) => {
+        this.lista_transportistas = transportistas;
+      },
+      error: (err) => {
+        console.error('Error al obtener transportistas', err);
+      }
+    });
   }
 
-  getBodegas() {
+  getBodegas(){
     this._userService.getBodegas().subscribe({
       next: (bodegas: Bodega[]) => {
         this.lista_bodegas = bodegas;
@@ -110,16 +99,12 @@ export class CrearIncidenciaComponent {
       error: (error: Error) => {
         console.error('Error fetching bodegas', error);
       }
-    });
+    })
   }
 
-  getUserData() {
+  getUserId() {
     const usernameStorage = localStorage.getItem('username');
 
-    // Set initial nombre_usuario from localStorage
-    this.nombre_usuario = usernameStorage || 'Usuario Desconocido';
-
-    // Fetch all active users and find the matching user
     this._userService.getUsuarios().subscribe({
       next: (users: User[]) => {
         const fullUserObject = users.find(user => 
@@ -127,10 +112,7 @@ export class CrearIncidenciaComponent {
         );
         if (fullUserObject && fullUserObject.id !== undefined) {
           this.incidencia.id_usuario = fullUserObject.id;
-          this.incidencia.id_bodega = fullUserObject.id_bodega!;
-          this.nombre_usuario = fullUserObject.nombre!;
         } else {
-          // Log error if no matching user found
           console.error('No active user found matching the stored user');
         }
       },
@@ -139,4 +121,5 @@ export class CrearIncidenciaComponent {
       }
     });
   }
+
 }

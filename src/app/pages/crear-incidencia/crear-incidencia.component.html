@@ -1,123 +1,103 @@
 <div class="container mx-auto p-4">
-  <form (ngSubmit)="onSubmit()" class="form-control w-full max-w-4xl mx-auto">
-    <h2 class="text-2xl font-bold text-center mb-6">Crear Nueva Incidencia</h2>
+  <form #incidenciaForm="ngForm" (ngSubmit)="incidenciaForm.valid && onSubmit()" class="form-control w-full max-w-4xl mx-auto">
+    <h2 class="text-2xl font-bold text-center mb-6">CREAR UNA INCIDENCIA</h2>
 
-    <div class="grid grid-cols-2 gap-6">
-      <div class="space-y-6">
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text">Origen de la Mercadería</span>
-          </label>
-          <select 
-            [(ngModel)]="incidencia.id_bodega" 
-            name="origen"
-            class="select select-bordered w-full"
-            required>
-            <option disabled selected value="">Seleccione una bodega</option>
-            <option *ngFor="let bodega of lista_bodegas" [value]="bodega.id">
-              {{bodega.nombre | initCapFirst}}
-            </option>
-          </select>
-        </div>
-
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text">Transportista</span>
-          </label>
-          <select 
-            [(ngModel)]="incidencia.id_transportista" 
-            name="transportista" 
-            class="select select-bordered w-full"
-            required>
-            <option disabled selected value="">Seleccione un transportista</option>
-            <option *ngFor="let transportista of transportistas" [value]="transportista.id">
-              {{transportista.nombre | initCapFirst}}
-            </option>
-          </select>
-        </div>
-
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text">OTS</span>
-          </label>
-          <input 
-            type="text" 
-            [(ngModel)]="incidencia.ots" 
-            name="ots" 
-            placeholder="Ingrese OTS" 
-            class="input input-bordered w-full"
-            required>
-        </div>
+    <div class="grid grid-cols-2 gap-6">      
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">Origen de la Mercadería</span>
+        </label>
+        <select 
+          [(ngModel)]="incidencia.id_bodega" 
+          name="origen"
+          #origen="ngModel"
+          class="select select-bordered w-full"
+          [class.select-error]="origen.invalid && (origen.dirty || origen.touched)"
+          required>
+          <option disabled selected value="">Seleccione una bodega</option>
+          <option *ngFor="let bodega of lista_bodegas" [value]="bodega.id">
+            {{bodega.nombre | initCapFirst}}
+          </option>
+        </select>
+        <label class="label" *ngIf="origen.invalid && (origen.dirty || origen.touched)">
+          <span class="label-text-alt text-error">Debe seleccionar una bodega</span>
+        </label>
       </div>
 
-      <div class="space-y-6">
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text">Fecha de Recepción</span>
-          </label>
-          <input 
-            type="date" 
-            [(ngModel)]="incidencia.fecha" 
-            name="fecha" 
-            class="input input-bordered w-full"
-            required>
-        </div>
-
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text">Estado</span>
-          </label>
-          <input 
-            type="text" 
-            [value]="incidencia.id_estado" 
-            name="usuario" 
-            class="input input-bordered w-full" 
-            readonly 
-            disabled>
-        </div>
-
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text">Usuario</span>
-          </label>
-          <input 
-            type="text" 
-            [value]="nombre_usuario" 
-            name="usuario" 
-            class="input input-bordered w-full" 
-            readonly 
-            disabled>
-        </div>
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">Transportista</span>
+        </label>
+        <select 
+          [(ngModel)]="incidencia.id_transportista" 
+          name="transportista"
+          #transportista="ngModel"
+          class="select select-bordered w-full"
+          [class.select-error]="transportista.invalid && (transportista.dirty || transportista.touched)"
+          required>
+          <option disabled selected value="">Seleccione un transportista</option>
+          <option *ngFor="let transportista of lista_transportistas" [value]="transportista.id">
+            {{transportista.nombre | initCapFirst}}
+          </option>
+        </select>
+        <label class="label" *ngIf="transportista.invalid && (transportista.dirty || transportista.touched)">
+          <span class="label-text-alt text-error">Debe seleccionar un transportista</span>
+        </label>
       </div>
 
-      <div class="form-control w-full col-span-2">
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">OTS</span>
+        </label>
+        <input 
+          type="text" 
+          [(ngModel)]="incidencia.ots" 
+          name="ots"
+          #ots="ngModel"
+          class="input input-bordered w-full"
+          [class.input-error]="ots.invalid && (ots.dirty || ots.touched)"
+          required>
+        <label class="label" *ngIf="ots.invalid && (ots.dirty || ots.touched)">
+          <span class="label-text-alt text-error">OTS es requerido</span>
+        </label>
+      </div>
+
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">Fecha de Recepción</span>
+        </label>
+        <input 
+          type="date" 
+          [(ngModel)]="incidencia.fecha" 
+          name="fecha"
+          #fecha="ngModel"
+          class="input input-bordered w-full"
+          [class.input-error]="fecha.invalid && (fecha.dirty || fecha.touched)"
+          required>
+        <label class="label" *ngIf="fecha.invalid && (fecha.dirty || fecha.touched)">
+          <span class="label-text-alt text-error">Fecha es requerida</span>
+        </label>
+      </div>
+
+      <div class="form-control w-full grid-cols-2">
         <label class="label">
           <span class="label-text">Observaciones</span>
         </label>
         <textarea 
           [(ngModel)]="incidencia.observaciones" 
           name="observaciones" 
-          class="textarea textarea-bordered h-24" 
-          placeholder="Escriba sus observaciones"
+          class="textarea textarea-bordered h-24 w-full"
           required
         ></textarea>
       </div>
-
-      <div class="form-control w-full col-span-2">
-        <label class="label">
-          <span class="label-text">Imagen de Incidencia</span>
-        </label>
-        <input 
-          type="file" 
-          (change)="onFileSelected($event)" 
-          class="file-input file-input-bordered w-full"
-          accept="image/*">
-      </div>
     </div>
 
-    <div class="form-control w-full mt-6">
-      <button type="submit" class="btn btn-primary w-full">
-        Crear Incidencia
+    <div class="flex justify-end mt-6">
+      <button 
+        type="submit" 
+        class="btn btn-primary btn-sm w-auto" 
+        [disabled]="!incidenciaForm.valid">
+        Siguiente
       </button>
     </div>
   </form>
