@@ -98,14 +98,14 @@
           <th>{{ i + 1 }}</th>
           <td>{{ incidencia.id }}</td>
           <td>{{ incidencia.fecha_recepcion }}</td>
-          <td>{{ incidencia.id_bodega }}</td>
-          <td>{{ incidencia.id_usuario }}</td>
+          <td>{{ incidencia.origen_id_local }}</td>
+          <td>{{ incidencia.destino_id_local }}</td>
+          <td>{{ incidencia.destino }}</td>
           <td>{{ incidencia.ots }}</td>
-          <td>{{ incidencia.id_transportista }}</td>
           <td>{{ incidencia.id_estado }}</td>
-          <td>{{ incidencia.id_usuario }}</td>
-          <td>{{ incidencia.id_usuario }}</td>
-          <td>{{ incidencia.id_usuario }}</td>
+          <td>{{ incidencia.ots }}</td>
+          <td>{{ incidencia.transportista }}</td>
+          <td>{{ incidencia.tipo_estado }}</td>
           <td>
             <button class="btn btn-ghost btn-xs" (click)="verDetalle()">
               <span class="material-symbols-outlined text-blue-500">visibility</span>

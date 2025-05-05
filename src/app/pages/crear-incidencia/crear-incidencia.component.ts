@@ -31,12 +31,16 @@ export class CrearIncidenciaComponent {
   incidencia: Incidencia = {
     id: 0,
     id_bodega: 0,
+    origen_id_local: '',
+    destino_id_local: '',
     ots: '',
     fecha: '' ,
     observaciones: '',
     id_estado: 1,
     id_usuario: 0,
-    id_transportista: 0
+    transportista: '',
+    id_transportista: 0,
+    tipo_estado: ''
   };
 
 
@@ -63,7 +67,7 @@ export class CrearIncidenciaComponent {
     const incidenciaToCreate = {
       ...this.incidencia,
       id_bodega: Number(this.incidencia.id_bodega),
-      id_transportista: Number(this.incidencia.id_transportista)
+      id_transportista: Number(this.incidencia.transportista)
     };
 
     this._incidenciaService.createIncidencia(incidenciaToCreate).subscribe({
