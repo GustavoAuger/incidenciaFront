@@ -13,8 +13,8 @@ export class LoginService {
   
   constructor(private http: HttpClient) { }
 
-  validateUserPassword(username : string, password : string): Observable<{access_token: string, id_rol: number}> {
+  validateUserPassword(username : string, password : string): Observable<{access_token: string, id_rol: number, id: number, id_bodega: number}> {
     const body = { username, password };
-    return this.http.post<{access_token: string, id_rol: number}>(this.apiUrl+'/validateLogin', body);
+    return this.http.post<{access_token: string, id_rol: number, id: number , id_bodega: number}>(this.apiUrl+'/validateLogin', body);
   }
 }

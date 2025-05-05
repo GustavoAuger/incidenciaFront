@@ -1,0 +1,118 @@
+<div class="resumen-incidencias">
+    <div class="filters-container">
+        <div class="date-filters">
+            <div class="filter-group">
+                <label>Desde</label>
+                <input type="date" class="date-input" [(ngModel)]="filtros.fechaDesde">
+            </div>
+            <div class="filter-group">
+                <label>Hasta</label>
+                <input type="date" class="date-input" [(ngModel)]="filtros.fechaHasta">
+            </div>
+        </div>
+
+        <div class="other-filters">
+            <div class="filter-group">
+                <label>Numero de Incidencia</label>
+                <input type="text" class="text-input" [(ngModel)]="filtros.numeroIncidencia">
+            </div>
+            <div class="filter-group">
+                <label>Tipo Incidencia</label>
+                <select class="select-input" [(ngModel)]="filtros.tipoIncidencia">
+                    <option value="">Seleccionar...</option>
+                    <option *ngFor="let tipo of tiposIncidencia" [value]="tipo">{{tipo}}</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Destino</label>
+                <select class="select-input" [(ngModel)]="filtros.destino">
+                    <option value="">Seleccionar...</option>
+                    <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{bodega.nombre}}</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>OTS</label>
+                <input type="text" class="text-input" [(ngModel)]="filtros.ots">
+            </div>
+            <div class="filter-group">
+                <label>TRANSPORTE</label>
+                <select class="select-input" [(ngModel)]="filtros.transporte">
+                    <option value="">Seleccionar...</option>
+                    <option *ngFor="let transporte of transportes" [value]="transporte">{{transporte}}</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>ESTADO</label>
+                <select class="select-input" [(ngModel)]="filtros.estado">
+                    <option value="">Seleccionar...</option>
+                    <option *ngFor="let estado of estados" [value]="estado">{{estado}}</option>
+                </select>
+            </div>
+            <!--
+            <button class="search-button" (click)="aplicarFiltros()">
+                <span class="material-symbols-outlined">
+                    search
+                </span>
+            </button>
+            -->
+        </div>
+
+        <div class="export-buttons">
+            <button class="export-btn"> 
+                EXPORTAR RESUMEN
+                <span class="material-symbols-outlined">
+                    download
+                </span>
+            </button>
+            <button class="export-btn"> 
+                EXPORTAR DETALLE
+                <span class="material-symbols-outlined">
+                    download
+                </span>
+            </button>
+        </div>
+    </div>
+
+   <!-- Incidencia List -->
+<div *ngIf="!isLoading" class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+    <table class="table">
+      <!-- head -->
+      <thead>
+        <tr>
+          <th></th>
+          <th>ID</th>
+          <th>Fecha de Recepcion</th>
+          <th>Origen</th>
+          <th>Destino</th>
+          <th>Destino Nombre</th>
+          <th>Unidades</th>
+          <th>Valorizado</th>
+          <th>OTs</th>
+          <th>Transporte</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let incidencia of incidenciasFiltradas; let i = index">
+          <th>{{ i + 1 }}</th>
+          <td>{{ incidencia.id }}</td>
+          <td>{{ incidencia.fecha_recepcion }}</td>
+          <td>{{ incidencia.id_bodega }}</td>
+          <td>{{ incidencia.id_usuario }}</td>
+          <td>{{ incidencia.ots }}</td>
+          <td>{{ incidencia.id_transportista }}</td>
+          <td>{{ incidencia.id_estado }}</td>
+          <td>{{ incidencia.id_usuario }}</td>
+          <td>{{ incidencia.id_usuario }}</td>
+          <td>{{ incidencia.id_usuario }}</td>
+          <td>
+            <button class="btn btn-ghost btn-xs" (click)="verDetalle()">
+              <span class="material-symbols-outlined text-blue-500">visibility</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

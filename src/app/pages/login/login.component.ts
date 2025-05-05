@@ -15,7 +15,7 @@ export class LoginComponent {
   username: string = '';
   password: string = '';
   errorMessage: string = '';
-  user: User = {email: '', password: '', id_rol: 0}
+  user: User = {email: '', password: '', id_rol: 0 , id_bodega: 0 , id: 0}
 
   constructor(private authService: AuthService,private router: Router){}
 

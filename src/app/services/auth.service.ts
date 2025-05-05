@@ -20,9 +20,12 @@ export class AuthService {
 
       if (valid) {
         localStorage.setItem('access_token', response.access_token);
+        localStorage.setItem('id_usuario', response.id.toString());
+        localStorage.setItem('id_bodega', response.id_bodega.toString());
         this.loggedIn = valid;
         this.username = user.email;
         localStorage.setItem('username', user.email);
+        console.log('Respuesta del login:', response);
         if (response.id_rol) {
           if (isAdmin) {
             localStorage.setItem('is_admin', 'True');
@@ -31,6 +34,7 @@ export class AuthService {
             localStorage.setItem('is_admin', 'False');
           }
         }
+        
         return true;
       }
       return false;
@@ -43,6 +47,7 @@ export class AuthService {
     localStorage.removeItem('access_token');
     localStorage.removeItem('username');
     localStorage.removeItem('is_admin');
+    localStorage.removeItem('userId');
     this.loggedIn = false;
   }
 

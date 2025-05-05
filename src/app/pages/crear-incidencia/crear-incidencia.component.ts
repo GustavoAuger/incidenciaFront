@@ -27,6 +27,7 @@ export class CrearIncidenciaComponent {
   lista_estado_incidencia: EstadoIncidencia[] = [];
 
   // Modelo para el formulario de incidencia
+  
   incidencia: Incidencia = {
     id: 0,
     id_bodega: 0,
@@ -38,7 +39,8 @@ export class CrearIncidenciaComponent {
     id_transportista: 0
   };
 
-  constructor(
+
+  constructor(  
     private _userService: UserService, 
     private _incidenciaService: IncidenciaService,
     private router: Router
@@ -53,6 +55,7 @@ export class CrearIncidenciaComponent {
   onSubmit() {
     // Crear la incidencia primero
     this.createIncidencia();
+  
   }
 
   createIncidencia() {
@@ -79,6 +82,7 @@ export class CrearIncidenciaComponent {
       }
     });
   }
+
 
   getTransportistas() {
     this._incidenciaService.getTransportistas().subscribe({

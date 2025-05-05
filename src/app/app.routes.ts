@@ -6,6 +6,7 @@ import { CrearDetalleIncidenciaGuard } from './guards/crear-detalle-incidencia.g
 import { AdministrarUsuariosComponent } from './pages/administrar-usuarios/administrar-usuarios.component';
 import { CrearIncidenciaComponent } from './pages/crear-incidencia/crear-incidencia.component';
 import { CrearDetalleIncidenciaComponent } from './pages/crear-detalle-incidencia/crear-detalle-incidencia.component';
+import { VerIncidenciasComponent } from './pages/ver-incidencias/ver-incidencias.component';
 
 export const routes: Routes = [
 
@@ -14,5 +15,6 @@ export const routes: Routes = [
     { path: 'crear-incidencia', component: CrearIncidenciaComponent, canActivate: [AuthGuard] },
     { path: 'crear-detalle-incidencia', component: CrearDetalleIncidenciaComponent, canActivate: [AuthGuard, CrearDetalleIncidenciaGuard] },
     { path: 'administrar-usuarios', component: AdministrarUsuariosComponent, canActivate: [AuthGuard] },
+    { path: 'ver-incidencias', component: VerIncidenciasComponent, canActivate: [AuthGuard] },
     { path: '', redirectTo: '/login', pathMatch: 'full' }
 ];

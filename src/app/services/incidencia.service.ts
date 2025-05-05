@@ -27,6 +27,10 @@ export class IncidenciaService {
     return this.http.post<boolean>(this.apiUrl+'/createIncidencia', body);
   }
 
+  getIncidencias(id_usuario: number): Observable<Incidencia[]> {
+    return this.http.post<Incidencia[]>(this.apiUrl + '/getIncidencias', { id_usuario });
+  }
+
   getEstadoIncidencias(): Observable<EstadoIncidencia[]>{
     return this.http.get<EstadoIncidencia[]>(this.apiUrl+'/getEstadoIncidencias');
   }

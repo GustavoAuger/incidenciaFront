@@ -13,7 +13,9 @@ export class HomeComponent {
   user: User = {
     email: '',
     password: '',
-    id_rol: 1
+    id_rol: 1,
+    id_bodega: 1,
+    id:0,
   }
 
   navigateTo(route: string): void {    
