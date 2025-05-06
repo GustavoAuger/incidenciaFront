@@ -9,6 +9,7 @@ import { User } from '../../interfaces/user';
 import { IncidenciaService } from '../../services/incidencia.service';
 import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
 import { Transportista } from '../../interfaces/transportista';
+import { Tipo_incidencia } from '../../interfaces/tipo_incidencia'; //nuevo revisar
 import { EstadoIncidencia } from '../../interfaces/estado-incidencia';
 
 @Component({
@@ -26,6 +27,8 @@ export class CrearIncidenciaComponent {
 
   lista_estado_incidencia: EstadoIncidencia[] = [];
 
+  lista_tipo_incidencia: Tipo_incidencia[] = [];  //nuevo revisar
+
   // Modelo para el formulario de incidencia
   
   incidencia: Incidencia = {
@@ -40,7 +43,8 @@ export class CrearIncidenciaComponent {
     id_usuario: 0,
     transportista: '',
     id_transportista: 0,
-    tipo_estado: ''
+    tipo_estado: '',
+    id_tipo_incidencia: 0
   };
 
 
@@ -54,6 +58,7 @@ export class CrearIncidenciaComponent {
     this.getUserId();
     this.getTransportistas();
     this.getBodegas();
+    this.getTipoIncidencias();  //nuevo revisar
   }
 
   onSubmit() {
@@ -103,6 +108,16 @@ export class CrearIncidenciaComponent {
     this._userService.getBodegas().subscribe({
       next: (bodegas: Bodega[]) => {
         this.lista_bodegas = bodegas;
+      },
+      error: (error: Error) => {
+        console.error('Error fetching bodegas', error);
+      }
+    })
+  }
+  getTipoIncidencias(){  //nuevo revisar
+    this._incidenciaService.getTipoIncidencia().subscribe({
+      next: (tipo_incidencia: Tipo_incidencia[]) => {
+        this.lista_tipo_incidencia = tipo_incidencia;
       },
       error: (error: Error) => {
         console.error('Error fetching bodegas', error);

@@ -78,6 +78,27 @@
           <span class="label-text-alt text-error">Fecha es requerida</span>
         </label>
       </div>
+ 
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">Tipo de incidencia</span>
+        </label>
+        <select 
+          [(ngModel)]="incidencia.id_tipo_incidencia" 
+          name="tipo_incidencia"
+          #origen="ngModel"
+          class="select select-bordered w-full"
+          [class.select-error]="transportista.invalid && (transportista.dirty || transportista.touched)"
+          required>
+          <option disabled selected value="">Seleccione tipo incidencia</option>
+          <option *ngFor="let tipo_incidencia of lista_tipo_incidencia" [value]="tipo_incidencia.id">
+            {{tipo_incidencia.nombre | initCapFirst}}
+          </option>
+        </select>
+        <label class="label" *ngIf="transportista.invalid && (transportista.dirty || transportista.touched)">
+          <span class="label-text-alt text-error">Debe seleccionar tipo de incindencia </span>
+        </label>
+      </div>
 
       <div class="form-control w-full grid-cols-2">
         <label class="label">

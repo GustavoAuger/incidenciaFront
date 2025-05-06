@@ -5,6 +5,7 @@ import { Incidencia } from '../interfaces/incidencia';
 import { Observable } from 'rxjs';
 import { EstadoIncidencia } from '../interfaces/estado-incidencia';
 import { Transportista } from '../interfaces/transportista';
+import { Tipo_incidencia } from '../interfaces/tipo_incidencia';
 
 @Injectable({
   providedIn: 'root'
@@ -37,5 +38,9 @@ export class IncidenciaService {
 
   getTransportistas(): Observable<Transportista[]>{
     return this.http.get<Transportista[]>(this.apiUrl+'/getTransportistas');
+  }
+
+  getTipoIncidencia(): Observable<Tipo_incidencia[]>{ //revisar
+    return this.http.get<Tipo_incidencia[]>(this.apiUrl+'/getTipoincidencias');
   }
 }
