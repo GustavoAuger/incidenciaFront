@@ -1,9 +1,10 @@
 .grid-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  padding: 2rem;
-  height: 100%;
+  gap: 2rem;
+  padding: 3rem;
+  height: calc(100vh - 6rem);
+  max-height: calc(100vh - 6rem);
 }
 
 .card {
@@ -15,6 +16,7 @@
   padding: 1.5rem;
   cursor: pointer;
   transition: transform 0.2s, filter 0.2s;
+  flex-grow: 1;
 }
 
 .card:hover {
