@@ -86,17 +86,17 @@ export class VerIncidenciasComponent implements OnInit {
   ngOnInit() {
     const userIdString = localStorage.getItem('id_usuario');
     const id_usuario= userIdString ? parseInt(userIdString, 10) : 0;
-    // Aquí cargarías las incidencias desde tu servicio
     this.cargarIncidencias(id_usuario);
-    console.log('dasdsa',userIdString);
-    console.log(this.incidencias);
+    console.log('UserIdString NgOnInit:',userIdString);
+    console.log('IdUsuario NgOnInit:',id_usuario);
+    console.log(JSON.stringify(this.incidencias));
   }
 
   cargarIncidencias(id_usuario: number) {
     this.isLoading = true;
     this._incidenciaService.getIncidencias(id_usuario).subscribe(
       (incidencias) => {
-        console.log('dasdsa',incidencias);
+        console.log('Incidencias cargar incidencias:',JSON.stringify(incidencias));
         this.incidencias = incidencias;
         this.incidenciasFiltradas = [...this.incidencias];
         this.isLoading = false;

@@ -31,18 +31,18 @@ export class CrearIncidenciaComponent {
   incidencia: Incidencia = {
     id: 0,
     id_bodega: 0,
-    origen_id_local: '',
-    destino_id_local: '',
+    origen_id_local: 0,
+    destino_id_local: 0,
     ots: '',
-    fecha: '' ,
+    fecha_recepcion: '' ,
     observaciones: '',
     id_estado: 1,
     id_usuario: 0,
     transportista: '',
     id_transportista: 0,
-    tipo_estado: ''
+    tipo_estado: '',
+    id_tipo_incidencia: 1
   };
-
 
   constructor(  
     private _userService: UserService, 
@@ -65,9 +65,7 @@ export class CrearIncidenciaComponent {
   createIncidencia() {
     // Convertir id_bodega y id_transportista a números
     const incidenciaToCreate = {
-      ...this.incidencia,
-      id_bodega: Number(this.incidencia.id_bodega),
-      id_transportista: Number(this.incidencia.transportista)
+      ...this.incidencia
     };
 
     this._incidenciaService.createIncidencia(incidenciaToCreate).subscribe({

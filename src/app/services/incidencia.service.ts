@@ -16,13 +16,15 @@ export class IncidenciaService {
 
   createIncidencia(incidencia : Incidencia): Observable<boolean>{
     const body = {
-      id_bodega: incidencia.id_bodega, 
-      ots: incidencia.ots,
-      fecha: incidencia.fecha,
-      observaciones: incidencia.observaciones,
-      id_estado: incidencia.id_estado,
-      id_usuario: incidencia.id_usuario,
-      id_transportista: incidencia.transportista
+      id_bodega: incidencia.origen_id_local,          
+      id_bodega_destino: incidencia.id_usuario,          
+      ots: incidencia.ots,          
+      fecha: incidencia.fecha_recepcion,          
+      observaciones: incidencia.observaciones,          
+      id_estado: incidencia.id_estado,          
+      id_usuario: incidencia.id_usuario,          
+      id_transportista: incidencia.id_transportista,          
+      id_tipo_incidencia: incidencia.id_tipo_incidencia
     };
     return this.http.post<boolean>(this.apiUrl+'/createIncidencia', body);
   }

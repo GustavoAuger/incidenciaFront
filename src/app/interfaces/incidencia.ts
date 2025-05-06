@@ -1,19 +1,18 @@
 export interface Incidencia {
     id?: number;
-    id_bodega?: number;
-    ots?: string;
-    fecha?: string;
-    observaciones?: string;
-    origen_id_local: string;
-    destino_id_local: string;
-    id_estado?: number;
-    id_usuario?: number;
-    transportista?: string;
-    id_transportista?: number;
-    fecha_recepcion?: string;
-    destino?: string;
-    id_tipo_incidencia?: number;
+    fecha_recepcion: string;
+    id_estado: number;
     tipo_estado: string;
-    
+    transportista: string;
+    origen_id_local: number;
+    destino?: string;
+    destino_id_local: number;
+    ots: string;
+    fecha_emision?: string;
+    observaciones: string;
+    id_usuario: number;
+    id_tipo_incidencia?: number;
+    estado?: string;
+    id_bodega?: number;
+    id_transportista?: number;
 }
-

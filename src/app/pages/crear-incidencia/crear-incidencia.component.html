@@ -8,7 +8,7 @@
           <span class="label-text">Origen de la Mercadería</span>
         </label>
         <select 
-          [(ngModel)]="incidencia.id_bodega" 
+          [(ngModel)]="incidencia.origen_id_local" 
           name="origen"
           #origen="ngModel"
           class="select select-bordered w-full"
@@ -68,7 +68,7 @@
         </label>
         <input 
           type="date" 
-          [(ngModel)]="incidencia.fecha" 
+          [(ngModel)]="incidencia.fecha_recepcion" 
           name="fecha"
           #fecha="ngModel"
           class="input input-bordered w-full"
