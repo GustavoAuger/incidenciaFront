@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Incidencia } from '../../interfaces/incidencia';
 import { UserService } from '../../services/user.service';
@@ -9,8 +9,7 @@ import { User } from '../../interfaces/user';
 import { IncidenciaService } from '../../services/incidencia.service';
 import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
 import { Transportista } from '../../interfaces/transportista';
-import { Tipo_incidencia } from '../../interfaces/tipo_incidencia'; //nuevo revisar
-import { EstadoIncidencia } from '../../interfaces/estado-incidencia';
+import { Tipo_incidencia } from '../../interfaces/tipo_incidencia';
 
 @Component({
   selector: 'app-crear-incidencia',
@@ -22,22 +21,17 @@ import { EstadoIncidencia } from '../../interfaces/estado-incidencia';
 export class CrearIncidenciaComponent {
   // Listas para los dropdowns
   lista_bodegas: Bodega[] = [];
-
   lista_transportistas: Transportista[] = [];
-
-  lista_estado_incidencia: EstadoIncidencia[] = [];
-
-  lista_tipo_incidencia: Tipo_incidencia[] = [];  //nuevo revisar
+  lista_tipo_incidencia: Tipo_incidencia[] = [];
 
   // Modelo para el formulario de incidencia
-  
   incidencia: Incidencia = {
     id: 0,
     id_bodega: 0,
     origen_id_local: '',
     destino_id_local: '',
     ots: '',
-    fecha: '' ,
+    fecha: '',
     observaciones: '',
     id_estado: 1,
     id_usuario: 0,
@@ -47,50 +41,64 @@ export class CrearIncidenciaComponent {
     id_tipo_incidencia: 0
   };
 
-
-  constructor(  
-    private _userService: UserService, 
+  constructor(
+    private _userService: UserService,
     private _incidenciaService: IncidenciaService,
     private router: Router
-  ){}
+  ) {
+    // Obtener datos del localStorage al inicializar el componente
+    const loginData = {
+      id: Number(localStorage.getItem('id_usuario')),
+      destino_id_local: Number(localStorage.getItem('id_bodega'))
+    };
+
+    // Verificar si tenemos los datos necesarios
+    if (!loginData.id || !loginData.destino_id_local) {
+      console.error('Datos de login no encontrados');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    // Asignar los datos a la incidencia
+    this.incidencia.id_usuario = loginData.id;
+    this.incidencia.destino_id_local = loginData.destino_id_local.toString();
+  }
 
   ngOnInit(): void {
-    this.getUserId();
+    
     this.getTransportistas();
     this.getBodegas();
-    this.getTipoIncidencias();  //nuevo revisar
+    this.getTipoIncidencias();
   }
 
   onSubmit() {
-    // Crear la incidencia primero
-    this.createIncidencia();
-  
-  }
-
-  createIncidencia() {
-    // Convertir id_bodega y id_transportista a números
-    const incidenciaToCreate = {
-      ...this.incidencia,
-      id_bodega: Number(this.incidencia.id_bodega),
-      id_transportista: Number(this.incidencia.transportista)
-    };
-
-    this._incidenciaService.createIncidencia(incidenciaToCreate).subscribe({
-      next: (incidencia) => {
-        console.log('Incidencia creada: ' + JSON.stringify(incidencia));
-        
-        // Guardar los datos de la incidencia en localStorage
-        localStorage.setItem('incidenciaData', JSON.stringify(incidencia));
-        
-        // Navegar a la siguiente página
-        this.router.navigate(['/crear-detalle-incidencia']);
-      },
-      error: (error: Error) => {
-        console.error('Error creating incidencia', error);
-        // Opcional: mostrar un mensaje de error al usuario
+    // Guardar los datos en el servicio
+    this._incidenciaService.setIncidenciaParcial(this.incidencia);
+    
+    // Encontrar los nombres correspondientes
+    const bodegaSeleccionada = this.lista_bodegas.find(b => b.id === this.incidencia.id_bodega);
+    const transportistaSeleccionado = this.lista_transportistas.find(t => t.id === Number(this.incidencia.id_transportista));
+    
+    // Navegar al siguiente componente con los datos
+    const navigationExtras = {
+      state: {
+        incidencia: {
+          bodOrigen: this.incidencia.id_bodega,
+          bodOrigenNombre: bodegaSeleccionada ? bodegaSeleccionada.nombre : '',
+          transportista: this.incidencia.id_transportista,
+          transportistaNombre: transportistaSeleccionado ? transportistaSeleccionado.nombre : '',
+          ots: this.incidencia.ots,
+          fechaRecepcion: this.incidencia.fecha
+        }
       }
-    });
-  }
+    };
+    
+    this.router.navigate(['/crear-detalle-incidencia'], navigationExtras);
+}
+
+
+
+
 
 
   getTransportistas() {
@@ -145,4 +153,27 @@ export class CrearIncidenciaComponent {
     });
   }
 
+  getUserId2() {
+    // Obtener directamente el ID del usuario del localStorage
+    const userId = Number(localStorage.getItem('id'));
+    if (userId) {
+        this.incidencia.id_usuario = userId;
+    } else {
+        console.error('No se encontró el ID del usuario en localStorage');
+    }
+}
+
+  debugForm() {
+    console.log('Valores de la incidencia:', this.incidencia);
+    console.log('Estado de los campos:', {
+      id_bodega: this.incidencia.id_bodega,
+      ots: this.incidencia.ots,
+      fecha: this.incidencia.fecha,
+      observaciones: this.incidencia.observaciones,
+      id_estado: this.incidencia.id_estado,
+      id_usuario: this.incidencia.id_usuario,
+      id_transportista: this.incidencia.id_transportista,
+      id_tipo_incidencia: this.incidencia.id_tipo_incidencia
+    });
+  }
 }

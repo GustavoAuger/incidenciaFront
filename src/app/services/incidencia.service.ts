@@ -6,28 +6,21 @@ import { Observable } from 'rxjs';
 import { EstadoIncidencia } from '../interfaces/estado-incidencia';
 import { Transportista } from '../interfaces/transportista';
 import { Tipo_incidencia } from '../interfaces/tipo_incidencia';
-
+import { DetalleIncidencia } from '../interfaces/detalleIncidencia';
 @Injectable({
   providedIn: 'root'
 })
 export class IncidenciaService {
-
+  private incidenciaParcial: Incidencia | null = null; //nuevo para hacer 2 pasos
   private apiUrl = environment.apiUrl;
   constructor(private http: HttpClient) { }
 
-  createIncidencia(incidencia : Incidencia): Observable<boolean>{
-    const body = {
-      id_bodega: incidencia.id_bodega, 
-      ots: incidencia.ots,
-      fecha: incidencia.fecha,
-      observaciones: incidencia.observaciones,
-      id_estado: incidencia.id_estado,
-      id_usuario: incidencia.id_usuario,
-      id_transportista: incidencia.transportista
-    };
-    return this.http.post<boolean>(this.apiUrl+'/createIncidencia', body);
+  createIncidenciaCompleta(data: { 
+    incidencia: Incidencia, 
+    detalles: DetalleIncidencia[] 
+  }): Observable<boolean> {
+    return this.http.post<boolean>(this.apiUrl + '/createIncidencia', data);
   }
-
   getIncidencias(id_usuario: number): Observable<Incidencia[]> {
     return this.http.post<Incidencia[]>(this.apiUrl + '/getIncidencias', { id_usuario });
   }
@@ -42,5 +35,31 @@ export class IncidenciaService {
 
   getTipoIncidencia(): Observable<Tipo_incidencia[]>{ //revisar
     return this.http.get<Tipo_incidencia[]>(this.apiUrl+'/getTipoincidencias');
+  }
+
+  //NUEVO
+  setIncidenciaParcial(incidencia: Incidencia): void { //CREAMOS UNA INCIDENCIA PARCIALMENTE
+    this.incidenciaParcial = incidencia;
+    console.log('Incidencia parcial guardada:', this.incidenciaParcial);
+  }
+
+  // Método para obtener la incidencia parcial si la necesitas después
+  getIncidenciaParcial(): Incidencia | null { // AQUI LA LLAMAMOS
+    return this.incidenciaParcial; 
+  }
+
+  createDetalleIncidencia(detalle: DetalleIncidencia): Observable<DetalleIncidencia> {
+    return this.http.post<DetalleIncidencia>(this.apiUrl + '/createDetalleIncidencia', detalle);
+  }
+  //TERMINA LO NUEVO 
+  private incidenciaForm: any = null;
+
+  setIncidenciaForm(formData: any): void {
+    this.incidenciaForm = formData;
+    console.log('Datos del formulario guardados:', this.incidenciaForm);
+  }
+
+  getIncidenciaForm(): any {
+    return this.incidenciaForm;
   }
 }

@@ -1,0 +1,82 @@
+.card { 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+  
+  .fieldset {
+    padding: 0.5rem;
+  }
+  
+  .fieldset-legend {
+    margin: 0 auto;
+    width: 40%;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #ffffff;
+  }
+  
+  .select, .input {
+    margin: 0 auto;
+    width: 100%;
+    color: #000000;
+    padding: 0.35rem;
+    border-radius: 0.25rem;
+    font-size: 0.9rem;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+  }
+  
+  .select:disabled, .input:disabled {
+    background-color: #e0e0e0;
+    color: #666666;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  .select[readonly], .input[readonly] {
+    background-color: #f5f5f5;
+    border: 1px solid #cccccc;
+    cursor: not-allowed;
+  }
+  
+  .textarea {
+    margin: 0 auto;
+    width: 90%;
+    color: #000000;
+    min-height: 60px;
+    padding: 0.35rem;
+    border-radius: 0.25rem;
+    resize: vertical;
+    font-size: 0.9rem;
+    background-color: #ffffff;
+  }
+  
+  .image {
+    display: flex;
+    justify-content: center; /* centra el contenido */
+    gap: 1rem;
+  }
+  
+  .file-input {
+    width: 40%; /* igual que input y select */
+    padding: 0.35rem;
+    border-radius: 0.25rem;
+    font-size: 0.9rem;
+    
+  }
+  
+  .text-xl {
+    margin-right: 15%;
+    color: #000000;
+  }
+  
+  .btn{
+    background-color: #00AFD7;
+    color: black;
+  }

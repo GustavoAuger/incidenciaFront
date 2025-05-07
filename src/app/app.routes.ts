@@ -13,8 +13,8 @@ export const routes: Routes = [
     { path: 'login', component: LoginComponent},
     { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
     { path: 'crear-incidencia', component: CrearIncidenciaComponent, canActivate: [AuthGuard] },
-    { path: 'crear-detalle-incidencia', component: CrearDetalleIncidenciaComponent, canActivate: [AuthGuard, CrearDetalleIncidenciaGuard] },
-    { path: 'administrar-usuarios', component: AdministrarUsuariosComponent, canActivate: [AuthGuard] },
+    { path: 'crear-detalle-incidencia', component: CrearDetalleIncidenciaComponent}, //quite el guard !! perdon jaaja (gustavo)
+    { path: 'administrar-usuarios', component: AdministrarUsuariosComponent, canActivate: [AuthGuard] }, 
     { path: 'ver-incidencias', component: VerIncidenciasComponent, canActivate: [AuthGuard] },
     { path: '', redirectTo: '/login', pathMatch: 'full' }
 ];
