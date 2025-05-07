@@ -51,6 +51,9 @@ export class IncidenciaService {
   createDetalleIncidencia(detalle: DetalleIncidencia): Observable<DetalleIncidencia> {
     return this.http.post<DetalleIncidencia>(this.apiUrl + '/createDetalleIncidencia', detalle);
   }
+  getDetallesIncidencia(idIncidencia: number): Observable<DetalleIncidencia[]> {
+    return this.http.post<DetalleIncidencia[]>(this.apiUrl + '/getDetallesIncidencia', { id_incidencia: idIncidencia });
+  }
   //TERMINA LO NUEVO 
   private incidenciaForm: any = null;
 

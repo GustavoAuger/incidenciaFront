@@ -12,8 +12,12 @@ import { IncidenciaService } from '../../services/incidencia.service';
   standalone: true,
   imports: [CommonModule, FormsModule]
 })
-
 export class CrearDetalleIncidenciaComponent implements OnInit {
+  modoVisualizacion: boolean = false;
+  incidenciaId: number = 0;
+  detalles: DetalleIncidencia[] = [];
+  searchTerm: string = '';
+  
   incidencia: any = {
     bodOrigen: '',
     bodOrigenNombre: '',
@@ -23,28 +27,6 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     fechaRecepcion: null
   };
 
-  constructor(
-    private router: Router,
-    private incidenciaService: IncidenciaService,
-    private route: ActivatedRoute
-  ) {
-    // Obtener los datos de la incidencia del estado de navegación
-    const navigation = this.router.getCurrentNavigation();
-    if (navigation?.extras.state) {
-      const incidenciaData = navigation.extras.state['incidencia'];
-      this.incidencia = {
-        bodOrigen: incidenciaData?.bodOrigen || '',
-        bodOrigenNombre: incidenciaData?.bodOrigenNombre || '',
-        transportista: incidenciaData?.transportista || '',
-        transportistaNombre: incidenciaData?.transportistaNombre || '',
-        ots: incidenciaData?.ots || '',
-        fechaRecepcion: incidenciaData?.fechaRecepcion || null
-      };
-    } else {
-      // Si no hay datos, redirigir al formulario anterior
-      this.router.navigate(['/crear-incidencia']);
-    }
-  }
   detalleIncidencia: any = {
     numGuia: null,
     tipoDiferencia: '',
@@ -62,20 +44,51 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     'sobrante',
   ];
 
-  searchTerm: string = '';
-  detalles: DetalleIncidencia[] = [];
-  incidenciaId: number = 0;
-
+  constructor(
+    private router: Router,
+    private incidenciaService: IncidenciaService,
+    private route: ActivatedRoute
+  ) {
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      const incidenciaData = navigation.extras.state['incidencia'];
+      this.incidencia = {
+        bodOrigen: incidenciaData?.bodOrigen || '',
+        bodOrigenNombre: incidenciaData?.bodOrigenNombre || '',
+        transportista: incidenciaData?.transportista || '',
+        transportistaNombre: incidenciaData?.transportistaNombre || '',
+        ots: incidenciaData?.ots || '',
+        fechaRecepcion: incidenciaData?.fechaRecepcion || null
+      };
+    }
+  }
 
   ngOnInit() {
-    // Solo obtener el ID de la incidencia
-    const incidenciaParcial = this.incidenciaService.getIncidenciaParcial();
-    if (incidenciaParcial) {
-      this.incidenciaId = incidenciaParcial.id || 0;
-    } else {
-      this.router.navigate(['/crear-incidencia']);
-    }
-}
+    this.route.queryParams.subscribe(params => {
+      this.modoVisualizacion = params['modo'] === 'visualizacion';
+      const idIncidencia = params['id'];
+      
+      if (this.modoVisualizacion && idIncidencia) {
+        this.incidenciaService.getDetallesIncidencia(idIncidencia).subscribe({
+          next: (detalles) => {
+            this.detalles = detalles;
+          },
+          error: (error) => {
+            console.error('Error al obtener detalles:', error);
+            alert('Error al cargar los detalles de la incidencia');
+          }
+        });
+      } else {
+        const incidenciaParcial = this.incidenciaService.getIncidenciaParcial();
+        if (incidenciaParcial) {
+          this.incidenciaId = incidenciaParcial.id || 0;
+          this.detalleIncidencia.idIncidencia = this.incidenciaId;
+        } else {
+          this.router.navigate(['/crear-incidencia']);
+        }
+      }
+    });
+  }
 
   navigateTo(route: string): void {    
     if (route === '/crear-incidencia' && (this.detalles.length > 0 || this.hayDatosIngresados())) {

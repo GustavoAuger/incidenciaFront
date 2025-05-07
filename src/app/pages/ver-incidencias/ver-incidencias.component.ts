@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IncidenciaService } from '../../services/incidencia.service';
 import { Incidencia } from '../../interfaces/incidencia';
+import { UserService } from '../../services/user.service';
 
 interface Filtros {
   fechaDesde: string;
@@ -17,7 +18,7 @@ interface Filtros {
 }
 
 interface Bodega {
-  id: string;
+  id: number;  // Cambiado de string a number
   nombre: string;
 }
 
@@ -36,17 +37,7 @@ export class VerIncidenciasComponent implements OnInit {
   isLoading: boolean = true;
   
   // Datos de bodegas
-  bodegas: Bodega[] = [
-    { id: 'BC-001', nombre: 'B. Central' },
-    { id: 'LO-001', nombre: 'L. M. Cousino' },
-    { id: 'LO-003', nombre: 'L. M. Arauco' },
-    { id: 'LO-007', nombre: 'L. Sol' },
-    { id: 'LO-008', nombre: 'L. P. Montt' },
-    { id: 'LO-005', nombre: 'L. Melipilla' },
-    { id: 'LO-011', nombre: 'L. Valdivia' },
-    { id: 'LO-026', nombre: 'L. Maipu' },
-    { id: 'LO-002', nombre: 'L. Belloto' },
-  ];
+  bodegas: Bodega[] = [ ];
 
   // Tipos de incidencia
   tiposIncidencia = [
@@ -81,17 +72,29 @@ export class VerIncidenciasComponent implements OnInit {
     estado: ''
   };
 
-  constructor(private router: Router, private _incidenciaService: IncidenciaService) {}
+  constructor(
+      private router: Router, 
+      private _incidenciaService: IncidenciaService,
+      private _userService: UserService
+  ) {}
 
   ngOnInit() {
     const userIdString = localStorage.getItem('id_usuario');
-    const id_usuario= userIdString ? parseInt(userIdString, 10) : 0;
-    // Aquí cargarías las incidencias desde tu servicio
+    const id_usuario = userIdString ? parseInt(userIdString, 10) : 0;
     this.cargarIncidencias(id_usuario);
-    console.log('dasdsa',userIdString);
-    console.log(this.incidencias);
-  }
+    this.getBodegas(); // Añadir esta línea
+}
 
+getBodegas() {
+    this._userService.getBodegas().subscribe({
+        next: (bodegas: Bodega[]) => {
+            this.bodegas = bodegas;
+        },
+        error: (error: Error) => {
+            console.error('Error al obtener bodegas', error);
+        }
+    });
+}
   cargarIncidencias(id_usuario: number) {
     this.isLoading = true;
     this._incidenciaService.getIncidencias(id_usuario).subscribe(
@@ -108,10 +111,33 @@ export class VerIncidenciasComponent implements OnInit {
     );
   }
 
-  verDetalle(){
-   
-
-  }
+  verDetalle(incidencia: Incidencia) {
+    // Guardar la incidencia en el servicio
+    this._incidenciaService.setIncidenciaParcial(incidencia);
+    
+    // Preparar los datos para la navegación
+    const navigationExtras = {
+      state: {
+        incidencia: {
+          bodOrigen: incidencia.id_bodega,
+          bodOrigenNombre: incidencia.origen_id_local || 'Origen no disponible',
+          transportista: incidencia.id_transportista,
+          transportistaNombre: incidencia.transportista || '',
+          ots: incidencia.ots,
+          fechaRecepcion: incidencia.fecha_recepcion
+        }
+      }
+    };
+    
+    // Navegar a la vista de detalle con modo visualización y el ID de la incidencia
+    this.router.navigate(['/crear-detalle-incidencia'], {
+      ...navigationExtras,
+      queryParams: {
+        modo: 'visualizacion',
+        id: incidencia.id
+      }
+    });
+}
  
   aplicarFiltros() {
     // Comenzamos con todas las incidencias
