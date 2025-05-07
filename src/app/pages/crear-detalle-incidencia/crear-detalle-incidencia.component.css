@@ -76,7 +76,13 @@
     color: #000000;
   }
   
-  .btn{
+
+  .btna{
     background-color: #00AFD7;
     color: black;
+  }
+
+  .btnb{
+    background-color: #ffffff;
+    color: rgb(207, 0, 0);
   }
