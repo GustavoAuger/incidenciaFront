@@ -10,7 +10,19 @@ export class AuthService {
   username: string = '';
   loggedIn = false;
 
-  constructor(private _loginService: LoginService) { }
+  constructor(private _loginService: LoginService) { 
+    // Al inicializar el servicio, verificar si hay un token en el localStorage
+    this.loggedIn = this.hasValidToken();
+    if (this.loggedIn) {
+      this.username = localStorage.getItem('username') || '';
+    }
+  }
+
+  private hasValidToken(): boolean {
+    const token = localStorage.getItem('access_token');
+    // Verificar que el token existe y no está vacío
+    return !!token && token.trim() !== '';
+  }
 
   async login(user: User): Promise<boolean|undefined> {
     if (user.password) {
@@ -44,14 +56,28 @@ export class AuthService {
   }
 
   logout() {
+    // Limpiar todos los datos de autenticación
     localStorage.removeItem('access_token');
     localStorage.removeItem('username');
     localStorage.removeItem('is_admin');
-    localStorage.removeItem('userId');
+    localStorage.removeItem('id_usuario');
+    localStorage.removeItem('id_bodega');
     this.loggedIn = false;
+    this.username = '';
   }
 
   isAuthenticated(): boolean {
+    // Verificar tanto el estado actual como el token en localStorage
+    const isStillValid = this.hasValidToken();
+    
+    // Sincronizar el estado
+    this.loggedIn = isStillValid;
+    
+    if (!isStillValid) {
+      // Limpiar datos de sesión si el token no es válido
+      this.logout();
+    }
+    
     return this.loggedIn;
   }
 }

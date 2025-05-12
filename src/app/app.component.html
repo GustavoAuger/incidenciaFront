@@ -1,9 +1,16 @@
 <div class="w-full min-h-screen flex flex-col">
-    <div class="navbar bg-base-100 shadow-sm px-8 cursor-pointer" (click)="navigateToHome()">
-        <img src="/assets/images/Head-Logo-1950.png" alt="Logo" class="h-20">
-        <div class="flex flex-col ml-4">
-            <p class="text-lg">Sistema de Control de</p>
-            <p class="text-m">Incidencias de Mercadería</p>
+    <div class="navbar bg-base-100 shadow-sm px-8 py-2">
+        <div class="flex-1 cursor-pointer" (click)="navigateToHome()">
+            <img src="/assets/images/Head-Logo-1950.png" alt="Logo" class="h-16">
+            <div class="flex flex-col ml-4">
+                <p class="text-md">Sistema de Control de</p>
+                <p class="text-sm">Incidencias de Mercadería</p>
+            </div>
+        </div>
+        <div class="flex-none" *ngIf="isAuthenticated && isHomePage">
+            <button (click)="onLogout($event)" class="btn btn-outline btn-md">
+                Logout
+            </button>
         </div>
     </div>
     <div class="flex-grow">

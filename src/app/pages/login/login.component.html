@@ -9,14 +9,60 @@
       </div>
       <div class="card bg-gray-200 w-full max-w-sm shrink-0 shadow-2xl">
         <div class="card-body w-full">
-          <fieldset class="fieldset w-full">
-            <label class="label font-semibold">Usuario</label>
-            <input type="text" class="input input-accent placeholder-gray-400 w-full" placeholder="Ingrese su usuario" [(ngModel)]="username" />
-            <label class="label font-semibold">Contraseña</label>
-            <input type="password" class="input input-accent placeholder-gray-400 w-full" placeholder="Ingrese su contraseña" [(ngModel)]="password" />
-            <div><a class="link link-hover">¿Olvidó su contraseña?</a></div>
-            <button class="btn mt-4 bg-orange-500 border-none text-white hover:bg-orange-600" (click)="onSubmit()">Iniciar Sesión</button>
-          </fieldset>
+          <!-- Alert de error -->
+          @if (showError) {
+            <div class="alert alert-error mt-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{{ errorMessage }}</span>
+            </div>
+          }
+          
+          <form (ngSubmit)="onSubmit()" class="w-full">
+            <div class="form-control w-full">
+              <label class="label">
+                <span class="label-text font-semibold">Usuario</span>
+              </label>
+              <input 
+                type="text" 
+                [(ngModel)]="username" 
+                name="username"
+                placeholder="Ingrese su usuario" 
+                class="input input-bordered w-full"
+                [class.input-error]="showError"
+                required
+              />
+            </div>
+            
+            <div class="form-control w-full mt-4">
+              <label class="label">
+                <span class="label-text font-semibold">Contraseña</span>
+              </label>
+              <input 
+                type="password" 
+                [(ngModel)]="password" 
+                name="password"
+                placeholder="Ingrese su contraseña" 
+                class="input input-bordered w-full"
+                [class.input-error]="showError"
+                required
+              />
+            </div>
+            
+            <div class="mt-2">
+              <a class="link link-hover text-sm">¿Olvidó su contraseña?</a>
+            </div>
+            
+            <button 
+              type="submit" 
+              class="btn mt-4 bg-orange-500 border-none text-white hover:bg-orange-600 w-full"
+              [class.loading]="isLoading"
+              [disabled]="isLoading"
+            >
+              {{ isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+            </button>
+          </form>
         </div>
       </div>
     </div>
