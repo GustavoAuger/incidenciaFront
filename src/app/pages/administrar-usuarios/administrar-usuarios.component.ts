@@ -23,6 +23,15 @@ export class AdministrarUsuariosComponent {
   bodegas: Bodega[] = [];
   showCreateUserForm: boolean = false;
   isLoading: boolean = true;
+  emailInvalid: boolean = false;
+  
+  // Propiedades para validación de contraseña
+  passwordInvalid: boolean = false;
+  passwordHasUppercase: boolean = false;
+  passwordHasLowercase: boolean = false;
+  passwordHasNumber: boolean = false;
+  passwordHasValidLength: boolean = false;
+  
   newUser: User = {
     nombre: '',
     email: '',
@@ -138,8 +147,34 @@ export class AdministrarUsuariosComponent {
   //Mostrar/ocultar formulario de creacion de usuario
   toggleCreateUserForm(): void {
     this.showCreateUserForm = !this.showCreateUserForm;
-    if (!this.showCreateUserForm) {
-      this.resetNewUserForm();
+    // Resetear el formulario al mostrarlo
+    if (this.showCreateUserForm) {
+      this.newUser = {
+        nombre: '',
+        email: '',
+        password: '',
+        id_rol: 0,
+        id_bodega: 0,
+        estado: true
+      };
+      this.emailInvalid = false;
+    }
+  }
+
+  onEmailChange(): void {
+    if (this.newUser.email) {
+      // Validar que el correo termine en @head.com
+      this.emailInvalid = !this.newUser.email.toLowerCase().endsWith('@head.com');
+      
+      // Generar el nombre de usuario a partir del correo
+      if (!this.emailInvalid) {
+        this.newUser.nombre = this.newUser.email.split('@')[0];
+      } else {
+        this.newUser.nombre = '';
+      }
+    } else {
+      this.newUser.nombre = '';
+      this.emailInvalid = false;
     }
   }
 
@@ -153,6 +188,39 @@ export class AdministrarUsuariosComponent {
       id_bodega: 0,
       estado: true
     };
+    this.resetPasswordValidation();
+  }
+
+  // Reiniciar validación de contraseña
+  private resetPasswordValidation(): void {
+    this.passwordInvalid = false;
+    this.passwordHasUppercase = false;
+    this.passwordHasLowercase = false;
+    this.passwordHasNumber = false;
+    this.passwordHasValidLength = false;
+  }
+
+  // Validar contraseña en tiempo real
+  onPasswordChange(): void {
+    const password = this.newUser.password || '';
+    
+    // Validar mayúsculas
+    this.passwordHasUppercase = /[A-Z]/.test(password);
+    
+    // Validar minúsculas
+    this.passwordHasLowercase = /[a-z]/.test(password);
+    
+    // Validar números
+    this.passwordHasNumber = /[0-9]/.test(password);
+    
+    // Validar longitud
+    this.passwordHasValidLength = password.length >= 8 && password.length <= 10;
+    
+    // Validar si la contraseña cumple con todos los requisitos
+    this.passwordInvalid = !(this.passwordHasUppercase && 
+                           this.passwordHasLowercase && 
+                           this.passwordHasNumber && 
+                           this.passwordHasValidLength);
   }
 
   //Crear usuario
@@ -177,12 +245,21 @@ export class AdministrarUsuariosComponent {
   }
 
   private validateNewUser(): boolean {
+    // Validar campos requeridos
     if (!this.newUser.nombre || !this.newUser.email || !this.newUser.password) {
       return false;
     }
+    
+    // Validar roles y bodega
     if (!this.newUser.id_rol || !this.newUser.id_bodega) {
       return false;
     }
+    
+    // Validar que la contraseña cumpla con todos los requisitos
+    if (this.passwordInvalid) {
+      return false;
+    }
+    
     return true;
   }
 }

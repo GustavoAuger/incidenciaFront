@@ -14,25 +14,50 @@
             <div>
                 <label class="form-control w-full">
                     <div class="label">
-                        <span class="label-text">Nombre</span>
+                        <span class="label-text">Email</span>
+                        <span *ngIf="emailInvalid" class="label-text-alt text-error">El correo debe terminar en &#64;head.com</span>
                     </div>
-                    <input type="text" [(ngModel)]="newUser.nombre" class="input input-bordered input-sm w-full" />
+                    <input type="email" [(ngModel)]="newUser.email" (input)="onEmailChange()" class="input input-bordered input-sm w-full" [class.input-error]="emailInvalid" />
                 </label>
             </div>
             <div>
                 <label class="form-control w-full">
                     <div class="label">
-                        <span class="label-text">Email</span>
+                        <span class="label-text">Nombre de Usuario</span>
                     </div>
-                    <input type="email" [(ngModel)]="newUser.email" class="input input-bordered input-sm w-full" />
+                    <input type="text" [(ngModel)]="newUser.nombre" [readonly]="true" class="input input-bordered input-sm w-full bg-base-200" />
                 </label>
             </div>
+            
             <div>
                 <label class="form-control w-full">
                     <div class="label">
                         <span class="label-text">Contraseña</span>
                     </div>
-                    <input type="password" [(ngModel)]="newUser.password" class="input input-bordered input-sm w-full" />
+                    <input 
+                        type="password" 
+                        [(ngModel)]="newUser.password" 
+                        (input)="onPasswordChange()" 
+                        class="input input-bordered input-sm w-full" 
+                        [class.input-error]="passwordInvalid"
+                    />
+                    <div class="label">
+                        <span class="label-text-alt">La contraseña debe contener:</span>
+                    </div>
+                    <ul class="text-xs text-gray-500 pl-4">
+                        <li [class.text-success]="passwordHasUppercase" [class.text-error]="!passwordHasUppercase">
+                            <span *ngIf="passwordHasUppercase">✓</span> Al menos una letra mayúscula (A-Z)
+                        </li>
+                        <li [class.text-success]="passwordHasLowercase" [class.text-error]="!passwordHasLowercase">
+                            <span *ngIf="passwordHasLowercase">✓</span> Al menos una letra minúscula (a-z)
+                        </li>
+                        <li [class.text-success]="passwordHasNumber" [class.text-error]="!passwordHasNumber">
+                            <span *ngIf="passwordHasNumber">✓</span> Al menos un número (0-9)
+                        </li>
+                        <li [class.text-success]="passwordHasValidLength" [class.text-error]="!passwordHasValidLength">
+                            <span *ngIf="passwordHasValidLength">✓</span> Entre 8 y 10 caracteres
+                        </li>
+                    </ul>
                 </label>
             </div>
             <div>
