@@ -1,0 +1,165 @@
+.crear-incidencia {
+    background-color: black;
+    width: 50%;
+    height: 50%;
+}
+
+.resumen-incidencias {
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.home-icon img {
+    width: 24px;
+    height: 24px;
+}
+
+.header h1 {
+    color: #00bcd4;
+    font-size: 24px;
+    margin: 0;
+}
+
+.filters-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.date-filters {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.other-filters {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-group label {
+    font-size: 12px;
+    color: #666;
+}
+
+.date-input,
+.text-input,
+.select-input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-width: 150px;
+}
+
+.search-button {
+    background-color: #00bcd4;
+    color: #ddd;
+    border: none;
+    border-radius: 4px;
+    padding: 8px;
+    height: 41px;
+    cursor: pointer;
+    align-self: flex-end;
+}
+
+
+.export-buttons {
+    display: flex;
+    height: 25px;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.export-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #00bcd4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.export-btn img {
+    width: 16px;
+    height: 16px;
+    filter: brightness(0) invert(1);
+}
+
+.table-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background-color: #f5f5f5;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+}
+
+th {
+    font-weight: bold;
+    color: #333;
+}
+
+tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.view-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .other-filters {
+        gap: 10px;
+    }
+
+    .filter-group {
+        min-width: calc(33.33% - 10px);
+    }
+}
+
+@media (max-width: 768px) {
+    .filter-group {
+        min-width: calc(50% - 10px);
+    }
+
+    .export-buttons {
+        flex-direction: column;
+    }
+}
