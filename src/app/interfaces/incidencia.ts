@@ -5,7 +5,7 @@ export interface Incidencia {
     fecha?: string;
     observaciones?: string;
     origen_id_local: string;
-    destino_id_local: string;
+    destino_id_bodega: string;
     id_estado?: number;
     id_usuario?: number;
     transportista?: string;

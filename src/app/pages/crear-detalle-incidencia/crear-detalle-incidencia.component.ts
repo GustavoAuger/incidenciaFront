@@ -211,7 +211,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
         id_tipo_incidencia: incidenciaParcial.id_tipo_incidencia,
         // Agregamos las propiedades faltantes
         origen_id_local: incidenciaParcial.origen_id_local || '',
-        destino_id_local: incidenciaParcial.destino_id_local || '',
+        destino_id_bodega: incidenciaParcial.destino_id_bodega || '',
         tipo_estado: incidenciaParcial.tipo_estado || ''
       },
       detalles: this.detalles

@@ -29,7 +29,7 @@ export class CrearIncidenciaComponent {
     id: 0,
     id_bodega: 0,
     origen_id_local: '',
-    destino_id_local: '',
+    destino_id_bodega: '',
     ots: '',
     fecha: '',
     observaciones: '',
@@ -49,11 +49,11 @@ export class CrearIncidenciaComponent {
     // Obtener datos del localStorage al inicializar el componente
     const loginData = {
       id: Number(localStorage.getItem('id_usuario')),
-      destino_id_local: Number(localStorage.getItem('id_bodega'))
+      destino_id_bodega: Number(localStorage.getItem('id_bodega'))
     };
 
     // Verificar si tenemos los datos necesarios
-    if (!loginData.id || !loginData.destino_id_local) {
+    if (!loginData.id || !loginData.destino_id_bodega) {
       console.error('Datos de login no encontrados');
       this.router.navigate(['/login']);
       return;
@@ -61,7 +61,7 @@ export class CrearIncidenciaComponent {
 
     // Asignar los datos a la incidencia
     this.incidencia.id_usuario = loginData.id;
-    this.incidencia.destino_id_local = loginData.destino_id_local.toString();
+    this.incidencia.destino_id_bodega = loginData.destino_id_bodega.toString();
   }
 
   ngOnInit(): void {

@@ -225,12 +225,17 @@ export class AdministrarUsuariosComponent {
 
   //Crear usuario
   createUser(): void {
-
     if (!this.validateNewUser()) {
       return;
     }
 
-    this._userService.createUser(this.newUser).subscribe({
+    // Asegurar que el correo esté en minúsculas
+    const userToCreate = {
+      ...this.newUser,
+      email: this.newUser.email.toLowerCase()
+    };
+
+    this._userService.createUser(userToCreate).subscribe({
       next: (response: boolean) => {
         if (response) {
           this.getUsuarios();
@@ -244,7 +249,8 @@ export class AdministrarUsuariosComponent {
     });
   }
 
-  private validateNewUser(): boolean {
+  // Verificar si el formulario es válido
+  isFormValid(): boolean {
     // Validar campos requeridos
     if (!this.newUser.nombre || !this.newUser.email || !this.newUser.password) {
       return false;
@@ -255,11 +261,26 @@ export class AdministrarUsuariosComponent {
       return false;
     }
     
+    // Validar formato de email
+    if (this.emailInvalid) {
+      return false;
+    }
+    
     // Validar que la contraseña cumpla con todos los requisitos
     if (this.passwordInvalid) {
       return false;
     }
     
     return true;
+  }
+
+  private validateNewUser(): boolean {
+    return this.isFormValid();
+  }
+
+  // Obtener bodega por ID
+  getBodegaById(id: number | undefined): Bodega | undefined {
+    if (id === undefined) return undefined;
+    return this.bodegas.find(bodega => bodega.id === id);
   }
 }
