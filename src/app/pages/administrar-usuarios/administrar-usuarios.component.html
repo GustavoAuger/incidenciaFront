@@ -143,12 +143,12 @@
                     </td>
                     <td>
                         <span *ngIf="!user.isEditing">
-                            <span *ngIf="getBodegaById(user.id_bodega)">
-                                {{ getBodegaById(user.id_bodega)?.id_bodega }} - {{ user.bodega! | initCapFirst }}
+                            <span *ngIf="user.bodega">
+                                {{ user.bodega! | initCapFirst }}
                             </span>
                         </span>
                         <select *ngIf="user.isEditing" [(ngModel)]="user.id_bodega" class="select select-bordered select-xs w-full max-w-xs">
-                            <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}</option>
+                            <option *ngFor="let bodega of bodegas" [value]="user.id_bodega">{{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}</option>
                         </select>
                     </td>
                     <td class="flex space-x-2">

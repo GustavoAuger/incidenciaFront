@@ -38,7 +38,8 @@ export class AdministrarUsuariosComponent {
     password: '',
     id_rol: 0,
     id_bodega: 0,
-    estado: true
+    estado: true,
+    bodega: ''
   };
 
   constructor(private router: Router, private _userService: UserService) {}
@@ -280,7 +281,10 @@ export class AdministrarUsuariosComponent {
 
   // Obtener bodega por ID
   getBodegaById(id: number | undefined): Bodega | undefined {
+    console.log(id);
     if (id === undefined) return undefined;
-    return this.bodegas.find(bodega => bodega.id === id);
+    const bodega : Bodega | undefined = this.bodegas.find(bodega => bodega.id === id);
+    console.log(JSON.stringify(bodega));
+    return bodega
   }
 }
