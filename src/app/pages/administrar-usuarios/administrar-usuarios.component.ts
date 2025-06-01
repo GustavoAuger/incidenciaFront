@@ -299,6 +299,20 @@ export class AdministrarUsuariosComponent {
     console.log(JSON.stringify(bodega));
     return bodega
   }
+
+  // Método para cancelar la edición
+  cancelEdit(user: User): void {
+    // Simplemente cerramos el modo de edición sin guardar cambios
+    user.isEditing = false;
+    // Recargamos los datos del usuario para descartar cambios
+    this._userService.getUsuarios().subscribe(users => {
+      const originalUser = users.find(u => u.id === user.id);
+      if (originalUser) {
+        Object.assign(user, originalUser);
+      }
+    });
+  }
+
   // Método para aplicar los filtros de búsqueda
   aplicarFiltros(): void {
     if (!this.users_list) return;

@@ -189,8 +189,7 @@
                         <button *ngIf="user.isEditing" class="btn btn-ghost btn-xs" (click)="saveUser(user)">
                             <span class="material-symbols-outlined text-green-500">save</span>
                         </button>
-                        <button *ngIf="user.email !== username" class="btn btn-ghost btn-xs" (click)="deleteUser(user)">
-                            <span class="material-symbols-outlined text-red-500">delete</span>
+                            <span *ngIf="user.isEditing" class="material-symbols-outlined icono-cancelar">close</span>
                         </button>
                     </td>
                 </tr>
