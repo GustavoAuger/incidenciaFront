@@ -62,6 +62,8 @@ export class AdministrarUsuariosComponent {
   sortColumn: string = '';
   sortDirection: 'asc' | 'desc' = 'asc';
 
+  isTiendaRole : boolean = false;
+
   constructor(private router: Router, private _userService: UserService) {}
 
   ngOnInit(): void {
@@ -111,7 +113,15 @@ export class AdministrarUsuariosComponent {
   getBodegas(): void {
     this._userService.getBodegas().subscribe((bodegas) => {
       this.bodegas = bodegas;
+      console.log(JSON.stringify(this.bodegas));
     });
+  }
+
+  // Get bodegas filtered by name starting with 'L'
+  get filteredBodegas(): Bodega[] {
+    return this.bodegas.filter(bodega => 
+      bodega.nombre && bodega.nombre.trim().toUpperCase().startsWith('L')
+    );
   }
 
   //Iniciar edicion
@@ -192,8 +202,10 @@ deleteUser(user: User): void {
         password: '',
         id_rol: 0,
         id_bodega: 0,
-        estado: true
+        estado: true,
+        bodega: ''
       };
+      this.isTiendaRole = false; // Reset the flag when showing the form
       this.emailInvalid = false;
     }
   }
@@ -403,5 +415,13 @@ deleteUser(user: User): void {
   getSortIcon(column: string): string {
     if (this.sortColumn !== column) return 'fa-sort';
     return this.sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
+  }
+
+  // Update the role change handler
+  onRoleChange(): void {
+    this.isTiendaRole = this.newUser.id_rol === 4; // Assuming 4 is the ID for 'Tienda' role
+    if (!this.isTiendaRole) {
+      this.newUser.id_bodega = 0; // Reset bodega selection if role is not Tienda
+    }
   }
 }

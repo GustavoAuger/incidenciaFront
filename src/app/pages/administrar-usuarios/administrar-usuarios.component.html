@@ -72,20 +72,32 @@
                     <div class="label">
                         <span class="label-text">Rol</span>
                     </div>
-                    <select [(ngModel)]="newUser.id_rol" class="select select-bordered select-sm w-full">
-                        <option disabled selected>Seleccione un rol</option>
-                        <option *ngFor="let role of roles" [value]="role.id">{{ role.nombre | initCapFirst }}</option>
+                    <select 
+                        [(ngModel)]="newUser.id_rol" 
+                        (change)="onRoleChange()"
+                        class="select select-bordered select-sm w-full"
+                    >
+                        <option [ngValue]="0" disabled>Seleccione un rol</option>
+                        <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.nombre | initCapFirst }}</option>
                     </select>
                 </label>
             </div>
-            <div>
+            <div *ngIf="isTiendaRole">
                 <label class="form-control w-full">
                     <div class="label">
                         <span class="label-text">Bodega</span>
+                        <span *ngIf="isTiendaRole && !newUser.id_bodega" class="label-text-alt text-error"></span>
                     </div>
-                    <select [(ngModel)]="newUser.id_bodega" class="select select-bordered select-sm w-full">
-                        <option disabled selected>Seleccione una bodega</option>
-                        <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}</option>
+                    <select 
+                        [(ngModel)]="newUser.id_bodega" 
+                        class="select select-bordered select-sm w-full"
+                        [class.select-error]="isTiendaRole && !newUser.id_bodega"
+                        required
+                    >
+                        <option [ngValue]="0" disabled>Seleccione una bodega</option>
+                        <option *ngFor="let bodega of filteredBodegas" [ngValue]="bodega.id">
+                            {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
+                        </option>
                     </select>
                 </label>
             </div>
