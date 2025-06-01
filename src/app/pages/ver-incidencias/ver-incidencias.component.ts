@@ -5,23 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { IncidenciaService } from '../../services/incidencia.service';
 import { Incidencia } from '../../interfaces/incidencia';
 import { UserService } from '../../services/user.service';
-
-interface Filtros {
-  fechaDesde: string;
-  fechaHasta: string;
-  numeroIncidencia: string;
-  tipoIncidencia: string;
-  destino: string;
-  ots: string;
-  transporte: string;
-  estado: string;
-}
-
-interface Bodega {
-  id: number;  // Cambiado de string a number
-  nombre: string;
-}
-
+import { Bodega } from '../../interfaces/bodega';
+import { Filtros } from '../../interfaces/filtros';
 
 @Component({
   selector: 'app-ver-incidencias',
