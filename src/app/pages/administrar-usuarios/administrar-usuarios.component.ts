@@ -131,31 +131,38 @@ export class AdministrarUsuariosComponent {
   }
 
   //Eliminar usuario
-  deleteUser(user: User): void {
-    if (!user.id) {
-      throw new Error('User ID is required for deleting');
-    }
-
-    const userUpdate: User = {
-      id: user.id,
-      nombre: user.nombre,
-      email: user.email,
-      id_bodega: user.id_bodega,
-      estado: false,
-      id_rol: user.id_rol
-    };
-    
-    this._userService.updateUser(userUpdate).subscribe({
-      next: (response: boolean) => {
-        if(response){
-          this.getUsuarios();
-        }
-      },
-      error: (error) => {
-        console.error('Error deleting user', error);
-      }
-    });
+deleteUser(user: User): void {
+  // Mostrar mensaje de confirmación
+  const confirmar = window.confirm(`¿Estás seguro que deseas eliminar al usuario ${user.nombre}?`);
+  
+  if (!confirmar) {
+    return; // Si el usuario cancela, no hacer nada
   }
+
+  if (!user.id) {
+    throw new Error('User ID is required for deleting');
+  }
+
+  const userUpdate: User = {
+    id: user.id,
+    nombre: user.nombre,
+    email: user.email,
+    id_bodega: user.id_bodega,
+    estado: false,
+    id_rol: user.id_rol
+  };
+  
+  this._userService.updateUser(userUpdate).subscribe({
+    next: (response: boolean) => {
+      if(response){
+        this.getUsuarios();
+      }
+    },
+    error: (error) => {
+      console.error('Error deleting user', error);
+    }
+  });
+}
 
   //Mostrar/ocultar formulario de creacion de usuario
   toggleCreateUserForm(): void {
