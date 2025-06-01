@@ -420,8 +420,17 @@ deleteUser(user: User): void {
   // Update the role change handler
   onRoleChange(): void {
     this.isTiendaRole = this.newUser.id_rol === 4; // Assuming 4 is the ID for 'Tienda' role
+    
+    // Reset bodega selection if role is not Tienda
     if (!this.isTiendaRole) {
-      this.newUser.id_bodega = 0; // Reset bodega selection if role is not Tienda
+      this.newUser.id_bodega = 0;
+    }
+
+    // Set specific bodega IDs based on role
+    if (this.newUser.id_rol === 2) {
+      this.newUser.id_bodega = 22;
+    } else if (this.newUser.id_rol === 3) {
+      this.newUser.id_bodega = 21;
     }
   }
 }
