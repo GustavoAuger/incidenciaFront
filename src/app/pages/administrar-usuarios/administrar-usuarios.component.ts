@@ -230,6 +230,20 @@ deleteUser(user: User): void {
     }
   }
 
+  // Manejar cambios en el correo electrónico durante la edición
+  onEmailChangeEdit(user: User): void {
+    const email = user.email;
+    const emailInvalid = !email.endsWith('@head.com');
+    
+    if (!emailInvalid) {
+      // Actualizar el nombre de usuario con la parte antes del @
+      user.nombre = email.split('@')[0];
+    } else {
+      // Si el correo no es válido, limpiar el nombre de usuario
+      user.nombre = '';
+    }
+  }
+
   checkEmailExists(email: string): void {
     if (!email || !email.endsWith('@head.com')) {
       this.isEmailValid = false;

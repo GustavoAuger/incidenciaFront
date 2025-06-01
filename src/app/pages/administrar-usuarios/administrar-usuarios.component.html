@@ -199,11 +199,11 @@
                     <th>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</th>
                     <td>
                         <span *ngIf="!user.isEditing">{{ user.nombre! | initCapFirst }}</span>
-                        <input *ngIf="user.isEditing" type="text" [(ngModel)]="user.nombre" class="input input-bordered input-xs w-full max-w-xs">
+                        <input *ngIf="user.isEditing" type="text" [(ngModel)]="user.nombre" [disabled]="true" class="input input-bordered input-xs w-full max-w-xs bg-gray-100">
                     </td>
                     <td>
                         <span *ngIf="!user.isEditing">{{ user.email }}</span>
-                        <input *ngIf="user.isEditing" type="email" [(ngModel)]="user.email" class="input input-bordered input-xs w-full max-w-xs">
+                        <input *ngIf="user.isEditing" type="email" [(ngModel)]="user.email" (ngModelChange)="onEmailChangeEdit(user)" class="input input-bordered input-xs w-full max-w-xs">
                     </td>
                     <td>
                         <span *ngIf="!user.isEditing">{{ user.rol! | initCapFirst }}</span>
