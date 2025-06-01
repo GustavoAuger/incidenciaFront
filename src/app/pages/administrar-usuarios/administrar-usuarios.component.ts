@@ -24,6 +24,8 @@ export class AdministrarUsuariosComponent {
   showCreateUserForm: boolean = false;
   isLoading: boolean = true;
   emailInvalid: boolean = false;
+  emailExists: boolean = false;
+  isEmailValid: boolean = false;
   
   // Propiedades para validación de contraseña
   passwordInvalid: boolean = false;
@@ -38,8 +40,31 @@ export class AdministrarUsuariosComponent {
     password: '',
     id_rol: 0,
     id_bodega: 0,
-    estado: true
+    estado: true,
+    bodega: ''
   };
+
+  filtroUsuario: string = '';
+  filtroEmail: string = '';
+  usuariosFiltrados: User[] = [];
+
+  // Propiedades de paginación
+  currentPage: number = 1;
+  itemsPerPage: number = 15;
+  totalItems: number = 0;
+  get totalPages(): number {
+    return Math.ceil(this.totalItems / this.itemsPerPage);
+  }
+  get paginatedUsers(): User[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    return this.usuariosFiltrados.slice(startIndex, startIndex + this.itemsPerPage);
+  }
+
+  // Propiedades para ordenamiento
+  sortColumn: string = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
+
+  isTiendaRole : boolean = false;
 
   constructor(private router: Router, private _userService: UserService) {}
 
@@ -59,14 +84,23 @@ export class AdministrarUsuariosComponent {
   //Obtener usuarios
   getUsuarios(): void {
     this.isLoading = true;
-    this._userService.getUsuarios().subscribe((users) => {
+    this._userService.getUsuarios().subscribe({
+      next: (users) => {
       this.users_list = users
         .filter(user => user.estado === true)
         .map(user => ({
           ...user, 
+            id_bodega: Number(user.id_bodega), // Asegurar que sea un número
           isEditing: false
         }));
+        this.usuariosFiltrados = [...this.users_list];
+        this.totalItems = this.usuariosFiltrados.length;
         this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar usuarios:', error);
+        this.isLoading = false;
+      }
     });
   }
 
@@ -81,7 +115,15 @@ export class AdministrarUsuariosComponent {
   getBodegas(): void {
     this._userService.getBodegas().subscribe((bodegas) => {
       this.bodegas = bodegas;
+      console.log(JSON.stringify(this.bodegas));
     });
+  }
+
+  // Get bodegas filtered by name starting with 'L'
+  get filteredBodegas(): Bodega[] {
+    return this.bodegas.filter(bodega => 
+      bodega.nombre && bodega.nombre.trim().toUpperCase().startsWith('L')
+    );
   }
 
   //Iniciar edicion
@@ -118,31 +160,38 @@ export class AdministrarUsuariosComponent {
   }
 
   //Eliminar usuario
-  deleteUser(user: User): void {
-    if (!user.id) {
-      throw new Error('User ID is required for deleting');
-    }
-
-    const userUpdate: User = {
-      id: user.id,
-      nombre: user.nombre,
-      email: user.email,
-      id_bodega: user.id_bodega,
-      estado: false,
-      id_rol: user.id_rol
-    };
-    
-    this._userService.updateUser(userUpdate).subscribe({
-      next: (response: boolean) => {
-        if(response){
-          this.getUsuarios();
-        }
-      },
-      error: (error) => {
-        console.error('Error deleting user', error);
-      }
-    });
+deleteUser(user: User): void {
+  // Mostrar mensaje de confirmación
+  const confirmar = window.confirm(`¿Estás seguro que deseas eliminar al usuario ${user.nombre}?`);
+  
+  if (!confirmar) {
+    return; // Si el usuario cancela, no hacer nada
   }
+
+  if (!user.id) {
+    throw new Error('User ID is required for deleting');
+  }
+
+  const userUpdate: User = {
+    id: user.id,
+    nombre: user.nombre,
+    email: user.email,
+    id_bodega: user.id_bodega,
+    estado: false,
+    id_rol: user.id_rol
+  };
+  
+  this._userService.updateUser(userUpdate).subscribe({
+    next: (response: boolean) => {
+      if(response){
+        this.getUsuarios();
+      }
+    },
+    error: (error) => {
+      console.error('Error deleting user', error);
+    }
+  });
+}
 
   //Mostrar/ocultar formulario de creacion de usuario
   toggleCreateUserForm(): void {
@@ -155,27 +204,44 @@ export class AdministrarUsuariosComponent {
         password: '',
         id_rol: 0,
         id_bodega: 0,
-        estado: true
+        estado: true,
+        bodega: ''
       };
+      this.isTiendaRole = false; // Reset the flag when showing the form
       this.emailInvalid = false;
+      this.emailExists = false;
+      this.isEmailValid = false;
     }
   }
 
   onEmailChange(): void {
-    if (this.newUser.email) {
-      // Validar que el correo termine en @head.com
-      this.emailInvalid = !this.newUser.email.toLowerCase().endsWith('@head.com');
-      
-      // Generar el nombre de usuario a partir del correo
-      if (!this.emailInvalid) {
-        this.newUser.nombre = this.newUser.email.split('@')[0];
-      } else {
-        this.newUser.nombre = '';
-      }
+    const email = this.newUser.email;
+    this.emailInvalid = !email.endsWith('@head.com');
+    
+    // Only check if email is valid (ends with @head.com)
+    if (!this.emailInvalid) {
+      this.checkEmailExists(email);
+      // Set the username from the email (part before @)
+      this.newUser.nombre = email.split('@')[0];
     } else {
+      this.emailExists = false;
+      this.isEmailValid = false;
       this.newUser.nombre = '';
-      this.emailInvalid = false;
     }
+  }
+
+  checkEmailExists(email: string): void {
+    if (!email || !email.endsWith('@head.com')) {
+      this.isEmailValid = false;
+      this.emailExists = false;
+      return;
+    }
+
+    this.isEmailValid = true;
+    const emailLower = email.toLowerCase();
+    this.emailExists = this.users_list.some(user => 
+      user.email.toLowerCase() === emailLower && user.estado === true
+    );
   }
 
   //Reiniciar formulario de creacion de usuario
@@ -223,6 +289,14 @@ export class AdministrarUsuariosComponent {
                            this.passwordHasValidLength);
   }
 
+  // Prevent typing beyond max length
+  onPasswordKeyDown(event: KeyboardEvent): void {
+    const input = event.target as HTMLInputElement;
+    if (input.value.length >= 10 && event.key !== 'Backspace' && event.key !== 'Delete' && !event.ctrlKey) {
+      event.preventDefault();
+    }
+  }
+
   //Crear usuario
   createUser(): void {
     if (!this.validateNewUser()) {
@@ -251,27 +325,17 @@ export class AdministrarUsuariosComponent {
 
   // Verificar si el formulario es válido
   isFormValid(): boolean {
-    // Validar campos requeridos
-    if (!this.newUser.nombre || !this.newUser.email || !this.newUser.password) {
-      return false;
-    }
-    
-    // Validar roles y bodega
-    if (!this.newUser.id_rol || !this.newUser.id_bodega) {
-      return false;
-    }
-    
-    // Validar formato de email
-    if (this.emailInvalid) {
-      return false;
-    }
-    
-    // Validar que la contraseña cumpla con todos los requisitos
-    if (this.passwordInvalid) {
-      return false;
-    }
-    
-    return true;
+    return (
+      this.newUser.nombre!.trim() !== '' &&
+      this.newUser.email.endsWith('@head.com') &&
+      !this.emailExists &&
+      this.newUser.password!.length >= 8 &&
+      this.passwordHasUppercase &&
+      this.passwordHasLowercase &&
+      this.passwordHasNumber &&
+      this.newUser.id_rol > 0 &&
+      (this.newUser.id_rol === 4 ? this.newUser.id_bodega! > 0 : true)
+    );
   }
 
   private validateNewUser(): boolean {
@@ -280,7 +344,108 @@ export class AdministrarUsuariosComponent {
 
   // Obtener bodega por ID
   getBodegaById(id: number | undefined): Bodega | undefined {
+    console.log(id);
     if (id === undefined) return undefined;
-    return this.bodegas.find(bodega => bodega.id === id);
+    const bodega : Bodega | undefined = this.bodegas.find(bodega => bodega.id === id);
+    console.log(JSON.stringify(bodega));
+    return bodega
+  }
+
+  // Método para cancelar la edición
+  cancelEdit(user: User): void {
+    // Simplemente cerramos el modo de edición sin guardar cambios
+    user.isEditing = false;
+    // Recargamos los datos del usuario para descartar cambios
+    this._userService.getUsuarios().subscribe(users => {
+      const originalUser = users.find(u => u.id === user.id);
+      if (originalUser) {
+        Object.assign(user, originalUser);
+      }
+    });
+  }
+
+  // Método para aplicar los filtros de búsqueda
+  aplicarFiltros(): void {
+    this.usuariosFiltrados = this.users_list.filter(user => {
+      const matchesUser = user.nombre?.toLowerCase().includes(this.filtroUsuario.toLowerCase()) ?? false;
+      const matchesEmail = user.email.toLowerCase().includes(this.filtroEmail.toLowerCase());
+      return matchesUser && matchesEmail;
+    });
+    this.totalItems = this.usuariosFiltrados.length;
+    this.currentPage = 1; // Resetear a la primera página al aplicar filtros
+  }
+
+  // Método para cambiar de página
+  changePage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
+  // Método para ordenar la tabla
+  sortTable(column: string): void {
+    if (this.sortColumn === column) {
+      // Si ya está ordenado por esta columna, invertir la dirección
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // Si es una nueva columna, ordenar ascendente por defecto
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+
+    this.usuariosFiltrados.sort((a, b) => {
+      // Mapeo de columnas a propiedades del objeto User
+      const propertyMap: {[key: string]: keyof User} = {
+        'usuario': 'nombre',
+        'email': 'email',
+        'rol': 'rol',
+        'bodega': 'bodega'
+      };
+
+      const property = propertyMap[column];
+      if (!property) return 0;
+
+      // Obtener los valores, manejando valores nulos/undefined
+      let aValue = a[property] ?? '';
+      let bValue = b[property] ?? '';
+      
+      // Si los valores son strings, convertirlos a minúsculas para comparación insensible
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+      
+      // Comparar los valores
+      if (aValue < bValue) {
+        return this.sortDirection === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return this.sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }
+
+  // Método para obtener el ícono de ordenamiento
+  getSortIcon(column: string): string {
+    if (this.sortColumn !== column) return 'fa-sort';
+    return this.sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
+  }
+
+  // Update the role change handler
+  onRoleChange(): void {
+    this.isTiendaRole = this.newUser.id_rol === 4; // Assuming 4 is the ID for 'Tienda' role
+    
+    // Reset bodega selection if role is not Tienda
+    if (!this.isTiendaRole) {
+      this.newUser.id_bodega = 0;
+    }
+
+    // Set specific bodega IDs based on role
+    if (this.newUser.id_rol === 2) {
+      this.newUser.id_bodega = 22;
+    } else if (this.newUser.id_rol === 3) {
+      this.newUser.id_bodega = 21;
+    }
   }
 }
