@@ -24,6 +24,8 @@ export class AdministrarUsuariosComponent {
   showCreateUserForm: boolean = false;
   isLoading: boolean = true;
   emailInvalid: boolean = false;
+  emailExists: boolean = false;
+  isEmailValid: boolean = false;
   
   // Propiedades para validación de contraseña
   passwordInvalid: boolean = false;
@@ -207,24 +209,39 @@ deleteUser(user: User): void {
       };
       this.isTiendaRole = false; // Reset the flag when showing the form
       this.emailInvalid = false;
+      this.emailExists = false;
+      this.isEmailValid = false;
     }
   }
 
   onEmailChange(): void {
-    if (this.newUser.email) {
-      // Validar que el correo termine en @head.com
-      this.emailInvalid = !this.newUser.email.toLowerCase().endsWith('@head.com');
-      
-      // Generar el nombre de usuario a partir del correo
-      if (!this.emailInvalid) {
-        this.newUser.nombre = this.newUser.email.split('@')[0];
-      } else {
-        this.newUser.nombre = '';
-      }
+    const email = this.newUser.email;
+    this.emailInvalid = !email.endsWith('@head.com');
+    
+    // Only check if email is valid (ends with @head.com)
+    if (!this.emailInvalid) {
+      this.checkEmailExists(email);
+      // Set the username from the email (part before @)
+      this.newUser.nombre = email.split('@')[0];
     } else {
+      this.emailExists = false;
+      this.isEmailValid = false;
       this.newUser.nombre = '';
-      this.emailInvalid = false;
     }
+  }
+
+  checkEmailExists(email: string): void {
+    if (!email || !email.endsWith('@head.com')) {
+      this.isEmailValid = false;
+      this.emailExists = false;
+      return;
+    }
+
+    this.isEmailValid = true;
+    const emailLower = email.toLowerCase();
+    this.emailExists = this.users_list.some(user => 
+      user.email.toLowerCase() === emailLower && user.estado === true
+    );
   }
 
   //Reiniciar formulario de creacion de usuario
@@ -308,27 +325,17 @@ deleteUser(user: User): void {
 
   // Verificar si el formulario es válido
   isFormValid(): boolean {
-    // Validar campos requeridos
-    if (!this.newUser.nombre || !this.newUser.email || !this.newUser.password) {
-      return false;
-    }
-    
-    // Validar roles y bodega
-    if (!this.newUser.id_rol || !this.newUser.id_bodega) {
-      return false;
-    }
-    
-    // Validar formato de email
-    if (this.emailInvalid) {
-      return false;
-    }
-    
-    // Validar que la contraseña cumpla con todos los requisitos
-    if (this.passwordInvalid) {
-      return false;
-    }
-    
-    return true;
+    return (
+      this.newUser.nombre!.trim() !== '' &&
+      this.newUser.email.endsWith('@head.com') &&
+      !this.emailExists &&
+      this.newUser.password!.length >= 8 &&
+      this.passwordHasUppercase &&
+      this.passwordHasLowercase &&
+      this.passwordHasNumber &&
+      this.newUser.id_rol > 0 &&
+      (this.newUser.id_rol === 4 ? this.newUser.id_bodega! > 0 : true)
+    );
   }
 
   private validateNewUser(): boolean {

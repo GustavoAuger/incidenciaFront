@@ -15,7 +15,6 @@
                 <label class="form-control w-full">
                     <div class="label">
                         <span class="label-text">Email</span>
-                        <span *ngIf="emailInvalid" class="label-text-alt text-error">El correo debe terminar en &#64;head.com</span>
                     </div>
                     <input 
                         type="email" 
@@ -23,8 +22,14 @@
                         (ngModelChange)="newUser.email = $event.toLowerCase()"
                         (input)="onEmailChange()" 
                         class="input input-bordered input-sm w-full" 
-                        [class.input-error]="emailInvalid" 
+                        [class.input-error]="emailInvalid || emailExists"
+                        [class.input-success]="isEmailValid && !emailExists"
                     />
+                    <div class="label p-0 mt-1 min-h-6">
+                        <span *ngIf="emailInvalid" class="label-text-alt text-error">El correo debe terminar en &#64;head.com</span>
+                        <span *ngIf="isEmailValid && emailExists" class="label-text-alt text-error">Este correo ya está en uso</span>
+                        <span *ngIf="isEmailValid && !emailExists" class="label-text-alt text-success">✓ Correo válido</span>
+                    </div>
                 </label>
             </div>
             <div>
