@@ -29,11 +29,12 @@ export class AuthService {
       const response = await this._loginService.validateUserPassword(user.email, user.password).toPromise();
       const valid = !!response && response.access_token !== undefined;
       const isAdmin = response?.id_rol === 1;
-
+  
       if (valid) {
         localStorage.setItem('access_token', response.access_token);
         localStorage.setItem('id_usuario', response.id.toString());
         localStorage.setItem('id_bodega', response.id_bodega.toString());
+        localStorage.setItem('id_rol', response.id_rol.toString()); // Añadir esta línea
         this.loggedIn = valid;
         this.username = user.email;
         localStorage.setItem('username', user.email);
@@ -52,7 +53,6 @@ export class AuthService {
       return false;
     }
     return false;
-
   }
 
   logout() {
@@ -62,6 +62,7 @@ export class AuthService {
     localStorage.removeItem('is_admin');
     localStorage.removeItem('id_usuario');
     localStorage.removeItem('id_bodega');
+    localStorage.removeItem('id_rol'); // Añadir esta línea
     this.loggedIn = false;
     this.username = '';
   }

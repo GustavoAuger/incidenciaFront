@@ -1,4 +1,5 @@
 <div class="grid grid-cols-3 gap-8 p-8 h-[calc(100vh-6rem)]">
+  <!-- Resumen de Incidencias siempre visible para todos -->
   <div (click)="navigateTo('/ver-incidencias')" class="card resumen-incidencias flex-grow">
     <div class="card-content">
       <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
@@ -12,7 +13,8 @@
     </div>
   </div>
 
-  <div (click)="navigateTo('/incidencias-sin-resolver')" class="card incidencias-sin-resolver flex-grow">
+  <!-- Agregar *ngIf para controlar visibilidad -->
+  <div *ngIf="canAccessIncidenciasSinResolver()" (click)="navigateTo('/incidencias-sin-resolver')" class="card incidencias-sin-resolver flex-grow">
     <div class="card-content">
       <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
         pending
@@ -25,7 +27,8 @@
     </div>
   </div>
 
-  <div (click)="navigateTo('/crear-incidencia')" class="card crear-incidencia flex-grow">
+  <!-- El resto de los paneles permanecen igual -->
+  <div *ngIf="canAccessCrearIncidencia()" (click)="navigateTo('/crear-incidencia')" class="card crear-incidencia flex-grow">
     <div class="card-content">
       <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
         add_circle_outline
@@ -38,7 +41,8 @@
     </div>
   </div>
 
-  <div (click)="navigateTo('/reclamos-transportista')" class="card reclamos-transportista flex-grow">
+  <!-- Solo gestor, tienda y admin ven este panel -->
+  <div *ngIf="canAccessIncidenciasReclamo()" (click)="navigateTo('/reclamos-transportista')" class="card reclamos-transportista flex-grow">
     <div class="card-content">
       <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
         delivery_truck_speed
@@ -51,7 +55,8 @@
     </div>
   </div>
 
-  <div (click)="navigateTo('/reportes-incidencias')" class="card reportes-incidencias flex-grow">
+  <!-- Solo gestor y admin ven este panel -->
+  <div *ngIf="canAccessReportesIncidencias()" (click)="navigateTo('/reportes-incidencias')" class="card reportes-incidencias flex-grow">
     <div class="card-content">
       <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
         finance
@@ -64,7 +69,8 @@
     </div>
   </div>
 
-  <div [style.opacity]="user.id_rol !== 1 ? 0.5 : 1" [style.pointerEvents]="user.id_rol !== 1 ? 'none' : 'auto'" (click)="user.id_rol === 1 && navigateTo('/administrar-usuarios')" class="card administrar-usuarios flex-grow">
+  <!-- Solo admin ve este panel -->
+  <div *ngIf="canAccessAdministrarUsuarios()" (click)="navigateTo('/administrar-usuarios')" class="card administrar-usuarios flex-grow">
     <div class="card-content">      
       <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
         manage_accounts
