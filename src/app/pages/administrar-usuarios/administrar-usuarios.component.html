@@ -109,6 +109,37 @@
     <div *ngIf="isLoading" class="w-full h-full flex items-center justify-center">
         <span class="loading loading-spinner loading-lg text-primary"></span>
     </div>
+    
+    <div *ngIf="!isLoading">
+        <!-- Filtros de búsqueda -->
+        <div class="flex flex-wrap gap-4 mb-4">
+            <div class="form-control w-full max-w-xs">
+                <label class="label">
+                    <span class="label-text">Filtrar por usuario</span>
+                </label>
+                <input 
+                type="text" 
+                [(ngModel)]="filtroUsuario" 
+                (input)="aplicarFiltros()"
+                placeholder="" 
+                class="input input-bordered w-full"
+            >
+        </div>
+        <div class="form-control w-full max-w-xs">
+            <label class="label">
+                <span class="label-text">Filtrar por email</span>
+            </label>
+            <input 
+                type="text" 
+                [(ngModel)]="filtroEmail" 
+                (input)="aplicarFiltros()"
+                placeholder="" 
+                class="input input-bordered w-full"
+            >
+        </div>
+    </div>
+    
+    
 
     <!-- User List -->
     <div *ngIf="!isLoading" class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
@@ -125,7 +156,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let user of users_list; let i = index">
+                <tr *ngFor="let user of usuariosFiltrados; let i = index">
                     <th>{{ i + 1 }}</th>
                     <td>
                         <span *ngIf="!user.isEditing">{{ user.nombre! | initCapFirst }}</span>

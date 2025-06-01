@@ -42,6 +42,10 @@ export class AdministrarUsuariosComponent {
     bodega: ''
   };
 
+  filtroUsuario: string = '';
+  filtroEmail: string = '';
+  usuariosFiltrados: User[] = [];
+
   constructor(private router: Router, private _userService: UserService) {}
 
   ngOnInit(): void {
@@ -60,14 +64,22 @@ export class AdministrarUsuariosComponent {
   //Obtener usuarios
   getUsuarios(): void {
     this.isLoading = true;
-    this._userService.getUsuarios().subscribe((users) => {
+    this._userService.getUsuarios().subscribe({
+      next: (users) => {
       this.users_list = users
         .filter(user => user.estado === true)
         .map(user => ({
           ...user, 
+            id_bodega: Number(user.id_bodega), // Asegurar que sea un número
           isEditing: false
         }));
+        this.usuariosFiltrados = [...this.users_list];
         this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar usuarios:', error);
+        this.isLoading = false;
+      }
     });
   }
 
@@ -286,5 +298,22 @@ export class AdministrarUsuariosComponent {
     const bodega : Bodega | undefined = this.bodegas.find(bodega => bodega.id === id);
     console.log(JSON.stringify(bodega));
     return bodega
+  }
+  // Método para aplicar los filtros de búsqueda
+  aplicarFiltros(): void {
+    if (!this.users_list) return;
+    
+    this.usuariosFiltrados = this.users_list.filter(user => {
+      // Filtrar por nombre de usuario si hay texto en el filtro
+      const cumpleFiltroUsuario = !this.filtroUsuario || 
+        (user.nombre && user.nombre.toLowerCase().includes(this.filtroUsuario.toLowerCase()));
+      
+      // Filtrar por email si hay texto en el filtro
+      const cumpleFiltroEmail = !this.filtroEmail || 
+        (user.email && user.email.toLowerCase().includes(this.filtroEmail.toLowerCase()));
+      
+      // El usuario debe cumplir con ambos filtros
+      return cumpleFiltroUsuario && cumpleFiltroEmail;
+    });
   }
 }
