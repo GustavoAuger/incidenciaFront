@@ -148,10 +148,30 @@
             <thead>
                 <tr>
                     <th></th>
-                    <th>Usuario</th>
-                    <th>Email</th>                    
-                    <th>Rol</th>
-                    <th>Bodega</th>
+                    <th>
+                        <div class="flex items-center gap-1 cursor-pointer" (click)="sortTable('usuario')">
+                            Usuario
+                            <i class="fas {{ getSortIcon('usuario') }}"></i>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="flex items-center gap-1 cursor-pointer" (click)="sortTable('email')">
+                            Email
+                            <i class="fas {{ getSortIcon('email') }}"></i>
+                        </div>
+                    </th>                    
+                    <th>
+                        <div class="flex items-center gap-1 cursor-pointer" (click)="sortTable('rol')">
+                            Rol
+                            <i class="fas {{ getSortIcon('rol') }}"></i>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="flex items-center gap-1 cursor-pointer" (click)="sortTable('bodega')">
+                            Bodega
+                            <i class="fas {{ getSortIcon('bodega') }}"></i>
+                        </div>
+                    </th>
                     <th>Acción</th>
                 </tr>
             </thead>

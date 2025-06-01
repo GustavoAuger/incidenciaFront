@@ -58,6 +58,10 @@ export class AdministrarUsuariosComponent {
     return this.usuariosFiltrados.slice(startIndex, startIndex + this.itemsPerPage);
   }
 
+  // Propiedades para ordenamiento
+  sortColumn: string = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
+
   constructor(private router: Router, private _userService: UserService) {}
 
   ngOnInit(): void {
@@ -349,5 +353,55 @@ deleteUser(user: User): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
     }
+  }
+
+  // Método para ordenar la tabla
+  sortTable(column: string): void {
+    if (this.sortColumn === column) {
+      // Si ya está ordenado por esta columna, invertir la dirección
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // Si es una nueva columna, ordenar ascendente por defecto
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+
+    this.usuariosFiltrados.sort((a, b) => {
+      // Mapeo de columnas a propiedades del objeto User
+      const propertyMap: {[key: string]: keyof User} = {
+        'usuario': 'nombre',
+        'email': 'email',
+        'rol': 'rol',
+        'bodega': 'bodega'
+      };
+
+      const property = propertyMap[column];
+      if (!property) return 0;
+
+      // Obtener los valores, manejando valores nulos/undefined
+      let aValue = a[property] ?? '';
+      let bValue = b[property] ?? '';
+      
+      // Si los valores son strings, convertirlos a minúsculas para comparación insensible
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+      
+      // Comparar los valores
+      if (aValue < bValue) {
+        return this.sortDirection === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return this.sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }
+
+  // Método para obtener el ícono de ordenamiento
+  getSortIcon(column: string): string {
+    if (this.sortColumn !== column) return 'fa-sort';
+    return this.sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
   }
 }
