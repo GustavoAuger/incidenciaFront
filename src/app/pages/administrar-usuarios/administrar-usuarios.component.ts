@@ -272,6 +272,14 @@ deleteUser(user: User): void {
                            this.passwordHasValidLength);
   }
 
+  // Prevent typing beyond max length
+  onPasswordKeyDown(event: KeyboardEvent): void {
+    const input = event.target as HTMLInputElement;
+    if (input.value.length >= 10 && event.key !== 'Backspace' && event.key !== 'Delete' && !event.ctrlKey) {
+      event.preventDefault();
+    }
+  }
+
   //Crear usuario
   createUser(): void {
     if (!this.validateNewUser()) {

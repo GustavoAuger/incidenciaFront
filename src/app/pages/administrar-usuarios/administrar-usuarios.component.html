@@ -47,6 +47,8 @@
                         (input)="onPasswordChange()" 
                         class="input input-bordered input-sm w-full" 
                         [class.input-error]="passwordInvalid"
+                        maxlength="10"
+                        (keydown)="onPasswordKeyDown($event)"
                     />
                     <div class="label">
                         <span class="label-text-alt">La contraseña debe contener:</span>
