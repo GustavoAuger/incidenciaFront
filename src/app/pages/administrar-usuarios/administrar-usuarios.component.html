@@ -156,8 +156,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let user of usuariosFiltrados; let i = index">
-                    <th>{{ i + 1 }}</th>
+                <tr *ngFor="let user of paginatedUsers; let i = index">
+                    <th>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</th>
                     <td>
                         <span *ngIf="!user.isEditing">{{ user.nombre! | initCapFirst }}</span>
                         <input *ngIf="user.isEditing" type="text" [(ngModel)]="user.nombre" class="input input-bordered input-xs w-full max-w-xs">
@@ -199,18 +199,45 @@
                         <button *ngIf="user.isEditing" 
                                 class="btn btn-ghost btn-xs" 
                                 (click)="cancelEdit(user)">
-                            <span class="material-symbols-outlined icono-cancelar">close</span>
+                            <span class="material-symbols-outlined text-red-500">close</span>
                         </button>
-                    
-                        <!-- Botón Eliminar (solo si no es el usuario actual y no está en modo edición) -->
-                        <button *ngIf="user.email !== username && !user.isEditing" 
+                        
+                        <!-- Botón Eliminar (solo cuando no está en modo edición) -->
+                        <button *ngIf="!user.isEditing" 
                                 class="btn btn-ghost btn-xs" 
                                 (click)="deleteUser(user)">
-                            <span class="material-symbols-outlined icono-eliminar">delete</span>
+                            <span class="material-symbols-outlined text-red-500">delete</span>
                         </button>
                     </td>
                 </tr>
             </tbody>
         </table>
+        
+        <!-- Controles de paginación -->
+        <div class="flex justify-center items-center gap-2 py-4">
+            <button 
+                class="btn btn-sm flex items-center justify-center" 
+                [class.btn-disabled]="currentPage === 1"
+                (click)="changePage(currentPage - 1)">
+                <i class="fas fa-chevron-left text-sm"></i>
+            </button>
+            
+            <div class="join">
+                <button 
+                    *ngFor="let page of [].constructor(totalPages); let i = index" 
+                    class="join-item btn btn-sm" 
+                    [class.btn-active]="currentPage === i + 1"
+                    (click)="changePage(i + 1)">
+                    {{ i + 1 }}
+                </button>
+            </div>
+            
+            <button 
+                class="btn btn-sm flex items-center justify-center" 
+                [class.btn-disabled]="currentPage === totalPages"
+                (click)="changePage(currentPage + 1)">
+                <i class="fas fa-chevron-right text-sm"></i>
+            </button>
+        </div>
     </div>
 </div>

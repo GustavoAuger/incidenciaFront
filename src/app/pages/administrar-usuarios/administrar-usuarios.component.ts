@@ -46,6 +46,18 @@ export class AdministrarUsuariosComponent {
   filtroEmail: string = '';
   usuariosFiltrados: User[] = [];
 
+  // Propiedades de paginación
+  currentPage: number = 1;
+  itemsPerPage: number = 15;
+  totalItems: number = 0;
+  get totalPages(): number {
+    return Math.ceil(this.totalItems / this.itemsPerPage);
+  }
+  get paginatedUsers(): User[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    return this.usuariosFiltrados.slice(startIndex, startIndex + this.itemsPerPage);
+  }
+
   constructor(private router: Router, private _userService: UserService) {}
 
   ngOnInit(): void {
@@ -74,6 +86,7 @@ export class AdministrarUsuariosComponent {
           isEditing: false
         }));
         this.usuariosFiltrados = [...this.users_list];
+        this.totalItems = this.usuariosFiltrados.length;
         this.isLoading = false;
       },
       error: (error) => {
@@ -322,19 +335,19 @@ deleteUser(user: User): void {
 
   // Método para aplicar los filtros de búsqueda
   aplicarFiltros(): void {
-    if (!this.users_list) return;
-    
     this.usuariosFiltrados = this.users_list.filter(user => {
-      // Filtrar por nombre de usuario si hay texto en el filtro
-      const cumpleFiltroUsuario = !this.filtroUsuario || 
-        (user.nombre && user.nombre.toLowerCase().includes(this.filtroUsuario.toLowerCase()));
-      
-      // Filtrar por email si hay texto en el filtro
-      const cumpleFiltroEmail = !this.filtroEmail || 
-        (user.email && user.email.toLowerCase().includes(this.filtroEmail.toLowerCase()));
-      
-      // El usuario debe cumplir con ambos filtros
-      return cumpleFiltroUsuario && cumpleFiltroEmail;
+      const matchesUser = user.nombre?.toLowerCase().includes(this.filtroUsuario.toLowerCase()) ?? false;
+      const matchesEmail = user.email.toLowerCase().includes(this.filtroEmail.toLowerCase());
+      return matchesUser && matchesEmail;
     });
+    this.totalItems = this.usuariosFiltrados.length;
+    this.currentPage = 1; // Resetear a la primera página al aplicar filtros
+  }
+
+  // Método para cambiar de página
+  changePage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
   }
 }
