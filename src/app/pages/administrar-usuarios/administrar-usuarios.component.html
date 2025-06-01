@@ -1,7 +1,7 @@
 <div class="px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center mb-4 mt-6">
         <h3 class="text-lg font-semibold"></h3>
-        <button class="btn btn-primary btn-sm flex items-center space-x-2" (click)="toggleCreateUserForm()">
+        <button class="btn btn-sm flex items-center space-x-2 text-white" style="background-color: #00bcd4;" (click)="toggleCreateUserForm()">
             <span class="material-symbols-outlined">add</span>
             <span>Nuevo Usuario</span>
         </button>
@@ -179,16 +179,18 @@
                             </span>
                         </span>
                         <select *ngIf="user.isEditing" [(ngModel)]="user.id_bodega" class="select select-bordered select-xs w-full max-w-xs">
-                            <option *ngFor="let bodega of bodegas" [value]="user.id_bodega">{{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}</option>
+                            <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}</option>
                         </select>
                     </td>
                     <td class="flex space-x-2">
                         <button *ngIf="!user.isEditing" class="btn btn-ghost btn-xs" (click)="startEditing(user)">
-                            <span class="material-symbols-outlined text-blue-500">edit</span>
+                            <span class="material-symbols-outlined icono-editar">edit</span>
                         </button>
                         <button *ngIf="user.isEditing" class="btn btn-ghost btn-xs" (click)="saveUser(user)">
                             <span class="material-symbols-outlined text-green-500">save</span>
                         </button>
+                        <button *ngIf="user.email !== username" class="btn btn-ghost btn-xs" (click)="user.isEditing ? cancelEdit(user) : deleteUser(user)">
+                            <span *ngIf="!user.isEditing" class="material-symbols-outlined icono-eliminar">delete</span>
                             <span *ngIf="user.isEditing" class="material-symbols-outlined icono-cancelar">close</span>
                         </button>
                     </td>

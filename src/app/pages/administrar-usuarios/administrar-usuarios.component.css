@@ -1,0 +1,39 @@
+/* Estilos para el ícono de editar */
+.icono-editar {
+  color: #00bcd4;
+  transition: color 0.2s ease-in-out;
+}
+
+.icono-editar:hover {
+  color: #00acc1;
+}
+
+/* Estilos para el ícono de eliminar */
+.icono-eliminar {
+  color: #D35400;
+  transition: color 0.2s ease-in-out;
+}
+
+.icono-eliminar:hover {
+  color: #BA4A00;
+}
+
+/* Estilos para el ícono de eliminar */
+.icono-eliminar {
+  color: #D35400;
+  transition: color 0.2s ease-in-out;
+}
+
+.icono-eliminar:hover {
+  color: #BA4A00;
+}
+
+/* Estilos para el ícono de editar */
+.icono-editar {
+  color: #00bcd4;
+  transition: color 0.2s ease-in-out;
+}
+
+.icono-editar:hover {
+  color: #00acc1;
+}
