@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DetalleIncidencia } from '../../interfaces/detalleIncidencia';
+import { Guia } from '../../interfaces/guia';
 import { IncidenciaService } from '../../services/incidencia.service';
 
 @Component({
@@ -17,6 +18,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   incidenciaId: number = 0;
   detalles: DetalleIncidencia[] = [];
   searchTerm: string = '';
+  guias: Guia[] = [];
   
   incidencia: any = {
     bodOrigen: '',
@@ -68,6 +70,18 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
       this.modoVisualizacion = params['modo'] === 'visualizacion';
       const idIncidencia = params['id'];
       
+      // Cargar las guías al iniciar el componente
+      this.incidenciaService.getGuias().subscribe({
+        next: (guias) => {
+          this.guias = guias;
+          console.log('Guías cargadas:', this.guias);
+        },
+        error: (error) => {
+          console.error('Error al cargar guías:', error);
+          alert('Error al cargar las guías');
+        }
+      });
+
       if (this.modoVisualizacion && idIncidencia) {
         this.incidenciaService.getDetallesIncidencia(idIncidencia).subscribe({
           next: (detalles) => {

@@ -7,6 +7,7 @@ import { EstadoIncidencia } from '../interfaces/estado-incidencia';
 import { Transportista } from '../interfaces/transportista';
 import { Tipo_incidencia } from '../interfaces/tipo_incidencia';
 import { DetalleIncidencia } from '../interfaces/detalleIncidencia';
+import { Guia } from '../interfaces/guia';
 @Injectable({
   providedIn: 'root'
 })
@@ -64,5 +65,9 @@ export class IncidenciaService {
 
   getIncidenciaForm(): any {
     return this.incidenciaForm;
+  }
+
+  getGuias(): Observable<Guia[]>{
+    return this.http.get<Guia[]>(this.apiUrl+'/getGuias');
   }
 }
