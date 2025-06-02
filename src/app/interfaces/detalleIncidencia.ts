@@ -12,4 +12,5 @@ export interface DetalleIncidencia {
     descripcion: string;
     incidencia?: Incidencia[];
     idIncidencia: number;
+    skusDisponibles?: Array<{sku: string, total: number}>;
 }

@@ -111,21 +111,11 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
       this.detalleIncidencia.pesoRecepcion);
   }
 
-  buscarProducto() {
-    if (!this.detalleIncidencia.sku) {
-      alert('Ingrese un SKU para buscar');
-      return;
-    }
+  // Variables para controlar el estado de los campos
+  skuEnabled: boolean = false;
+  fieldsEnabled: boolean = false;
 
-    // Aquí implementarías la llamada al servicio de búsqueda
-    // Por ahora simularemos una búsqueda
-    console.log('Buscando SKU:', this.detalleIncidencia.sku);
-    
-    // Simulación de producto encontrado
-    setTimeout(() => {
-      this.detalleIncidencia.descripcion = `Producto SKU ${this.detalleIncidencia.sku}`;
-    }, 500);
-  }
+
 
   agregarDetalle() {
     // Validar campos requeridos
@@ -236,5 +226,40 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
 
   onSubmit() {
     this.agregarDetalle();
+  }
+
+  // Método que se ejecuta cuando cambia el número de guía
+  onGuiaChange(): void {
+    if (this.detalleIncidencia.numGuia) {
+      this.skuEnabled = true;
+    } else {
+      this.skuEnabled = false;
+      this.fieldsEnabled = false;
+      this.detalleIncidencia.sku = null;
+      this.detalleIncidencia.descripcion = '';
+    }
+  }
+
+  // Método que se ejecuta después de buscar el producto
+
+
+  buscarProducto() {
+    if (!this.detalleIncidencia.sku) {
+      alert('Ingrese un SKU para buscar');
+      return;
+    }
+
+    // Aquí implementarías la llamada al servicio de búsqueda
+    // Por ahora simularemos una búsqueda
+    console.log('Buscando SKU:', this.detalleIncidencia.sku);
+    
+    // Simulación de producto encontrado
+    setTimeout(() => {
+      this.detalleIncidencia.descripcion = `Producto SKU ${this.detalleIncidencia.sku}`;
+      if (this.detalleIncidencia.descripcion) {
+        this.fieldsEnabled = true;
+      }
+    }, 500);
+    
   }
 }
