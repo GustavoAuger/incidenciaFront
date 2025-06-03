@@ -52,6 +52,11 @@ export class UserService {
     return this.http.get<Bodega[]>(this.apiUrl + '/getBodegas');
   }
 
+  // Obtener lista de correos electrónicos existentes
+  getMails(): Observable<string[]> {
+    return this.http.get<string[]>(this.apiUrl + '/getMails');
+  }
+
   getUserByUsername(username: string): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/getUserByUsername/${username}`);
   }

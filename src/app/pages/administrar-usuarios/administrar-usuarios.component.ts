@@ -66,6 +66,8 @@ export class AdministrarUsuariosComponent {
 
   isTiendaRole : boolean = false;
 
+  emailsList: string[] = [];
+
   constructor(private router: Router, private _userService: UserService) {}
 
   ngOnInit(): void {
@@ -75,6 +77,7 @@ export class AdministrarUsuariosComponent {
     this.username = localStorage.getItem('username') || '';
     this.getRoles();
     this.getBodegas();
+    this.getEmailsList();
   }
   
   navigateTo(route: string): void {    
@@ -214,19 +217,34 @@ deleteUser(user: User): void {
     }
   }
 
+  getEmailsList(): void {
+    this._userService.getMails().subscribe({
+      next: (emails: string[]) => {
+        this.emailsList = emails;
+      },
+      error: (error) => {
+        console.error('Error al obtener correos:', error);
+      }
+    });
+  }
+
   onEmailChange(): void {
-    const email = this.newUser.email;
+    const email = this.newUser.email.toLowerCase();
+    
+    // Validar formato de correo
     this.emailInvalid = !email.endsWith('@head.com');
     
-    // Only check if email is valid (ends with @head.com)
+    // Solo verificar existencia si el formato es correcto
     if (!this.emailInvalid) {
-      this.checkEmailExists(email);
-      // Set the username from the email (part before @)
-      this.newUser.nombre = email.split('@')[0];
+      // Extraer el nombre de usuario del correo (antes del @)
+      const username = email.split('@')[0];
+      this.newUser.nombre = username;
+      
+      // Verificar si el correo ya existe
+      this.emailExists = this.emailsList.includes(email);
     } else {
+      // Si el formato es inválido, no verificar existencia
       this.emailExists = false;
-      this.isEmailValid = false;
-      this.newUser.nombre = '';
     }
   }
 
