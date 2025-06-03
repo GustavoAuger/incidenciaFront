@@ -1,12 +1,15 @@
-export interface SkuTotal {
-  sku: string;
-  total: number;
+export interface Producto {
+  "sku": string,
+  "descripcion": string,
+  "marca": string,
+  "cod_barra": string,
+  "familia": string,
+  "sub_familia": string,
+  "modelo": string,
+  "precio_costo": number,
+  "precio_min": number,
+  "precio_mayorista": number,
+  "precio_publico": number,
+  "peso": number
 }
 
-export interface Guia {
-  id: string;
-  numguia: string;
-  id_bod_origen: string;
-  id_bod_destino: string;
-  sku_total: SkuTotal[];
-}

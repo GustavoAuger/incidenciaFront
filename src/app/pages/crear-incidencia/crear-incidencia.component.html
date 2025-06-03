@@ -23,7 +23,22 @@
           <span class="label-text-alt text-error">Debe seleccionar una bodega</span>
         </label>
       </div>
-
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">Fecha de Recepción</span>
+        </label>
+        <input 
+          type="date" 
+          [(ngModel)]="incidencia.fecha" 
+          name="fecha"
+          #fecha="ngModel"
+          class="input input-bordered w-full"
+          [class.input-error]="fecha.invalid && (fecha.dirty || fecha.touched)"
+          required>
+        <label class="label" *ngIf="fecha.invalid && (fecha.dirty || fecha.touched)">
+          <span class="label-text-alt text-error">Fecha es requerida</span>
+        </label>
+      </div>
       <div class="form-control w-full">
         <label class="label">
           <span class="label-text">Transportista</span>
@@ -55,29 +70,15 @@
           name="ots"
           #ots="ngModel"
           class="input input-bordered w-full"
-          [class.input-error]="ots.invalid && (ots.dirty || ots.touched)"
+          [class.input-error]="ots.invalid && (ots.dirty || ots.touched) && incidencia.id_transportista != 4"
+          [disabled]="incidencia.id_transportista == 4"
           required>
         <label class="label" *ngIf="ots.invalid && (ots.dirty || ots.touched)">
           <span class="label-text-alt text-error">OTS es requerido</span>
         </label>
       </div>
 
-      <div class="form-control w-full">
-        <label class="label">
-          <span class="label-text">Fecha de Recepción</span>
-        </label>
-        <input 
-          type="date" 
-          [(ngModel)]="incidencia.fecha" 
-          name="fecha"
-          #fecha="ngModel"
-          class="input input-bordered w-full"
-          [class.input-error]="fecha.invalid && (fecha.dirty || fecha.touched)"
-          required>
-        <label class="label" *ngIf="fecha.invalid && (fecha.dirty || fecha.touched)">
-          <span class="label-text-alt text-error">Fecha es requerida</span>
-        </label>
-      </div>
+     
  
       <div class="form-control w-full">
         <label class="label">

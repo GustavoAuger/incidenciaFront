@@ -64,8 +64,13 @@ export class CrearIncidenciaComponent {
     this.incidencia.destino_id_bodega = loginData.destino_id_bodega.toString();
   }
 
-  ngOnInit(): void {
-    
+  ngOnInit() {
+    const today = new Date();
+    const maxDate = today.toISOString().split('T')[0];
+    const fechaInput = document.querySelector('input[name="fecha"]');
+    if (fechaInput) {
+      fechaInput.setAttribute('max', maxDate);
+    }
     this.getTransportistas();
     this.getBodegas();
     this.getTipoIncidencias();
@@ -78,7 +83,11 @@ export class CrearIncidenciaComponent {
     // Encontrar los nombres correspondientes
     const bodegaSeleccionada = this.lista_bodegas.find(b => b.id === this.incidencia.id_bodega);
     const transportistaSeleccionado = this.lista_transportistas.find(t => t.id === Number(this.incidencia.id_transportista));
-    
+    //Si el transporte es head, por detrás debemos enviar la incidencia con OTS = "".
+
+    if(this.incidencia.id_transportista === 4){
+      this.incidencia.ots = " ";
+    }
     // Navegar al siguiente componente con los datos
     const navigationExtras = {
       state: {
