@@ -9,3 +9,8 @@
     'GRAD' 0,
     'opsz' 24
 }
+
+/* Estilo para cambiar el color del placeholder */
+::placeholder {
+  color: #d3d3d3; /* Gris muy claro */
+}

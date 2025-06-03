@@ -78,8 +78,16 @@
   
 
   .btna{
-    background-color: #00AFD7;
-    color: black;
+    color: white;
+    gap: 8px;
+    font-size: 14px;
+    gap: 8px;
+    background-color: #00bcd4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
   }
 
   .btnb{

@@ -39,7 +39,7 @@
               <label class="label font-semibold text-gray-700">SKU</label><br>
               <div class="flex gap-4">
                 <input class="input input-bordered flex-1 bg-white" [(ngModel)]="detalleIncidencia.sku" name="sku" required placeholder="Ingrese SKU" [disabled]="!skuEnabled"  />
-                <button type="button" class="btn btna btn-primary w-24" (click)="buscarProducto()">Buscar</button>
+                <button type="button" class="btna btn-primary w-24" (click)="buscarProducto()">BUSCAR</button>
               </div>
             </div>
 
@@ -53,12 +53,12 @@
               <input type="number" class="input input-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.cantidad" name="cantidad" required min="1" step="1" placeholder="Ingrese cantidad" [disabled]="!fieldsEnabled" />
             </div>
 
-            <div class="form-control">
-              <label class="label font-semibold text-gray-700">Tipo de Diferencia</label><br>
-              <select class="select select-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.tipoDiferencia" name="tipoDiferencia" [disabled]="!fieldsEnabled" required>
-                <option value="">Seleccione tipo</option>
-                <option *ngFor="let tipo of tiposDiferencia" [value]="tipo">{{tipo}}</option>
-              </select>
+            <div class="form-control"> 
+              <label class="label font-semibold text-gray-700">Tipo de Diferencia</label><br> 
+              <select class="select select-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.tipoDiferencia" name="tipoDiferencia" [disabled]="!fieldsEnabled" required> 
+                <option value="" disabled selected>Seleccione tipo</option> 
+                <option *ngFor="let tipo of tiposDiferencia" [value]="tipo">{{tipo}}</option> 
+              </select> 
             </div>
 
             <div class="form-control">
@@ -77,7 +77,7 @@
             </div>
 
             <div class="form-control flex items-end">
-              <button type="button" class="btn btna btn-primary w-full" (click)="agregarDetalle()">Agregar Detalle</button>
+              <button type="button" class="btna btn-primary w-full" (click)="agregarDetalle()">AGREGAR DETALLE</button>
             </div>
           </div>
         </form>
@@ -139,7 +139,7 @@
       </button>
       <button type="button" 
               *ngIf="!modoVisualizacion"
-              class="px-6 py-3 bg-[#00AFD7] text-black rounded-lg hover:bg-[#00AFD7]/90 transition-colors duration-200 font-semibold" 
+              class="px-6 py-3 bg-[#00AFD7] btna text-black rounded-lg hover:bg-[#00AFD7]/90 transition-colors duration-200 font-semibold" 
               (click)="generarIncidencia()">
         GENERAR INCIDENCIA
       </button>
@@ -152,7 +152,7 @@
       </button>  
       <button type="button" 
               *ngIf="modoVisualizacion"
-              class="px-6 py-3 bg-[#00AFD7] text-black rounded-lg hover:bg-[#00AFD7]/90 transition-colors duration-200 font-semibold" 
+              class="px-6 py-3 bg-[#00AFD7] btna text-black rounded-lg hover:bg-[#00AFD7]/90 transition-colors duration-200 font-semibold" 
               (click)="generarIncidencia()">
         ACTUALIZAR DETALLE
       </button>
