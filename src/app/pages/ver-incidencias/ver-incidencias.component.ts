@@ -7,11 +7,13 @@ import { Incidencia } from '../../interfaces/incidencia';
 import { UserService } from '../../services/user.service';
 import { Bodega } from '../../interfaces/bodega';
 import { Filtros } from '../../interfaces/filtros';
+import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
+import { DateFormatPipe } from '../../pipes/date-format.pipe';
 
 @Component({
   selector: 'app-ver-incidencias',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, InitCapFirstPipe, DateFormatPipe],
   templateUrl: './ver-incidencias.component.html',
   styleUrl: './ver-incidencias.component.css'
 })
@@ -146,8 +148,8 @@ getBodegas() {
   private updatePagination(): void {
     this.totalItems = this.incidenciasFiltradas.length;
     this.currentPage = 1; // Volver a la primera página al aplicar filtros
-}
- 
+  }
+
   aplicarFiltros() {
     // Comenzamos con todas las incidencias
     this.incidenciasFiltradas = [...this.incidencias];
@@ -223,5 +225,5 @@ getBodegas() {
     this.incidenciasFiltradas = [...this.incidencias];
     this.updatePagination();
   }
-  
+
 }

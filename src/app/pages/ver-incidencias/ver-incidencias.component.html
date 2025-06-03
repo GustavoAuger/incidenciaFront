@@ -13,7 +13,7 @@
 
         <div class="other-filters">
             <div class="filter-group">
-                <label>Numero de Incidencia</label>
+                <label>N° Incidencia</label>
                 <input type="text" class="text-input" [(ngModel)]="filtros.numeroIncidencia">
             </div>
             <div class="filter-group">
@@ -27,7 +27,7 @@
                 <label>Destino</label>
                 <select class="select-input" [(ngModel)]="filtros.destino">
                     <option value="">Seleccionar...</option>
-                    <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{bodega.nombre}}</option>
+                    <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{bodega.nombre | initCapFirst}}</option>
                 </select>
             </div>
             <div class="filter-group">
@@ -35,14 +35,14 @@
                 <input type="text" class="text-input" [(ngModel)]="filtros.ots">
             </div>
             <div class="filter-group">
-                <label>TRANSPORTE</label>
+                <label>Transporte</label>
                 <select class="select-input" [(ngModel)]="filtros.transporte">
                     <option value="">Seleccionar...</option>
                     <option *ngFor="let transporte of transportes" [value]="transporte">{{transporte}}</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label>ESTADO</label>
+                <label>Estado</label>
                 <select class="select-input" [(ngModel)]="filtros.estado">
                     <option value="">Seleccionar...</option>
                     <option *ngFor="let estado of estados" [value]="estado">{{estado}}</option>
@@ -80,34 +80,34 @@
       <thead>
         <tr>
           <th></th>
-          <th>Número de incidencia</th>
-          <th>Fecha de Emision</th>
-          <th>Fecha de Recepcion</th>
+          <th>N° Incidencia</th>
+          <th>Fecha Emisión</th>
+          <th>Fecha Recepción</th>
           <th>Bodega Origen</th>
           <th>Bodega Destino</th>
-          <th>Destino Nombre</th>
+          <th>Nombre Destino</th>
           <th>Unidades</th>
           <th>Valorizado</th>
-          <th>OTs</th>
+          <th>OTS</th>
           <th>Transporte</th>
           <th>Estado</th>
           <th>Acción</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let incidencia of incidenciasFiltradas; let i = index">
-          <th>{{ i + 1 }}</th>
-          <td>{{ "NIC-"+incidencia.id }}</td>
-          <td>{{ incidencia.fecha_emision }}</td>
-          <td>{{ incidencia.fecha_recepcion }}</td>
+        <tr *ngFor="let incidencia of paginatedIncidencias; let i = index">
+          <th>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</th>
+          <td>{{ "INC"+incidencia.id }}</td>
+          <td>{{ incidencia.fecha_emision | dateFormat}}</td>
+          <td>{{ incidencia.fecha_recepcion | dateFormat}}</td>
           <td>{{ incidencia.origen_id_local }}</td>
           <td>{{ incidencia.destino_id_bodega }}</td>
-          <td>{{ incidencia.destino }}</td>
+          <td>{{ incidencia.destino! | initCapFirst}}</td>
           <td>{{ incidencia.ots }}</td>
           <td>{{ incidencia.id_estado }}</td>
           <td>{{ incidencia.ots }}</td>
           <td>{{ incidencia.transportista }}</td>
-          <td>{{ incidencia.tipo_estado }}</td>
+          <td>{{ incidencia.tipo_estado | initCapFirst}}</td>
           <td>
             <button (click)="verDetalle(incidencia)" class="btn btn-ghost btn-xs">
                 <span class="material-symbols-outlined text-blue-500">visibility</span>
