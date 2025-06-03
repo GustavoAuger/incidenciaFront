@@ -446,6 +446,8 @@ deleteUser(user: User): void {
       this.newUser.id_bodega = 22;
     } else if (this.newUser.id_rol === 3) {
       this.newUser.id_bodega = 21;
+    } else if (this.newUser.id_rol === 1) {
+      this.newUser.id_bodega = 23;
     }
   }
 }
