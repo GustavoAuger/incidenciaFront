@@ -70,4 +70,8 @@ export class IncidenciaService {
   getGuias(): Observable<Guia[]>{
     return this.http.get<Guia[]>(this.apiUrl+'/getGuias');
   }
+
+  getProductos(): Observable<any> {
+    return this.http.get<any>(this.apiUrl + '/getProductos');
+  }
 }

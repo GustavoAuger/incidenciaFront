@@ -245,7 +245,24 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   // Método que se ejecuta cuando cambia el número de guía
   onGuiaChange(): void {
     if (this.detalleIncidencia.numGuia) {
-      this.skuEnabled = true;
+      // Convertir a string y hacer trim para asegurar una comparación limpia
+      const numGuiaBuscado = String(this.detalleIncidencia.numGuia).trim();
+      console.log('Número de guía buscado:', numGuiaBuscado, 'tipo:', typeof numGuiaBuscado);
+      
+      const guiaExiste = this.guias.some(guia => {
+        const numGuiaActual = String(guia.numguia).trim();
+        console.log('Comparando con:', numGuiaActual, 'tipo:', typeof numGuiaActual);
+        return numGuiaActual === numGuiaBuscado;
+      });
+      if (guiaExiste) {
+        console.log('¡Guía encontrada!');
+        this.skuEnabled = true;
+      } else {
+        console.log('Guía no encontrada');
+        alert('El número de guía ingresado no existe');
+        this.detalleIncidencia.numGuia = null;
+        this.skuEnabled = false;
+      }
     } else {
       this.skuEnabled = false;
       this.fieldsEnabled = false;
@@ -263,17 +280,55 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
       return;
     }
 
-    // Aquí implementarías la llamada al servicio de búsqueda
-    // Por ahora simularemos una búsqueda
-    console.log('Buscando SKU:', this.detalleIncidencia.sku);
-    
-    // Simulación de producto encontrado
-    setTimeout(() => {
-      this.detalleIncidencia.descripcion = `Producto SKU ${this.detalleIncidencia.sku}`;
-      if (this.detalleIncidencia.descripcion) {
-        this.fieldsEnabled = true;
+    if (!this.detalleIncidencia.numGuia) {
+      alert('Primero debe seleccionar una guía');
+      return;
+    }
+
+    // Buscar la guía seleccionada
+    const guiaSeleccionada = this.guias.find(guia => 
+      String(guia.numguia).trim() === String(this.detalleIncidencia.numGuia).trim()
+    );
+
+    if (!guiaSeleccionada) {
+      alert('No se encontró la guía seleccionada');
+      return;
+    }
+
+    // Verificar si el SKU existe en la guía
+    const skuEnGuia = guiaSeleccionada.sku_total.find(item => 
+      String(item.sku).trim() === String(this.detalleIncidencia.sku).trim()
+    );
+
+    if (!skuEnGuia) {
+      alert('El SKU ingresado no existe en la guía seleccionada');
+      this.detalleIncidencia.sku = null;
+      this.detalleIncidencia.descripcion = '';
+      this.fieldsEnabled = false;
+      return;
+    }
+
+    // Buscar la descripción del producto
+    this.incidenciaService.getProductos().subscribe({
+      next: (productos) => {
+        const productoEncontrado = productos.find((producto: any) => 
+          String(producto.sku).trim() === String(this.detalleIncidencia.sku).trim()
+        );
+
+        if (productoEncontrado) {
+          this.detalleIncidencia.descripcion = productoEncontrado.descripcion;
+          this.fieldsEnabled = true;
+        } else {
+          alert('No se encontró la descripción del producto');
+          this.detalleIncidencia.descripcion = '';
+          this.fieldsEnabled = false;
+        }
+      },
+      error: (error) => {
+        console.error('Error al buscar el producto:', error);
+        alert('Error al buscar el producto');
+        this.fieldsEnabled = false;
       }
-    }, 500);
-    
+    });
   }
 }
