@@ -80,10 +80,11 @@
       <thead>
         <tr>
           <th></th>
-          <th>ID</th>
+          <th>Número de incidencia</th>
+          <th>Fecha de Emision</th>
           <th>Fecha de Recepcion</th>
-          <th>Origen</th>
-          <th>Destino</th>
+          <th>Bodega Origen</th>
+          <th>Bodega Destino</th>
           <th>Destino Nombre</th>
           <th>Unidades</th>
           <th>Valorizado</th>
@@ -96,7 +97,8 @@
       <tbody>
         <tr *ngFor="let incidencia of incidenciasFiltradas; let i = index">
           <th>{{ i + 1 }}</th>
-          <td>{{ incidencia.id }}</td>
+          <td>{{ "NIC-"+incidencia.id }}</td>
+          <td>{{ incidencia.fecha_emision }}</td>
           <td>{{ incidencia.fecha_recepcion }}</td>
           <td>{{ incidencia.origen_id_local }}</td>
           <td>{{ incidencia.destino_id_bodega }}</td>

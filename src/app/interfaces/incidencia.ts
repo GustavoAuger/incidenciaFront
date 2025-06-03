@@ -11,6 +11,7 @@ export interface Incidencia {
     transportista?: string;
     id_transportista?: number;
     fecha_recepcion?: string;
+    fecha_emision?: string;
     destino?: string;
     id_tipo_incidencia?: number;
     tipo_estado: string;
