@@ -57,6 +57,13 @@ export class VerIncidenciasComponent implements OnInit {
     estado: ''
   };
 
+  // Propiedades de paginación
+  currentPage: number = 1;
+  itemsPerPage: number = 15;
+  totalItems: number = 0;
+
+  Math = Math;
+
   constructor(
       private router: Router, 
       private _incidenciaService: IncidenciaService,
@@ -124,6 +131,23 @@ getBodegas() {
     });
 }
  
+  // Getter para obtener las incidencias paginadas
+  get paginatedIncidencias(): Incidencia[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    return this.incidenciasFiltradas.slice(startIndex, startIndex + this.itemsPerPage);
+  }
+
+  // Método para cambiar de página
+  pageChanged(event: number): void {
+    this.currentPage = event;
+  }
+
+  // Método para actualizar la paginación cuando se filtran resultados
+  private updatePagination(): void {
+    this.totalItems = this.incidenciasFiltradas.length;
+    this.currentPage = 1; // Volver a la primera página al aplicar filtros
+}
+ 
   aplicarFiltros() {
     // Comenzamos con todas las incidencias
     this.incidenciasFiltradas = [...this.incidencias];
@@ -180,6 +204,9 @@ getBodegas() {
         incidencia.id_estado?.toString().toLowerCase().includes(this.filtros.estado.toLowerCase())
       );
     }
+
+    // Actualizar la paginación después de aplicar los filtros
+    this.updatePagination();
   }
 
   limpiarFiltros() {
@@ -194,6 +221,7 @@ getBodegas() {
       estado: ''
     };
     this.incidenciasFiltradas = [...this.incidencias];
+    this.updatePagination();
   }
   
 }

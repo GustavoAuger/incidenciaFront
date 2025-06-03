@@ -116,5 +116,30 @@
         </tr>
       </tbody>
     </table>
+    
+    <!-- Controles de paginación -->
+    <div class="flex justify-center p-4 bg-base-100">
+      <div class="join">
+        <button 
+          class="join-item btn btn-sm" 
+          [disabled]="currentPage === 1"
+          (click)="currentPage = currentPage - 1">
+          «
+        </button>
+        <button 
+          *ngFor="let page of [].constructor(Math.ceil(incidenciasFiltradas.length / itemsPerPage)); let i = index"
+          class="join-item btn btn-sm" 
+          [class.btn-active]="currentPage === i + 1"
+          (click)="currentPage = i + 1">
+          {{ i + 1 }}
+        </button>
+        <button 
+          class="join-item btn btn-sm"
+          [disabled]="currentPage * itemsPerPage >= incidenciasFiltradas.length"
+          (click)="currentPage = currentPage + 1">
+          »
+        </button>
+      </div>
+    </div>
   </div>
 </div>
