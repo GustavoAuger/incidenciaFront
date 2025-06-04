@@ -9,6 +9,7 @@ import { Bodega } from '../../interfaces/bodega';
 import { Filtros } from '../../interfaces/filtros';
 import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-ver-incidencias',
@@ -224,6 +225,12 @@ getBodegas() {
     };
     this.incidenciasFiltradas = [...this.incidencias];
     this.updatePagination();
+  }
+// Método para exportar a Excel todas las incidencias
+  exportToExcel(): void {
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.incidencias);
+    const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+    XLSX.writeFile(workbook, 'Incidencias.xlsx');
   }
 
 }

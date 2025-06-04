@@ -24,7 +24,14 @@
                 </select>
             </div>
             <div class="filter-group">
-                <label>Destino</label>
+              <label>Bodega Origen</label>
+              <select class="select-input" [(ngModel)]="filtros.destino">
+                  <option value="">Seleccionar...</option>
+                  <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{bodega.nombre | initCapFirst}}</option>
+              </select>
+            </div>
+            <div class="filter-group">
+                <label>Bodega Destino</label>
                 <select class="select-input" [(ngModel)]="filtros.destino">
                     <option value="">Seleccionar...</option>
                     <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{bodega.nombre | initCapFirst}}</option>
@@ -58,7 +65,7 @@
         </div>
 
         <div class="export-buttons">
-            <button class="export-btn"> 
+            <button class="export-btn" (click)="exportToExcel()"> 
                 EXPORTAR RESUMEN
                 <span class="material-symbols-outlined">
                     download
