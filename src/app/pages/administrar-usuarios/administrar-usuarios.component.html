@@ -210,8 +210,17 @@
                     </td>
                     <td>
                         <span *ngIf="!user.isEditing">{{ user.rol! | initCapFirst }}</span>
-                        <select *ngIf="user.isEditing" [(ngModel)]="user.id_rol" class="select select-bordered select-xs w-full max-w-xs">
-                            <option *ngFor="let role of roles" [value]="role.id">{{ role.nombre | initCapFirst }}</option>
+                        <select 
+                            *ngIf="user.isEditing" 
+                            [(ngModel)]="user.id_rol" 
+                            (change)="onRoleChange()"
+                            class="select select-bordered select-xs w-full max-w-xs"
+                            [disabled]="!canEditRole(user.id)"
+                            [class.bg-base-200]="!canEditRole(user.id)"
+                            [title]="!canEditRole(user.id) ? 'No puedes modificar tu propio rol' : 'Seleccionar rol'"
+                        >
+                            <option [ngValue]="0" disabled>Seleccione un rol</option>
+                            <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.nombre | initCapFirst }}</option>
                         </select>
                     </td>
                     <td>
@@ -245,10 +254,15 @@
                         </button>
                         
                         <!-- Botón Eliminar (solo cuando no está en modo edición) -->
-                        <button *ngIf="!user.isEditing" 
-                                class="btn btn-ghost btn-xs" 
-                                (click)="deleteUser(user)">
-                            <span class="material-symbols-outlined text-red-500">delete</span>
+                        <button 
+                            class="btn btn-ghost btn-xs"
+                            (click)="deleteUser(user)"
+                            [disabled]="!canDeleteUser(user.id)"
+                            [class.opacity-50]="!canDeleteUser(user.id)"
+                            [class.text-error]="canDeleteUser(user.id)"
+                            [title]="!canDeleteUser(user.id) ? 'No puedes eliminarte a ti mismo' : 'Eliminar usuario'"
+                        >
+                            <span class="material-symbols-outlined">delete</span>
                         </button>
                     </td>
                 </tr>

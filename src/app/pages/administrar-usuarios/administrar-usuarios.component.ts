@@ -68,9 +68,18 @@ export class AdministrarUsuariosComponent {
 
   emailsList: string[] = [];
 
+  // Propiedad para almacenar el ID del usuario actual
+  currentUserId: number | null = null;
+
   constructor(private router: Router, private _userService: UserService) {}
 
   ngOnInit(): void {
+    // Obtener el ID del usuario logueado desde localStorage
+    const userId = localStorage.getItem('id_usuario');
+    if (userId) {
+      this.currentUserId = parseInt(userId, 10);
+    }
+
     if (this.users_list.length === 0) {
       this.getUsuarios();
     }
@@ -175,6 +184,11 @@ deleteUser(user: User): void {
     throw new Error('User ID is required for deleting');
   }
 
+  if (!this.canDeleteUser(user.id)) {
+    console.error('No se puede eliminar al usuario actual');
+    return;
+  }
+
   const userUpdate: User = {
     id: user.id,
     nombre: user.nombre,
@@ -195,6 +209,18 @@ deleteUser(user: User): void {
     }
   });
 }
+
+  //Método para verificar si un usuario puede ser eliminado
+  canDeleteUser(userId: number | undefined): boolean {
+    // No permitir eliminar al usuario actual
+    return userId !== this.currentUserId;
+  }
+
+  //Método para verificar si un usuario puede editar el rol
+  canEditRole(userId: number | undefined): boolean {
+    // No permitir editar el rol del usuario actual
+    return userId !== this.currentUserId;
+  }
 
   //Mostrar/ocultar formulario de creacion de usuario
   toggleCreateUserForm(): void {
