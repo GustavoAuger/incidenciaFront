@@ -6,6 +6,7 @@ import { IncidenciaService } from '../../services/incidencia.service';
 import { Incidencia } from '../../interfaces/incidencia';
 import { UserService } from '../../services/user.service';
 import { Bodega } from '../../interfaces/bodega';
+import { Tipo_incidencia} from '../../interfaces/tipo_incidencia';
 import { Filtros } from '../../interfaces/filtros';
 import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
@@ -28,23 +29,22 @@ export class VerIncidenciasComponent implements OnInit {
   bodegas: Bodega[] = [ ];
 
   // Tipos de incidencia
-  tiposIncidencia = [
-    'Recepción de Bodega Central',
-    'Traspaso entre locales',
-    'Devoluciones'
-  ];
+  tiposIncidencia: Tipo_incidencia[] = [ ];
 
-  // Estados
+  // Estados (POR AHORA ESTO SE DEBE TRAER DE LA BD)
   estados = [
+    'Nuevo',
+    'En Revisión',
     'Aceptada',
-    'Rechazada',
-    'En Revisión'
+    'Rechazadaa'
   ];
 
-  // Transportes
+  // Transportes (POR AHORA ESTO SE DEBE TRAER DE LA BD)
   transportes = [
-    'Fedex',
-    'Head',
+    'FEDEX',
+    'BlueExpress',
+    'HEAD',
+    'Starken',
     'Otro'
   ];
 
@@ -54,6 +54,7 @@ export class VerIncidenciasComponent implements OnInit {
     fechaHasta: '',
     numeroIncidencia: '',
     tipoIncidencia: '',
+    origen: '',
     destino: '',
     ots: '',
     transporte: '',
@@ -76,8 +77,37 @@ export class VerIncidenciasComponent implements OnInit {
   ngOnInit() {
     const userIdString = localStorage.getItem('id_usuario');
     const id_usuario = userIdString ? parseInt(userIdString, 10) : 0;
+    //manejo de fechas
+    const today = new Date();
+    const maxDate = today.toISOString().split('T')[0];
+    const fechaInput = document.querySelector('input[name="fecha"]');
+    const fechaInput2 = document.querySelector('input[name="fecha2"]');
+    
+    if (fechaInput && fechaInput2) {
+      fechaInput.setAttribute('max', maxDate);
+      fechaInput2.setAttribute('max', maxDate);
+    
+      // Add event listener to update fecha2's min date when fecha1 changes
+      fechaInput.addEventListener('change', (e) => {
+        const fecha1Value = (e.target as HTMLInputElement).value;
+        if (fecha1Value) {
+          fechaInput2.setAttribute('min', fecha1Value);
+        }
+      });
+    
+      // Add event listener to update fecha1's max date when fecha2 changes
+      fechaInput2.addEventListener('change', (e) => {
+        const fecha2Value = (e.target as HTMLInputElement).value;
+        if (fecha2Value) {
+          fechaInput.setAttribute('max', fecha2Value);
+        } else {
+          fechaInput.setAttribute('max', maxDate);
+        }
+      });
+    }
     this.cargarIncidencias(id_usuario);
-    this.getBodegas(); // Añadir esta línea
+    this.getBodegas(); 
+    this.getTipoIncidencia();
 }
 
 getBodegas() {
@@ -89,6 +119,20 @@ getBodegas() {
             console.error('Error al obtener bodegas', error);
         }
     });
+}
+
+getTipoIncidencia() { 
+  this._incidenciaService.getTipoIncidencia().subscribe({ 
+    next: (tiposIncidencia: Tipo_incidencia[]) => { 
+      this.tiposIncidencia = tiposIncidencia.map(tipo => ({
+        id: tipo.id,
+        nombre: tipo.nombre
+      }));
+    }, 
+    error: (error: Error) => { 
+      console.error('Error al obtener tipos de incidencia', error); 
+    } 
+  }); 
 }
   cargarIncidencias(id_usuario: number) {
     this.isLoading = true;
@@ -151,66 +195,35 @@ getBodegas() {
     this.currentPage = 1; // Volver a la primera página al aplicar filtros
   }
 
+  // Metodo para aplicar los filtros
   aplicarFiltros() {
-    // Comenzamos con todas las incidencias
-    this.incidenciasFiltradas = [...this.incidencias];
+    this.incidenciasFiltradas = this.incidencias.filter(incidencia => {
+      const cumpleFechaDesde = !this.filtros.fechaDesde || 
+        (incidencia.fecha_recepcion && new Date(incidencia.fecha_recepcion) >= new Date(this.filtros.fechaDesde));
+      const cumpleFechaHasta = !this.filtros.fechaHasta || 
+        (incidencia.fecha_recepcion && new Date(incidencia.fecha_recepcion) <= new Date(this.filtros.fechaHasta));
+      const cumpleNumeroIncidencia = !this.filtros.numeroIncidencia || 
+        (incidencia.id?.toString() || '').includes(this.filtros.numeroIncidencia);
+      const cumpleTipoIncidencia = !this.filtros.tipoIncidencia || 
+        incidencia.id_tipo_incidencia?.toString() === this.filtros.tipoIncidencia;
+      const cumpleOrigen = !this.filtros.origen || 
+        incidencia.origen_id_local === this.filtros.origen;
+      const cumpleDestino = !this.filtros.destino || 
+        incidencia.destino! === this.filtros.destino;
+      const cumpleOTS = !this.filtros.ots || 
+        (incidencia.ots?.toLowerCase() || '').includes(this.filtros.ots.toLowerCase());
+      const cumpleTransporte = !this.filtros.transporte || 
+        incidencia.transportista === this.filtros.transporte;
+      const cumpleEstado = !this.filtros.estado || 
+        (incidencia.tipo_estado.toLowerCase() || '').includes(this.filtros.estado.toLowerCase());
+      return cumpleFechaDesde && cumpleFechaHasta && cumpleNumeroIncidencia && 
+             cumpleTipoIncidencia && cumpleOrigen && cumpleDestino && cumpleOTS && 
+             cumpleTransporte && cumpleEstado;
+    });
 
-    // Aplicamos cada filtro solo si tiene un valor
-    if (this.filtros.fechaDesde) {
-      const fechaDesde = new String(this.filtros.fechaDesde);
-      this.incidenciasFiltradas = this.incidenciasFiltradas.filter(incidencia => {
-        const fechaIncidencia = new String(incidencia.fecha_recepcion);
-        return fechaIncidencia >= fechaDesde;
-      });
-    }
-
-    if (this.filtros.fechaHasta) {
-      const fechaHasta = new String(this.filtros.fechaHasta);
-      this.incidenciasFiltradas = this.incidenciasFiltradas.filter(incidencia => {
-        const fechaIncidencia = new String(incidencia.fecha_recepcion);
-        return fechaIncidencia <= fechaHasta;
-      });
-    }
-
-    if (this.filtros.numeroIncidencia) {
-      this.incidenciasFiltradas = this.incidenciasFiltradas.filter(incidencia =>
-        incidencia.id?.toString().toLowerCase().includes(this.filtros.numeroIncidencia.toLowerCase())
-      );
-    }
-
-    if (this.filtros.tipoIncidencia) {
-      this.incidenciasFiltradas = this.incidenciasFiltradas.filter(incidencia =>
-        incidencia.id?.toString().toLowerCase().includes(this.filtros.tipoIncidencia.toLowerCase())
-      );
-    }
-
-    if (this.filtros.destino) {
-      this.incidenciasFiltradas = this.incidenciasFiltradas.filter(incidencia =>
-        incidencia.id_bodega?.toString().toLowerCase().includes(this.filtros.destino.toLowerCase())
-      );
-    }
-
-    if (this.filtros.ots) {
-      this.incidenciasFiltradas = this.incidenciasFiltradas.filter(incidencia =>
-        incidencia.ots?.toLowerCase().includes(this.filtros.ots.toLowerCase())
-      );
-    }
-
-    if (this.filtros.transporte) {
-      this.incidenciasFiltradas = this.incidenciasFiltradas.filter(incidencia =>
-        incidencia.id_estado?.toString().toLowerCase().includes(this.filtros.transporte.toLowerCase())
-      );
-    }
-
-    if (this.filtros.estado) {
-      this.incidenciasFiltradas = this.incidenciasFiltradas.filter(incidencia =>
-        incidencia.id_estado?.toString().toLowerCase().includes(this.filtros.estado.toLowerCase())
-      );
-    }
-
-    // Actualizar la paginación después de aplicar los filtros
     this.updatePagination();
   }
+
 
   limpiarFiltros() {
     this.filtros = {
@@ -218,6 +231,7 @@ getBodegas() {
       fechaHasta: '',
       numeroIncidencia: '',
       tipoIncidencia: '',
+      origen:'',
       destino: '',
       ots: '',
       transporte: '',

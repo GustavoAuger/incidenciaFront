@@ -3,54 +3,54 @@
         <div class="date-filters">
             <div class="filter-group">
                 <label>Desde</label>
-                <input type="date" class="date-input" [(ngModel)]="filtros.fechaDesde">
+                <input type="date" class="date-input" name="fecha" [(ngModel)]="filtros.fechaDesde" (ngModelChange)="aplicarFiltros()">
             </div>
             <div class="filter-group">
                 <label>Hasta</label>
-                <input type="date" class="date-input" [(ngModel)]="filtros.fechaHasta">
+                <input type="date" class="date-input" name="fecha2" [(ngModel)]="filtros.fechaHasta" (ngModelChange)="aplicarFiltros()">
             </div>
         </div>
 
         <div class="other-filters">
             <div class="filter-group">
                 <label>N° Incidencia</label>
-                <input type="text" class="text-input" [(ngModel)]="filtros.numeroIncidencia">
+                <input type="text" class="text-input" [(ngModel)]="filtros.numeroIncidencia" (ngModelChange)="aplicarFiltros()">
             </div>
             <div class="filter-group">
                 <label>Tipo Incidencia</label>
-                <select class="select-input" [(ngModel)]="filtros.tipoIncidencia">
+                <select class="select-input" [(ngModel)]="filtros.tipoIncidencia" (ngModelChange)="aplicarFiltros()">
                     <option value="">Seleccionar...</option>
-                    <option *ngFor="let tipo of tiposIncidencia" [value]="tipo">{{tipo}}</option>
+                    <option *ngFor="let tipo of tiposIncidencia" [value]="tipo.id">{{tipo.nombre}}</option>
                 </select>
             </div>
             <div class="filter-group">
               <label>Bodega Origen</label>
-              <select class="select-input" [(ngModel)]="filtros.destino">
+              <select class="select-input" [(ngModel)]="filtros.origen" (ngModelChange)="aplicarFiltros()">
                   <option value="">Seleccionar...</option>
-                  <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{bodega.nombre | initCapFirst}}</option>
+                  <option *ngFor="let bodega of bodegas" [value]="bodega.id_bodega">{{bodega.nombre | initCapFirst}}</option>
               </select>
             </div>
             <div class="filter-group">
                 <label>Bodega Destino</label>
-                <select class="select-input" [(ngModel)]="filtros.destino">
+                <select class="select-input" [(ngModel)]="filtros.destino" (ngModelChange)="aplicarFiltros()">
                     <option value="">Seleccionar...</option>
-                    <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{bodega.nombre | initCapFirst}}</option>
+                    <option *ngFor="let bodega of bodegas" [value]="bodega.nombre">{{bodega.nombre | initCapFirst}}</option>
                 </select>
             </div>
             <div class="filter-group">
                 <label>OTS</label>
-                <input type="text" class="text-input" [(ngModel)]="filtros.ots">
+                <input type="text" class="text-input" [(ngModel)]="filtros.ots" (ngModelChange)="aplicarFiltros()">
             </div>
             <div class="filter-group">
                 <label>Transporte</label>
-                <select class="select-input" [(ngModel)]="filtros.transporte">
+                <select class="select-input" [(ngModel)]="filtros.transporte" (ngModelChange)="aplicarFiltros()">
                     <option value="">Seleccionar...</option>
                     <option *ngFor="let transporte of transportes" [value]="transporte">{{transporte}}</option>
                 </select>
             </div>
             <div class="filter-group">
                 <label>Estado</label>
-                <select class="select-input" [(ngModel)]="filtros.estado">
+                <select class="select-input" [(ngModel)]="filtros.estado" (ngModelChange)="aplicarFiltros()">
                     <option value="">Seleccionar...</option>
                     <option *ngFor="let estado of estados" [value]="estado">{{estado}}</option>
                 </select>
