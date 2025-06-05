@@ -23,6 +23,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   
   incidencia: any = {
     bodOrigen: '',
+    bodDestino: '',
     bodOrigenNombre: '',
     transportista: '',
     transportistaNombre: '',
@@ -63,7 +64,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
         transportistaNombre: incidenciaData?.transportistaNombre || '',
         ots: incidenciaData?.ots || '',
         fechaRecepcion: incidenciaData?.fechaRecepcion || null,
-        tipo_estado: incidenciaData.tipo_estado || ''
+        tipo_estado: incidenciaData.tipo_estado || '',
+        bodDestino: incidenciaData?.bodDestino || ''
       };
     }
   }
@@ -248,18 +250,32 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   // Método que se ejecuta cuando cambia el número de guía
   onGuiaChange(): void {
     if (this.detalleIncidencia.numGuia) {
-      // Convertir a string y hacer trim para asegurar una comparación limpia
       const numGuiaBuscado = String(this.detalleIncidencia.numGuia).trim();
-      console.log('Número de guía buscado:', numGuiaBuscado, 'tipo:', typeof numGuiaBuscado);
-      
-      const guiaExiste = this.guias.some(guia => {
+      console.log('Número de guía buscado:', numGuiaBuscado);
+  
+      // Paso 1: buscar la guía con el número
+      const guiaEncontrada = this.guias.find(guia => {
         const numGuiaActual = String(guia.numguia).trim();
-        console.log('Comparando con:', numGuiaActual, 'tipo:', typeof numGuiaActual);
         return numGuiaActual === numGuiaBuscado;
       });
-      if (guiaExiste) {
-        console.log('¡Guía encontrada!');
-        this.skuEnabled = true;
+  
+      if (guiaEncontrada) {
+        // Paso 2: comparar la bodega de destino
+        const idBodegaDestino = String(guiaEncontrada.id_bod_destino).trim();
+        const bodegaUsuario = String(this.incidencia.bodDestino).trim();
+       
+        console.log('Bodega encontrada:', idBodegaDestino);
+        console.log('Bodega del usuario:', bodegaUsuario);
+  
+        if (idBodegaDestino === bodegaUsuario) {
+          console.log('¡Guía encontrada y pertenece a la bodega!');
+          this.skuEnabled = true;
+        } else {
+          console.log('La guía no pertenece a la bodega del usuario');
+          alert('La guía encontrada no pertenece a su bodega');
+          this.detalleIncidencia.numGuia = null;
+          this.skuEnabled = false;
+        }
       } else {
         console.log('Guía no encontrada');
         alert('El número de guía ingresado no existe');
@@ -273,6 +289,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
       this.detalleIncidencia.descripcion = '';
     }
   }
+  
+  
 
   // Método que se ejecuta después de buscar el producto
 
