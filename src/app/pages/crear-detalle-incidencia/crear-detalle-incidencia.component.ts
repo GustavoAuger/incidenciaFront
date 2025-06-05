@@ -86,7 +86,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
           alert('Error al cargar las guías');
         }
       });
-
+      // si estamos en modo visualización, cargar los detalles de la incidencia
       if (this.modoVisualizacion && idIncidencia) {
         this.incidenciaService.getDetallesIncidencia(idIncidencia).subscribe({
           next: (detalles) => {
@@ -95,8 +95,17 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
           error: (error) => {
             console.error('Error al obtener detalles:', error);
             alert('Error al cargar los detalles de la incidencia');
+          },
+          complete: () => {
+            console.log('Detalles cargados:', this.detalles);
+            if (this.detalles.length > 0) {
+              this.incidencia.id = this.detalles[0].idIncidencia;
+              console.log('idIncidencia:', this.incidencia.id);
+            }
           }
+  
         });
+      // sino estamos en modo nueva incidencia, cargar los datos de la incidencia parcial de la vista anterior
       } else {
         const incidenciaParcial = this.incidenciaService.getIncidenciaParcial();
         if (incidenciaParcial) {
@@ -174,7 +183,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     
     // Agregar a la lista local
     this.detalles.push(nuevoDetalle);
-    
+    console.log(this.detalles);
+    console.log(this.incidencia);
     // Limpiar el formulario
     this.detalleIncidencia = {
       numGuia: null,
@@ -191,6 +201,9 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
 
   eliminarDetalle(index: number) {
     this.detalles.splice(index, 1);
+    console.log(this.detalles);
+    console.log(this.incidencia);
+    console.log(this.incidencia.id);
   }
 
   generarIncidencia() {
@@ -245,6 +258,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
 
   onSubmit() {
     this.agregarDetalle();
+    console.log(this.detalles);
   }
 
   // Método que se ejecuta cuando cambia el número de guía
@@ -352,4 +366,38 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
       }
     });
   }
+ // metodo para actualizar el detalle de incidencia
+  actualizarIncidencia() {
+    if (this.detalles.length === 0) {
+      alert('Debe tener al menos un detalle en la incidencia');
+      return;
+    }
+
+    // Preparar los datos para actualizar
+    const datosActualizados = {
+      incidencia: this.incidencia.id,
+      detalles: this.detalles.map(detalle => ({
+        ...detalle,
+        estado: true // Campo para softDelete, true significa activo
+      }))
+    };
+
+    // Llamar al servicio para actualizar la incidencia
+    this.incidenciaService.actualizarDetallesIncidencia(datosActualizados).subscribe({
+    
+      next: (response) => {
+        if (response) {
+          alert('Incidencia actualizada con éxito');
+          this.router.navigate(['/home']);
+        } else {
+          alert('Error al actualizar la incidencia');
+        }
+      },
+      error: (error) => {
+        console.error('Error al actualizar la incidencia:', error);
+        alert('Error al actualizar la incidencia');
+      }
+    });
+  }
 }
+
