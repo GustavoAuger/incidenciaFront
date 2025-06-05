@@ -97,7 +97,8 @@ export class CrearIncidenciaComponent {
           transportista: this.incidencia.id_transportista,
           transportistaNombre: transportistaSeleccionado ? transportistaSeleccionado.nombre : '',
           ots: this.incidencia.ots,
-          fechaRecepcion: this.incidencia.fecha
+          fechaRecepcion: this.incidencia.fecha,
+          tipo_estado: "Nuevo"
         }
       }
     };

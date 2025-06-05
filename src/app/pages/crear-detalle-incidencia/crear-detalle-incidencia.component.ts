@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DetalleIncidencia } from '../../interfaces/detalleIncidencia';
 import { Guia } from '../../interfaces/guia';
+import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
 import { IncidenciaService } from '../../services/incidencia.service';
 
 @Component({
@@ -11,7 +12,7 @@ import { IncidenciaService } from '../../services/incidencia.service';
   templateUrl: './crear-detalle-incidencia.component.html',
   styleUrl: './crear-detalle-incidencia.component.css',
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, InitCapFirstPipe]
 })
 export class CrearDetalleIncidenciaComponent implements OnInit {
   modoVisualizacion: boolean = false;
@@ -26,7 +27,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     transportista: '',
     transportistaNombre: '',
     ots: '',
-    fechaRecepcion: null
+    fechaRecepcion: null,
+    tipo_estado:''
   };
 
   detalleIncidencia: any = {
@@ -60,7 +62,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
         transportista: incidenciaData?.transportista || '',
         transportistaNombre: incidenciaData?.transportistaNombre || '',
         ots: incidenciaData?.ots || '',
-        fechaRecepcion: incidenciaData?.fechaRecepcion || null
+        fechaRecepcion: incidenciaData?.fechaRecepcion || null,
+        tipo_estado: incidenciaData.tipo_estado || ''
       };
     }
   }
