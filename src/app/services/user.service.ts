@@ -5,6 +5,7 @@ import { environment } from '../../environments/enviroment';
 import { User } from '../interfaces/user';
 import { Rol } from '../interfaces/rol';
 import { Bodega } from '../interfaces/bodega';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -55,6 +56,20 @@ export class UserService {
   // Obtener lista de correos electrónicos existentes
   getMails(): Observable<string[]> {
     return this.http.get<string[]>(this.apiUrl + '/getMails');
+  }
+
+  // Obtener lista de IDs de bodega de usuarios
+  getBodegaUsers(): Observable<{id: string, id_bodega: number}[]> {
+    return this.http.get<{id: string, id_bodega: number}[]>(this.apiUrl + '/getIdBodegaUser').pipe(
+      map(bodegas => {
+        return bodegas.map(bodega => ({
+          ...bodega,
+          id: bodega.id.includes('-') 
+            ? bodega.id.split('-')[0] + '-' + bodega.id_bodega.toString().padStart(3, '0')
+            : 'LO-' + bodega.id_bodega.toString().padStart(3, '0')
+        }));
+      })
+    );
   }
 
   getUserByUsername(username: string): Observable<User> {

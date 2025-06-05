@@ -67,6 +67,7 @@ export class AdministrarUsuariosComponent {
   isTiendaRole : boolean = false;
 
   emailsList: string[] = [];
+  bodegaUsers: {id: string, id_bodega: number}[] = [];
 
   // Propiedad para almacenar el ID del usuario actual
   currentUserId: number | null = null;
@@ -87,6 +88,7 @@ export class AdministrarUsuariosComponent {
     this.getRoles();
     this.getBodegas();
     this.getEmailsList();
+    this.getBodegaUsers();
   }
   
   navigateTo(route: string): void {    
@@ -127,14 +129,18 @@ export class AdministrarUsuariosComponent {
   getBodegas(): void {
     this._userService.getBodegas().subscribe((bodegas) => {
       this.bodegas = bodegas;
-      console.log(JSON.stringify(this.bodegas));
     });
   }
 
-  // Get bodegas filtered by name starting with 'L'
+  // Get bodegas filtered by name starting with 'L' and exclude already used bodegas
   get filteredBodegas(): Bodega[] {
+    // Get the list of used bodega IDs
+    const usedBodegaIds = this.bodegaUsers.map(bu => bu.id);
+    
     return this.bodegas.filter(bodega => 
-      bodega.nombre && bodega.nombre.trim().toUpperCase().startsWith('L')
+      bodega.nombre && 
+      bodega.nombre.trim().toUpperCase().startsWith('L') &&
+      !usedBodegaIds.includes(bodega.id_bodega)
     );
   }
 
@@ -250,6 +256,18 @@ deleteUser(user: User): void {
       },
       error: (error) => {
         console.error('Error al obtener correos:', error);
+      }
+    });
+  }
+
+  // Obtener usuarios de bodega
+  getBodegaUsers(): void {
+    this._userService.getBodegaUsers().subscribe({
+      next: (bodegaUsers) => {
+        this.bodegaUsers = bodegaUsers;
+      },
+      error: (error) => {
+        console.error('Error al cargar usuarios de bodega:', error);
       }
     });
   }
