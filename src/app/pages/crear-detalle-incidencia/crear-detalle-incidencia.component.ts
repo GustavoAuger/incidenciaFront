@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DetalleIncidencia } from '../../interfaces/detalleIncidencia';
 import { Guia } from '../../interfaces/guia';
+import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
 import { IncidenciaService } from '../../services/incidencia.service';
 
 @Component({
@@ -11,7 +12,7 @@ import { IncidenciaService } from '../../services/incidencia.service';
   templateUrl: './crear-detalle-incidencia.component.html',
   styleUrl: './crear-detalle-incidencia.component.css',
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, InitCapFirstPipe]
 })
 export class CrearDetalleIncidenciaComponent implements OnInit {
   modoVisualizacion: boolean = false;
@@ -22,11 +23,13 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   
   incidencia: any = {
     bodOrigen: '',
+    bodDestino: '',
     bodOrigenNombre: '',
     transportista: '',
     transportistaNombre: '',
     ots: '',
-    fechaRecepcion: null
+    fechaRecepcion: null,
+    tipo_estado:''
   };
 
   detalleIncidencia: any = {
@@ -60,7 +63,9 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
         transportista: incidenciaData?.transportista || '',
         transportistaNombre: incidenciaData?.transportistaNombre || '',
         ots: incidenciaData?.ots || '',
-        fechaRecepcion: incidenciaData?.fechaRecepcion || null
+        fechaRecepcion: incidenciaData?.fechaRecepcion || null,
+        tipo_estado: incidenciaData.tipo_estado || '',
+        bodDestino: incidenciaData?.bodDestino || ''
       };
     }
   }
@@ -81,7 +86,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
           alert('Error al cargar las guías');
         }
       });
-
+      // si estamos en modo visualización, cargar los detalles de la incidencia
       if (this.modoVisualizacion && idIncidencia) {
         this.incidenciaService.getDetallesIncidencia(idIncidencia).subscribe({
           next: (detalles) => {
@@ -90,8 +95,17 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
           error: (error) => {
             console.error('Error al obtener detalles:', error);
             alert('Error al cargar los detalles de la incidencia');
+          },
+          complete: () => {
+            console.log('Detalles cargados:', this.detalles);
+            if (this.detalles.length > 0) {
+              this.incidencia.id = this.detalles[0].idIncidencia;
+              console.log('idIncidencia:', this.incidencia.id);
+            }
           }
+  
         });
+      // sino estamos en modo nueva incidencia, cargar los datos de la incidencia parcial de la vista anterior
       } else {
         const incidenciaParcial = this.incidenciaService.getIncidenciaParcial();
         if (incidenciaParcial) {
@@ -169,7 +183,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     
     // Agregar a la lista local
     this.detalles.push(nuevoDetalle);
-    
+    console.log(this.detalles);
+    console.log(this.incidencia);
     // Limpiar el formulario
     this.detalleIncidencia = {
       numGuia: null,
@@ -186,6 +201,9 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
 
   eliminarDetalle(index: number) {
     this.detalles.splice(index, 1);
+    console.log(this.detalles);
+    console.log(this.incidencia);
+    console.log(this.incidencia.id);
   }
 
   generarIncidencia() {
@@ -240,23 +258,38 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
 
   onSubmit() {
     this.agregarDetalle();
+    console.log(this.detalles);
   }
 
   // Método que se ejecuta cuando cambia el número de guía
   onGuiaChange(): void {
     if (this.detalleIncidencia.numGuia) {
-      // Convertir a string y hacer trim para asegurar una comparación limpia
       const numGuiaBuscado = String(this.detalleIncidencia.numGuia).trim();
-      console.log('Número de guía buscado:', numGuiaBuscado, 'tipo:', typeof numGuiaBuscado);
-      
-      const guiaExiste = this.guias.some(guia => {
+      console.log('Número de guía buscado:', numGuiaBuscado);
+  
+      // Paso 1: buscar la guía con el número
+      const guiaEncontrada = this.guias.find(guia => {
         const numGuiaActual = String(guia.numguia).trim();
-        console.log('Comparando con:', numGuiaActual, 'tipo:', typeof numGuiaActual);
         return numGuiaActual === numGuiaBuscado;
       });
-      if (guiaExiste) {
-        console.log('¡Guía encontrada!');
-        this.skuEnabled = true;
+  
+      if (guiaEncontrada) {
+        // Paso 2: comparar la bodega de destino
+        const idBodegaDestino = String(guiaEncontrada.id_bod_destino).trim();
+        const bodegaUsuario = String(this.incidencia.bodDestino).trim();
+       
+        console.log('Bodega encontrada:', idBodegaDestino);
+        console.log('Bodega del usuario:', bodegaUsuario);
+  
+        if (idBodegaDestino === bodegaUsuario) {
+          console.log('¡Guía encontrada y pertenece a la bodega!');
+          this.skuEnabled = true;
+        } else {
+          console.log('La guía no pertenece a la bodega del usuario');
+          alert('La guía encontrada no pertenece a su bodega');
+          this.detalleIncidencia.numGuia = null;
+          this.skuEnabled = false;
+        }
       } else {
         console.log('Guía no encontrada');
         alert('El número de guía ingresado no existe');
@@ -270,6 +303,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
       this.detalleIncidencia.descripcion = '';
     }
   }
+  
+  
 
   // Método que se ejecuta después de buscar el producto
 
@@ -331,4 +366,38 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
       }
     });
   }
+ // metodo para actualizar el detalle de incidencia
+  actualizarIncidencia() {
+    if (this.detalles.length === 0) {
+      alert('Debe tener al menos un detalle en la incidencia');
+      return;
+    }
+
+    // Preparar los datos para actualizar
+    const datosActualizados = {
+      incidencia: this.incidencia.id,
+      detalles: this.detalles.map(detalle => ({
+        ...detalle,
+        estado: true // Campo para softDelete, true significa activo
+      }))
+    };
+
+    // Llamar al servicio para actualizar la incidencia
+    this.incidenciaService.actualizarDetallesIncidencia(datosActualizados).subscribe({
+    
+      next: (response) => {
+        if (response) {
+          alert('Incidencia actualizada con éxito');
+          this.router.navigate(['/home']);
+        } else {
+          alert('Error al actualizar la incidencia');
+        }
+      },
+      error: (error) => {
+        console.error('Error al actualizar la incidencia:', error);
+        alert('Error al actualizar la incidencia');
+      }
+    });
+  }
 }
+

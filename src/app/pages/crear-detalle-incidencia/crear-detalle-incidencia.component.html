@@ -3,7 +3,10 @@
     <div class="bg-white rounded-xl shadow-xl overflow-hidden">
       <!-- Encabezado -->
       <div class="p-6 bg-gray-50 border-b border-gray-200">
-        <h2 class="text-2xl font-bold text-gray-900">Detalle de Incidencia</h2>
+        <div class="flex items-center space-x-2">
+          <h2 class="text-2xl font-bold text-gray-900">Detalle de Incidencia</h2>
+          <h4 class="text-gray-400">({{ incidencia.tipo_estado | initCapFirst }})</h4>
+        </div>
       </div>
 
       <!-- Información de cabecera con mejor espaciado -->
@@ -31,15 +34,18 @@
         <form #detalleForm="ngForm">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="form-control">
+              
               <label class="label font-semibold text-gray-700">N° Guía</label><br>
-              <input type="number" class="input input-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.numGuia" name="numGuia" min="0" placeholder="Ingrese N° documento" (change)="onGuiaChange()" />
+              <input type="number" 
+       
+                     class="input input-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.numGuia" name="numGuia" min="0" placeholder="Ingrese N° documento" (change)="onGuiaChange()" />
             </div>
 
             <div class="form-control">
               <label class="label font-semibold text-gray-700">SKU</label><br>
               <div class="flex gap-4">
                 <input class="input input-bordered flex-1 bg-white" [(ngModel)]="detalleIncidencia.sku" name="sku" required placeholder="Ingrese SKU" [disabled]="!skuEnabled"  />
-                <button type="button" class="btna btn-primary w-24" (click)="buscarProducto()">BUSCAR</button>
+                <button type="button" class="btna btn-primary w-24"  (click)="buscarProducto()">BUSCAR</button>
               </div>
             </div>
 
@@ -115,9 +121,20 @@
               <td>{{detalle.pesoOrigen}}</td>
               <td>{{detalle.pesoRecepcion}}</td>
               <td>
-                <button class="btn btnb btn-error btn-sm" (click)="eliminarDetalle(i)">
-                  <span class="material-symbols-outlined">delete</span>
-                </button>
+                <button 
+                class="btn btnb btn-sm"
+                [ngClass]="{
+                  'btn-error': incidencia.tipo_estado !== 'nuevo',
+                 
+                }"
+                [disabled]="incidencia.tipo_estado !== 'nuevo'"
+                (click)="eliminarDetalle(i)">
+                <span class="material-symbols-outlined"
+                [ngClass]="{
+                  'btn-error': incidencia.tipo_estado !== 'nuevo',
+                  'bg-gray-300 text-gray-500 cursor-not-allowed': incidencia.tipo_estado !== 'nuevo'
+                }">delete</span>
+              </button>
               </td>
             </tr>
             <tr *ngIf="detalles.length === 0">
@@ -151,9 +168,9 @@
         VOLVER
       </button>  
       <button type="button" 
-              *ngIf="modoVisualizacion"
+              *ngIf="modoVisualizacion && incidencia.tipo_estado === 'nuevo'"
               class="px-6 py-3 bg-[#00AFD7] btna text-black rounded-lg hover:bg-[#00AFD7]/90 transition-colors duration-200 font-semibold" 
-              (click)="generarIncidencia()">
+              (click)="actualizarIncidencia()">
         ACTUALIZAR DETALLE
       </button>
     </div>

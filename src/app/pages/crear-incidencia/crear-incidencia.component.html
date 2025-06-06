@@ -15,9 +15,13 @@
           [class.select-error]="origen.invalid && (origen.dirty || origen.touched)"
           required>
           <option disabled selected value="">Seleccione una bodega</option>
-          <option *ngFor="let bodega of lista_bodegas" [value]="bodega.id">
-            {{bodega.nombre | initCapFirst}}
-          </option>
+          <ng-container *ngFor="let bodega of lista_bodegas">
+            <option 
+              *ngIf="bodega.id != 22 && bodega.id != 23"
+              [value]="bodega.id">
+              {{bodega.nombre | initCapFirst}}
+            </option>
+          </ng-container>
         </select>
         <label class="label" *ngIf="origen.invalid && (origen.dirty || origen.touched)">
           <span class="label-text-alt text-error">Debe seleccionar una bodega</span>

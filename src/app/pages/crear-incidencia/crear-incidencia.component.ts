@@ -82,6 +82,13 @@ export class CrearIncidenciaComponent {
     
     // Encontrar los nombres correspondientes
     const bodegaSeleccionada = this.lista_bodegas.find(b => b.id === this.incidencia.id_bodega);
+
+    const bodDestino = this.incidencia.destino_id_bodega
+    console.log(bodDestino);  
+    const bodDestinoNum = parseInt(bodDestino, 10);  // base 10
+    console.log(bodDestinoNum);
+    const bodegaUsuario = this.lista_bodegas.find(b => b.id == bodDestinoNum);
+    console.log("bodegaUsuario", bodegaUsuario);
     const transportistaSeleccionado = this.lista_transportistas.find(t => t.id === Number(this.incidencia.id_transportista));
     //Si el transporte es head, por detrás debemos enviar la incidencia con OTS = "".
 
@@ -97,7 +104,9 @@ export class CrearIncidenciaComponent {
           transportista: this.incidencia.id_transportista,
           transportistaNombre: transportistaSeleccionado ? transportistaSeleccionado.nombre : '',
           ots: this.incidencia.ots,
-          fechaRecepcion: this.incidencia.fecha
+          fechaRecepcion: this.incidencia.fecha,
+          bodDestino: bodegaUsuario? bodegaUsuario.id_bodega : '',        
+          tipo_estado: "Nuevo"
         }
       }
     };

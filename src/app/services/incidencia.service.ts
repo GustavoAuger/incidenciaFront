@@ -8,6 +8,7 @@ import { Transportista } from '../interfaces/transportista';
 import { Tipo_incidencia } from '../interfaces/tipo_incidencia';
 import { DetalleIncidencia } from '../interfaces/detalleIncidencia';
 import { Guia } from '../interfaces/guia';
+import { catchError, throwError } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
@@ -73,5 +74,13 @@ export class IncidenciaService {
 
   getProductos(): Observable<any> {
     return this.http.get<any>(this.apiUrl + '/getProductos');
+  }
+
+  actualizarDetallesIncidencia(data: { 
+    incidencia: Incidencia, 
+    detalles: DetalleIncidencia[] 
+  }): Observable<boolean> {
+    console.log(data);
+    return this.http.post<boolean>(this.apiUrl + '/actualizarDetalle', data);
   }
 }

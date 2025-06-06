@@ -153,7 +153,6 @@ getTipoIncidencia() {
   verDetalle(incidencia: Incidencia) {
     // Guardar la incidencia en el servicio
     this._incidenciaService.setIncidenciaParcial(incidencia);
-    
     // Preparar los datos para la navegación
     const navigationExtras = {
       state: {
@@ -163,7 +162,10 @@ getTipoIncidencia() {
           transportista: incidencia.id_transportista,
           transportistaNombre: incidencia.transportista || '',
           ots: incidencia.ots,
-          fechaRecepcion: incidencia.fecha_recepcion
+          fechaRecepcion: incidencia.fecha_recepcion,
+          tipo_estado: incidencia.tipo_estado,
+          bodDestino: incidencia.destino_id_bodega || '',      
+             
         }
       }
     };
