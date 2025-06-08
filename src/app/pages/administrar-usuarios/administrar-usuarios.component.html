@@ -10,109 +10,145 @@
     <!-- User Creation Form -->
     <div *ngIf="showCreateUserForm" class="bg-base-100 border border-base-content/10 rounded-lg p-6 mb-6">
         <h4 class="text-lg font-semibold mb-4">Crear Nuevo Usuario</h4>
-        <div class="grid grid-cols-3 gap-4">
-            <div>
-                <label class="form-control w-full">
-                    <div class="label">
-                        <span class="label-text">Email</span>
-                    </div>
-                    <input 
-                        type="email" 
-                        [(ngModel)]="newUser.email" 
-                        (ngModelChange)="newUser.email = $event.toLowerCase()"
-                        (input)="onEmailChange()" 
-                        class="input input-bordered input-sm w-full" 
-                        [class.input-error]="(emailInvalid || emailExists) && newUser.email"
-                        [class.input-success]="!emailInvalid && !emailExists && newUser.email"
-                    />
-                    <div *ngIf="newUser.email" class="label p-0 mt-1 min-h-6 flex flex-col">
-                        <span class="label-text-alt" [class.text-error]="emailInvalid" [class.text-success]="!emailInvalid">
-                            <span *ngIf="emailInvalid">El email debe terminar en &#64;head.com</span>
-                        </span>
-                        <span class="label-text-alt" [class.text-error]="emailExists" [class.text-success]="!emailExists">
-                            <span *ngIf="emailExists">Email no disponible</span>
-                        </span>
-                    </div>
-                </label>
+        
+        <!-- Primera fila: 4 columnas -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+            <!-- Email -->
+            <div class="form-control w-full">
+                <div class="label">
+                    <span class="label-text">Email</span>
+                </div>
+                <input 
+                    type="email" 
+                    [(ngModel)]="newUser.email" 
+                    (ngModelChange)="newUser.email = $event.toLowerCase()"
+                    (input)="onEmailChange()" 
+                    class="input input-bordered input-sm w-full" 
+                    [class.input-error]="(emailInvalid || emailExists) && newUser.email"
+                    [class.input-success]="!emailInvalid && !emailExists && newUser.email"
+                />
+                <div *ngIf="newUser.email" class="label p-0 mt-1 min-h-6">
+                    <span class="label-text-alt" [class.text-error]="emailInvalid" [class.text-success]="!emailInvalid">
+                        <span *ngIf="emailInvalid">El email debe terminar en &#64;head.com</span>
+                    </span>
+                    <span class="label-text-alt" [class.text-error]="emailExists" [class.text-success]="!emailExists">
+                        <span *ngIf="emailExists">Email no disponible</span>
+                    </span>
+                </div>
             </div>
-            <div>
-                <label class="form-control w-full">
-                    <div class="label">
-                        <span class="label-text">Usuario</span>
-                    </div>
-                    <input type="text" [(ngModel)]="newUser.nombre" [readonly]="true" class="input input-bordered input-sm w-full bg-base-200" />
-                </label>
+
+            <!-- Usuario -->
+            <div class="form-control w-full">
+                <div class="label">
+                    <span class="label-text">Usuario</span>
+                </div>
+                <input type="text" [(ngModel)]="newUser.nombre" [readonly]="true" class="input input-bordered input-sm w-full bg-base-200" />
             </div>
             
-            <div>
-                <label class="form-control w-full">
-                    <div class="label">
-                        <span class="label-text">Contraseña</span>
-                    </div>
-                    <input 
-                        type="password" 
-                        [(ngModel)]="newUser.password" 
-                        (input)="onPasswordChange()" 
-                        class="input input-bordered input-sm w-full" 
-                        [class.input-error]="passwordInvalid"
-                        maxlength="10"
-                        (keydown)="onPasswordKeyDown($event)"
-                    />
-                    <div class="label">
-                        <span class="label-text-alt">La contraseña debe contener:</span>
-                    </div>
-                    <ul class="text-xs text-gray-500 pl-4">
-                        <li [class.text-success]="passwordHasUppercase" [class.text-error]="!passwordHasUppercase">
-                            <span *ngIf="passwordHasUppercase">✓</span> Al menos una letra mayúscula (A-Z)
+            <!-- Contraseña -->
+            <div class="form-control w-full relative">
+                <div class="label">
+                    <span class="label-text">Contraseña</span>
+                </div>
+                <input 
+                    type="password" 
+                    [(ngModel)]="newUser.password" 
+                    (input)="onPasswordChange()" 
+                    class="input input-bordered input-sm w-full" 
+                    [class.input-error]="(passwordInvalid || !passwordsMatch) && newUser.password"
+                    maxlength="10"
+                />
+                
+                <!-- Validaciones de contraseña (solo se muestra si hay texto) -->
+                <div *ngIf="newUser.password" class="absolute z-10 w-full mt-1 bg-base-100 border border-base-300 rounded-md shadow-lg p-2">
+                    <ul class="grid grid-cols-2 gap-1 text-xs">
+                        <li *ngIf="!passwordHasUppercase" class="text-error flex items-center">
+                            <span class="mr-1">✗</span> 1 mayúscula
                         </li>
-                        <li [class.text-success]="passwordHasLowercase" [class.text-error]="!passwordHasLowercase">
-                            <span *ngIf="passwordHasLowercase">✓</span> Al menos una letra minúscula (a-z)
+                        <li *ngIf="!passwordHasLowercase" class="text-error flex items-center">
+                            <span class="mr-1">✗</span> 1 minúscula
                         </li>
-                        <li [class.text-success]="passwordHasNumber" [class.text-error]="!passwordHasNumber">
-                            <span *ngIf="passwordHasNumber">✓</span> Al menos un número (0-9)
+                        <li *ngIf="!passwordHasNumber" class="text-error flex items-center">
+                            <span class="mr-1">✗</span> 1 número
                         </li>
-                        <li [class.text-success]="passwordHasValidLength" [class.text-error]="!passwordHasValidLength">
-                            <span *ngIf="passwordHasValidLength">✓</span> Entre 8 y 10 caracteres
+                        <li *ngIf="!passwordHasValidLength" class="text-error flex items-center">
+                            <span class="mr-1">✗</span> 8-10 caracteres
+                        </li>
+                        <li *ngIf="passwordHasUppercase" class="text-success flex items-center">
+                            <span class="mr-1">✓</span> 1 mayúscula
+                        </li>
+                        <li *ngIf="passwordHasLowercase" class="text-success flex items-center">
+                            <span class="mr-1">✓</span> 1 minúscula
+                        </li>
+                        <li *ngIf="passwordHasNumber" class="text-success flex items-center">
+                            <span class="mr-1">✓</span> 1 número
+                        </li>
+                        <li *ngIf="passwordHasValidLength" class="text-success flex items-center">
+                            <span class="mr-1">✓</span> 8-10 caracteres
                         </li>
                     </ul>
-                </label>
+                </div>
             </div>
-            <div>
-                <label class="form-control w-full">
-                    <div class="label">
-                        <span class="label-text">Rol</span>
-                    </div>
-                    <select 
-                        [(ngModel)]="newUser.id_rol" 
-                        (change)="onRoleChange()"
-                        class="select select-bordered select-sm w-full"
-                    >
-                        <option [ngValue]="0" disabled>Seleccione un rol</option>
-                        <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.nombre | initCapFirst }}</option>
-                    </select>
-                </label>
-            </div>
-            <div *ngIf="isTiendaRole">
-                <label class="form-control w-full">
-                    <div class="label">
-                        <span class="label-text">Bodega</span>
-                        <span *ngIf="isTiendaRole && !newUser.id_bodega" class="label-text-alt text-error"></span>
-                    </div>
-                    <select 
-                        [(ngModel)]="newUser.id_bodega" 
-                        class="select select-bordered select-sm w-full"
-                        [class.select-error]="isTiendaRole && !newUser.id_bodega"
-                        required
-                    >
-                        <option [ngValue]="0" disabled>Seleccione una bodega</option>
-                        <option *ngFor="let bodega of filteredBodegas" [ngValue]="bodega.id">
-                            {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
-                        </option>
-                    </select>
-                </label>
+
+            <!-- Confirmar Contraseña -->
+            <div class="form-control w-full">
+                <div class="label">
+                    <span class="label-text">Confirmar Contraseña</span>
+                </div>
+                <input 
+                    type="password" 
+                    [(ngModel)]="confirmPassword" 
+                    (input)="onConfirmPasswordChange()" 
+                    class="input input-bordered input-sm w-full" 
+                    [class.input-error]="!passwordsMatch && confirmPassword"
+                    [class.input-success]="passwordsMatch && confirmPassword"
+                    maxlength="10"
+                />
+                <div *ngIf="!passwordsMatch && confirmPassword" class="text-error text-xs mt-1">
+                    Las contraseñas no coinciden
+                </div>
             </div>
         </div>
-        <div class="flex justify-end mt-4 space-x-2">
+
+        <!-- Segunda fila: 2 columnas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Rol -->
+            <div class="form-control w-full">
+                <div class="label">
+                    <span class="label-text">Rol</span>
+                </div>
+                <select 
+                    [(ngModel)]="newUser.id_rol" 
+                    (change)="onRoleChange()"
+                    class="select select-bordered select-sm w-full"
+                >
+                    <option [ngValue]="0" disabled>Seleccione un rol</option>
+                    <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.nombre | initCapFirst }}</option>
+                </select>
+            </div>
+
+            <!-- Bodega (solo para rol Tienda) -->
+            <div *ngIf="isTiendaRole" class="form-control w-full">
+                <div class="label">
+                    <span class="label-text">Bodega</span>
+                    <span *ngIf="isTiendaRole && !newUser.id_bodega" class="label-text-alt text-error"></span>
+                </div>
+                <select 
+                    [(ngModel)]="newUser.id_bodega" 
+                    class="select select-bordered select-sm w-full"
+                    [class.select-error]="isTiendaRole && !newUser.id_bodega"
+                    required
+                >
+                    <option [ngValue]="0" disabled>Seleccione una bodega</option>
+                    <option *ngFor="let bodega of filteredBodegas" [ngValue]="bodega.id">
+                        {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="flex justify-end mt-6 space-x-2">
             <button class="btn btn-ghost btn-sm" (click)="toggleCreateUserForm()">Cancelar</button>
             <button 
                 class="btn btn-primary btn-sm" 

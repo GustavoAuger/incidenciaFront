@@ -33,6 +33,8 @@ export class AdministrarUsuariosComponent {
   passwordHasLowercase: boolean = false;
   passwordHasNumber: boolean = false;
   passwordHasValidLength: boolean = false;
+  confirmPassword: string = '';
+  passwordsMatch: boolean = true;
   
   newUser: User = {
     nombre: '',
@@ -246,6 +248,13 @@ deleteUser(user: User): void {
       this.emailInvalid = false;
       this.emailExists = false;
       this.isEmailValid = false;
+      this.passwordInvalid = false;
+      this.passwordHasUppercase = false;
+      this.passwordHasLowercase = false;
+      this.passwordHasNumber = false;
+      this.passwordHasValidLength = false;
+      this.confirmPassword = '';
+      this.passwordsMatch = true;
     }
   }
 
@@ -326,6 +335,8 @@ deleteUser(user: User): void {
     this.passwordHasLowercase = false;
     this.passwordHasNumber = false;
     this.passwordHasValidLength = false;
+    this.confirmPassword = '';
+    this.passwordsMatch = true;
   }
 
   // Validar contraseña en tiempo real
@@ -349,6 +360,19 @@ deleteUser(user: User): void {
                            this.passwordHasLowercase && 
                            this.passwordHasNumber && 
                            this.passwordHasValidLength);
+    
+    // Validar si las contraseñas coinciden
+    this.validatePasswordsMatch();
+  }
+
+  // Método para validar que las contraseñas coincidan
+  onConfirmPasswordChange(): void {
+    this.validatePasswordsMatch();
+  }
+
+  // Validar si las contraseñas coinciden
+  validatePasswordsMatch(): void {
+    this.passwordsMatch = this.newUser.password === this.confirmPassword;
   }
 
   // Prevent typing beyond max length
@@ -387,17 +411,13 @@ deleteUser(user: User): void {
 
   // Verificar si el formulario es válido
   isFormValid(): boolean {
-    return (
-      this.newUser.nombre!.trim() !== '' &&
-      this.newUser.email.endsWith('@head.com') &&
-      !this.emailExists &&
-      this.newUser.password!.length >= 8 &&
-      this.passwordHasUppercase &&
-      this.passwordHasLowercase &&
-      this.passwordHasNumber &&
-      this.newUser.id_rol > 0 &&
-      (this.newUser.id_rol === 4 ? this.newUser.id_bodega! > 0 : true)
-    );
+    if (this.newUser.password === undefined) return false;
+    
+    const isPasswordValid = !this.passwordInvalid && this.newUser.password.length > 0 && this.passwordsMatch;
+    const isRoleValid = this.newUser.id_rol > 0;
+    const isBodegaValid = !this.isTiendaRole || (this.isTiendaRole && this.newUser.id_bodega! > 0);
+    
+    return isPasswordValid && isRoleValid && isBodegaValid && !this.emailInvalid && !this.emailExists && this.isEmailValid;
   }
 
   private validateNewUser(): boolean {
