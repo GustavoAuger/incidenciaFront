@@ -210,56 +210,64 @@
 
     <!-- User List -->
     <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
-        <table class="table">
+        <table class="table table-fixed w-full">
+            <colgroup>
+                <col style="width: 4rem;"> <!-- # -->
+                <col style="width: 20%;"> <!-- Usuario -->
+                <col style="width: 20%;"> <!-- Email -->
+                <col style="width: 20%;"> <!-- Rol -->
+                <col style="width: 20%;"> <!-- Bodega -->
+                <col style="width: 15rem;"> <!-- Acciones -->
+            </colgroup>
             <!-- head -->
             <thead>
                 <tr>
-                    <th></th>
-                    <th>
-                        <div class="flex items-center gap-1 cursor-pointer" (click)="sortTable('usuario')">
-                            Usuario
+                    <th class="text-center">#</th>
+                    <th class="text-center">
+                        <div class="flex items-center justify-center gap-1 cursor-pointer" (click)="sortTable('usuario')">
+                            <span>Usuario</span>
                             <i class="fas {{ getSortIcon('usuario') }}"></i>
                         </div>
                     </th>
-                    <th>
-                        <div class="flex items-center gap-1 cursor-pointer" (click)="sortTable('email')">
-                            Email
+                    <th class="text-center">
+                        <div class="flex items-center justify-center gap-1 cursor-pointer" (click)="sortTable('email')">
+                            <span>Email</span>
                             <i class="fas {{ getSortIcon('email') }}"></i>
                         </div>
-                    </th>                    
-                    <th>
-                        <div class="flex items-center gap-1 cursor-pointer" (click)="sortTable('rol')">
-                            Rol
+                    </th>
+                    <th class="text-center">
+                        <div class="flex items-center justify-center gap-1 cursor-pointer" (click)="sortTable('rol')">
+                            <span>Rol</span>
                             <i class="fas {{ getSortIcon('rol') }}"></i>
                         </div>
                     </th>
-                    <th>
-                        <div class="flex items-center gap-1 cursor-pointer" (click)="sortTable('bodega')">
-                            Bodega
+                    <th class="text-center">
+                        <div class="flex items-center justify-center gap-1 cursor-pointer" (click)="sortTable('bodega')">
+                            <span>Bodega</span>
                             <i class="fas {{ getSortIcon('bodega') }}"></i>
                         </div>
                     </th>
-                    <th>Acción</th>
+                    <th class="text-center">Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let user of paginatedUsers; let i = index">
-                    <th>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</th>
-                    <td>
-                        <span *ngIf="!user.isEditing">{{ user.nombre! | initCapFirst }}</span>
-                        <input *ngIf="user.isEditing" type="text" [(ngModel)]="user.nombre" class="input input-bordered input-xs w-full max-w-xs">
+                <tr *ngFor="let user of paginatedUsers; let i = index" class="hover:bg-gray-100 cursor-pointer transition-colors">
+                    <td class="text-center">{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                    <td class="text-center">
+                        <span *ngIf="!user.isEditing" class="block w-full">{{ user.nombre! | initCapFirst }}</span>
+                        <input *ngIf="user.isEditing" type="text" [(ngModel)]="user.nombre" class="input input-bordered input-xs w-full text-center">
                     </td>
-                    <td>
-                        <span *ngIf="!user.isEditing">{{ user.email }}</span>
-                        <input *ngIf="user.isEditing" type="email" [(ngModel)]="user.email" class="input input-bordered input-xs w-full max-w-xs">
+                    <td class="text-center">
+                        <span *ngIf="!user.isEditing" class="block w-full">{{ user.email }}</span>
+                        <input *ngIf="user.isEditing" type="email" [(ngModel)]="user.email" class="input input-bordered input-xs w-full text-center">
                     </td>
-                    <td>
-                        <span *ngIf="!user.isEditing">{{ user.rol! | initCapFirst }}</span>
+                    <td class="text-center">
+                        <span *ngIf="!user.isEditing" class="block w-full">{{ user.rol! | initCapFirst }}</span>
                         <select 
                             *ngIf="user.isEditing" 
                             [(ngModel)]="user.id_rol" 
                             (change)="onRoleChange()"
-                            class="select select-bordered select-xs w-full max-w-xs"
+                            class="select select-bordered select-xs w-full text-center"
                             [disabled]="!canEditRole(user.id)"
                             [class.bg-base-200]="!canEditRole(user.id)"
                             [title]="!canEditRole(user.id) ? 'No puedes modificar tu propio rol' : 'Seleccionar rol'"
@@ -268,8 +276,8 @@
                             <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.nombre | initCapFirst }}</option>
                         </select>
                     </td>
-                    <td>
-                        <span *ngIf="!user.isEditing">
+                    <td class="text-center">
+                        <span *ngIf="!user.isEditing" class="block w-full">
                             <span *ngIf="user.bodega && bodegas.length > 0">
                                 {{ getBodegaById(user.id_bodega!)?.id_bodega || ' ' }} - {{ user.bodega! | initCapFirst }}
                             </span>
@@ -278,30 +286,29 @@
                                 Sin bodega asignada
                             </span>
                         </span>
-                        <select *ngIf="user.isEditing" [(ngModel)]="user.id_bodega" class="select select-bordered select-xs w-full max-w-xs">
+                        <select *ngIf="user.isEditing" [(ngModel)]="user.id_bodega" class="select select-bordered select-xs w-full text-center">
                             <option [ngValue]="null" disabled>Seleccione una bodega</option>
                             <option *ngFor="let bodega of bodegas" [ngValue]="bodega.id">
                                 {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
                             </option>
                         </select>
                     </td>
-                    <td class="flex space-x-2">
-                        <!-- Botón Editar -->
-                        <button class="btn btn-ghost btn-xs" (click)="openEditModal(user)">
-                            <span class="material-symbols-outlined icono-editar">edit</span>
-                        </button>
-                        
-                        <!-- Botón Eliminar -->
-                        <button 
-                            class="btn btn-ghost btn-xs"
-                            (click)="deleteUser(user)"
-                            [disabled]="!canDeleteUser(user.id)"
-                            [class.opacity-50]="!canDeleteUser(user.id)"
-                            [class.text-error]="canDeleteUser(user.id)"
-                            [title]="!canDeleteUser(user.id) ? 'No puedes eliminarte a ti mismo' : 'Eliminar usuario'"
-                        >
-                            <span class="material-symbols-outlined">delete</span>
-                        </button>
+                    <td class="text-center">
+                        <div class="flex justify-center space-x-2">
+                            <button class="btn btn-ghost btn-xs" (click)="openEditModal(user)">
+                                <span class="material-symbols-outlined icono-editar">edit</span>
+                            </button>
+                            <button 
+                                class="btn btn-ghost btn-xs"
+                                (click)="deleteUser(user)"
+                                [disabled]="!canDeleteUser(user.id)"
+                                [class.opacity-50]="!canDeleteUser(user.id)"
+                                [class.text-error]="canDeleteUser(user.id)"
+                                [title]="!canDeleteUser(user.id) ? 'No puedes eliminarte a ti mismo' : 'Eliminar usuario'"
+                            >
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             </tbody>
@@ -477,12 +484,10 @@
             <div class="flex justify-end gap-2 p-4 border-t">
                 <button class="btn btn-ghost" (click)="closeEditModal()">Cancelar</button>
                 <button 
-                    class="btn" 
-                    [class.btn-primary]="hasChanges && isEditFormValid()" 
+                    class="btn text-white" 
                     [class.btn-disabled]="!hasChanges || !isEditFormValid()"
-                    [style.background-color]="!hasChanges || !isEditFormValid() ? '#9ca3af' : ''"
-                    [style.border-color]="!hasChanges || !isEditFormValid() ? '#9ca3af' : ''"
-                    [style.color]="!hasChanges || !isEditFormValid() ? '#6b7280' : 'white'"
+                    [style.background-color]="hasChanges && isEditFormValid() ? '#00bcd4' : '#9ca3af'"
+                    [style.border-color]="hasChanges && isEditFormValid() ? '#00bcd4' : '#9ca3af'"
                     (click)="saveUserChanges()"
                     [disabled]="!hasChanges || !isEditFormValid()">
                     Guardar Cambios
