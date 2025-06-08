@@ -286,13 +286,17 @@ deleteUser(user: User): void {
     
     // Validar formato de correo
     this.emailInvalid = !email.endsWith('@head.com');
+    this.isEmailValid = !this.emailInvalid && email.length > 0;
+    
+    // Extraer el nombre de usuario del correo (antes del @) y asignarlo
+    if (email.includes('@')) {
+      this.newUser.nombre = email.split('@')[0];
+    } else {
+      this.newUser.nombre = email; // Por si acaso no tiene @
+    }
     
     // Solo verificar existencia si el formato es correcto
-    if (!this.emailInvalid) {
-      // Extraer el nombre de usuario del correo (antes del @)
-      const username = email.split('@')[0];
-      this.newUser.nombre = username;
-      
+    if (this.isEmailValid) {
       // Verificar si el correo ya existe
       this.emailExists = this.emailsList.includes(email);
     } else {

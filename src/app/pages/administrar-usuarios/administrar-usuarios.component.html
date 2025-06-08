@@ -11,8 +11,8 @@
     <div *ngIf="showCreateUserForm" class="bg-base-100 border border-base-content/10 rounded-lg p-6 mb-6">
         <h4 class="text-lg font-semibold mb-4">Crear Nuevo Usuario</h4>
         
-        <!-- Primera fila: 4 columnas -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        <!-- Primera fila: 3 columnas -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <!-- Email -->
             <div class="form-control w-full">
                 <div class="label">
@@ -37,14 +37,6 @@
                 </div>
             </div>
 
-            <!-- Usuario -->
-            <div class="form-control w-full">
-                <div class="label">
-                    <span class="label-text">Usuario</span>
-                </div>
-                <input type="text" [(ngModel)]="newUser.nombre" [readonly]="true" class="input input-bordered input-sm w-full bg-base-200" />
-            </div>
-            
             <!-- Contraseña -->
             <div class="form-control w-full relative">
                 <div class="label">
@@ -56,6 +48,7 @@
                     (input)="onPasswordChange()" 
                     class="input input-bordered input-sm w-full" 
                     [class.input-error]="(passwordInvalid || !passwordsMatch) && newUser.password"
+                    [class.input-success]="!passwordInvalid && newUser.password && newUser.password.length > 0"
                     maxlength="10"
                 />
                 
