@@ -74,6 +74,8 @@ export class AdministrarUsuariosComponent {
   // Propiedad para almacenar el ID del usuario actual
   currentUserId: number | null = null;
 
+  emailPrefix: string = '';
+
   constructor(private router: Router, private _userService: UserService) {}
 
   ngOnInit(): void {
@@ -281,28 +283,18 @@ deleteUser(user: User): void {
     });
   }
 
-  onEmailChange(): void {
-    const email = this.newUser.email.toLowerCase();
+  onEmailPrefixChange(): void {
+    // Limpiar el prefijo de caracteres no permitidos (solo letras, números, puntos y guiones bajos)
+    this.emailPrefix = this.emailPrefix.replace(/[^\w.-]/g, '').toLowerCase();
     
-    // Validar formato de correo
-    this.emailInvalid = !email.endsWith('@head.com');
-    this.isEmailValid = !this.emailInvalid && email.length > 0;
+    // Construir el email completo
+    const fullEmail = this.emailPrefix + '@head.com';
+    this.newUser.email = fullEmail;
+    this.newUser.nombre = this.emailPrefix;
     
-    // Extraer el nombre de usuario del correo (antes del @) y asignarlo
-    if (email.includes('@')) {
-      this.newUser.nombre = email.split('@')[0];
-    } else {
-      this.newUser.nombre = email; // Por si acaso no tiene @
-    }
-    
-    // Solo verificar existencia si el formato es correcto
-    if (this.isEmailValid) {
-      // Verificar si el correo ya existe
-      this.emailExists = this.emailsList.includes(email);
-    } else {
-      // Si el formato es inválido, no verificar existencia
-      this.emailExists = false;
-    }
+    // Verificar si el correo ya existe
+    this.emailExists = this.emailsList.includes(fullEmail);
+    this.isEmailValid = this.emailPrefix.length > 0;
   }
 
   checkEmailExists(email: string): void {
@@ -327,8 +319,11 @@ deleteUser(user: User): void {
       password: '',
       id_rol: 0,
       id_bodega: 0,
-      estado: true
+      estado: true,
+      bodega: ''
     };
+    this.emailPrefix = '';
+    this.confirmPassword = '';
     this.resetPasswordValidation();
   }
 
@@ -384,6 +379,15 @@ deleteUser(user: User): void {
     const input = event.target as HTMLInputElement;
     if (input.value.length >= 10 && event.key !== 'Backspace' && event.key !== 'Delete' && !event.ctrlKey) {
       event.preventDefault();
+    }
+  }
+
+  // Prevenir la entrada de @ y espacios
+  onEmailKeyDown(event: KeyboardEvent): void {
+    // Evitar la tecla @ (Shift + 2) y espacio
+    if (event.key === '@' || event.key === ' ' || event.code === 'Space' || event.keyCode === 32) {
+      event.preventDefault();
+      return;
     }
   }
 

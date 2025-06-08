@@ -18,21 +18,26 @@
                 <div class="label">
                     <span class="label-text">Email</span>
                 </div>
-                <input 
-                    type="email" 
-                    [(ngModel)]="newUser.email" 
-                    (ngModelChange)="newUser.email = $event.toLowerCase()"
-                    (input)="onEmailChange()" 
-                    class="input input-bordered input-sm w-full" 
-                    [class.input-error]="(emailInvalid || emailExists) && newUser.email"
-                    [class.input-success]="!emailInvalid && !emailExists && newUser.email"
-                />
-                <div *ngIf="newUser.email" class="label p-0 mt-1 min-h-6">
-                    <span class="label-text-alt" [class.text-error]="emailInvalid" [class.text-success]="!emailInvalid">
-                        <span *ngIf="emailInvalid">El email debe terminar en &#64;head.com</span>
-                    </span>
-                    <span class="label-text-alt" [class.text-error]="emailExists" [class.text-success]="!emailExists">
-                        <span *ngIf="emailExists">Email no disponible</span>
+                <div class="relative">
+                    <div class="flex items-center">
+                        <input 
+                            type="text" 
+                            [(ngModel)]="emailPrefix" 
+                            (input)="onEmailPrefixChange()"
+                            (keydown)="onEmailKeyDown($event)"
+                            class="input input-bordered input-sm w-full bg-transparent border-r-0 rounded-r-none" 
+                            [class.input-error]="emailExists"
+                            [class.input-success]="!emailExists && emailPrefix"
+                            placeholder="usuario"
+                        />
+                        <div class="input input-bordered input-sm rounded-l-none border-l-0 bg-gray-50 text-gray-600 flex items-center">
+                            &#64;head.com
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="emailPrefix" class="label p-0 mt-1 min-h-6">
+                    <span class="label-text-alt text-error" *ngIf="emailExists">
+                        Email no disponible
                     </span>
                 </div>
             </div>
