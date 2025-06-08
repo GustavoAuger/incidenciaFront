@@ -37,7 +37,7 @@
                 <!-- Email -->
                 <div class="form-control w-full relative">
                     <div class="label">
-                        <span class="label-text">Email</span>
+                        <span class="label-text">Email (*)</span>
                     </div>
                     <div class="flex items-center">
                         <input 
@@ -65,7 +65,7 @@
                 <!-- Contraseña -->
                 <div class="form-control w-full relative">
                     <div class="label">
-                        <span class="label-text">Contraseña</span>
+                        <span class="label-text">Contraseña (*)</span>
                     </div>
                     <input 
                         type="password" 
@@ -100,7 +100,7 @@
                 <!-- Confirmar Contraseña -->
                 <div class="form-control w-full relative">
                     <div class="label">
-                        <span class="label-text">Confirmar Contraseña</span>
+                        <span class="label-text">Confirmar Contraseña (*)</span>
                     </div>
                     <input 
                         type="password" 
@@ -125,7 +125,7 @@
                 <!-- Rol -->
                 <div class="form-control w-full">
                     <div class="label">
-                        <span class="label-text">Rol</span>
+                        <span class="label-text">Rol (*)</span>
                     </div>
                     <select 
                         [(ngModel)]="newUser.id_rol" 
@@ -141,7 +141,7 @@
                 <div class="form-control w-full" [class.md:col-span-2]="!isTiendaRole">
                     <div *ngIf="isTiendaRole">
                         <div class="label">
-                            <span class="label-text">Bodega</span>
+                            <span class="label-text">Bodega (*)</span>
                             <span *ngIf="isTiendaRole && !newUser.id_bodega" class="label-text-alt text-error"></span>
                         </div>
                         <select 
