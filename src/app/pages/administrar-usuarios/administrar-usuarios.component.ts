@@ -819,4 +819,5 @@ deleteUser(user: User): void {
       }
     });
   }
+
 }
