@@ -437,7 +437,7 @@ deleteUser(user: User): void {
           // Ocultar el mensaje después de 3 segundos
           setTimeout(() => {
             this.showSuccessMessage = false;
-          }, 3000);
+          }, 2000);
           
           this.getBodegaUsers();
           this.getUsuarios();

@@ -1,4 +1,13 @@
-<div class="grid grid-cols-3 gap-8 p-8 h-[calc(100vh-6rem)]">
+<!-- Pantalla de carga -->
+<div *ngIf="isLoading" class="fixed inset-0 bg-[#f5f5f5] bg-opacity-90 flex items-center justify-center z-50">
+    <div class="text-center">
+        <div class="loading loading-spinner loading-lg" style="color: #00bcd4;"></div>
+        <p class="mt-2 text-gray-600">Cargando ...</p>
+    </div>
+</div>
+
+<!-- Contenido principal -->
+<div class="grid grid-cols-3 gap-8 p-8 h-[calc(100vh-6rem)]" [class.opacity-0]="isLoading" [class.invisible]="isLoading">
   <!-- Resumen de Incidencias siempre visible para todos -->
   <div (click)="navigateTo('/ver-incidencias')" class="card resumen-incidencias flex-grow">
     <div class="card-content">

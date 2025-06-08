@@ -1,7 +1,7 @@
 <div class="px-4 sm:px-6 lg:px-8 bg-[#f5f5f5] min-h-screen -mt-1 pt-1 relative">
     <!-- Loading Overlay -->
-    <div *ngIf="isLoading" class="absolute inset-0 bg-[#f5f5f5] bg-opacity-90 flex items-start justify-center z-40 pt-20">
-        <div class="text-center mt-8">
+    <div *ngIf="isLoading" class="fixed inset-0 bg-[#f5f5f5] bg-opacity-90 flex items-center justify-center z-50">
+        <div class="text-center">
             <div class="loading loading-spinner loading-lg" style="color: #00bcd4;"></div>
             <p class="mt-2 text-gray-600">Cargando ...</p>
         </div>

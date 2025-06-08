@@ -11,8 +11,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule]
 })
 export class HomeComponent implements OnInit {
-  constructor(private router: Router) {}
-
+  isLoading: boolean = true;
   user: User = {
     email: '',
     password: '',
@@ -21,7 +20,13 @@ export class HomeComponent implements OnInit {
     id: 0,
   }
 
+  constructor(private router: Router) {}
+
   ngOnInit(): void {
+    // Mostrar loader
+    this.isLoading = true;
+    const startTime = Date.now();
+    
     // Obtener el rol desde localStorage
     const idRolStr = localStorage.getItem('id_rol');
     
@@ -50,15 +55,15 @@ export class HomeComponent implements OnInit {
     
     console.log('Rol final asignado:', this.user.id_rol);
     
-    // Verificar los métodos de acceso
-    console.log('isAdmin():', this.isAdmin());
-    console.log('isEmisor():', this.isEmisor());
-    console.log('isGestor():', this.isGestor());
-    console.log('isTienda():', this.isTienda());
-    console.log('canAccessCrearIncidencia():', this.canAccessCrearIncidencia());
-    console.log('canAccessReportesIncidencias():', this.canAccessReportesIncidencias());
-    console.log('canAccessIncidenciasReclamo():', this.canAccessIncidenciasReclamo());
-    console.log('canAccessAdministrarUsuarios():', this.canAccessAdministrarUsuarios());
+    // Calcular tiempo restante para completar 2 segundos
+    const minLoadingTime = 2000; // 2 segundos
+    const elapsed = Date.now() - startTime;
+    const remainingTime = Math.max(0, minLoadingTime - elapsed);
+    
+    // Ocultar loader después del tiempo mínimo
+    setTimeout(() => {
+      this.isLoading = false;
+    }, remainingTime);
   }
 
   navigateTo(route: string): void {    
