@@ -76,6 +76,9 @@ export class AdministrarUsuariosComponent {
 
   emailPrefix: string = '';
 
+  showSuccessMessage: boolean = false;
+  successMessage: string = '';
+
   constructor(private router: Router, private _userService: UserService) {}
 
   ngOnInit(): void {
@@ -406,6 +409,15 @@ deleteUser(user: User): void {
     this._userService.createUser(userToCreate).subscribe({
       next: (response: boolean) => {
         if (response) {
+          // Mostrar mensaje de éxito
+          this.showSuccessMessage = true;
+          this.successMessage = 'Usuario creado con éxito';
+          
+          // Ocultar el mensaje después de 3 segundos
+          setTimeout(() => {
+            this.showSuccessMessage = false;
+          }, 3000);
+          
           this.getBodegaUsers();
           this.getUsuarios();
           this.toggleCreateUserForm();
