@@ -273,12 +273,19 @@
                     </td>
                     <td>
                         <span *ngIf="!user.isEditing">
-                            <span *ngIf="user.bodega">
-                                {{ user.bodega! | initCapFirst }}
+                            <span *ngIf="user.bodega && bodegas.length > 0">
+                                {{ getBodegaById(user.id_bodega!)?.id_bodega || ' ' }} - {{ user.bodega! | initCapFirst }}
+                            </span>
+                            <span *ngIf="user.bodega && bodegas.length === 0" class="loading loading-spinner loading-xs"></span>
+                            <span *ngIf="!user.bodega" class="text-gray-500">
+                                Sin bodega asignada
                             </span>
                         </span>
                         <select *ngIf="user.isEditing" [(ngModel)]="user.id_bodega" class="select select-bordered select-xs w-full max-w-xs">
-                            <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}</option>
+                            <option [ngValue]="null" disabled>Seleccione una bodega</option>
+                            <option *ngFor="let bodega of bodegas" [ngValue]="bodega.id">
+                                {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
+                            </option>
                         </select>
                     </td>
                     <td class="flex space-x-2">
@@ -392,7 +399,7 @@
                         >
                             <option [ngValue]="0" disabled>Seleccione una bodega</option>
                             <option *ngFor="let bodega of filteredBodegas" [ngValue]="bodega.id">
-                                {{ bodega.nombre | initCapFirst }}
+                                {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
                             </option>
                         </select>
                     </div>

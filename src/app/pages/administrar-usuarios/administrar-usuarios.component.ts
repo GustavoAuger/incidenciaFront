@@ -470,26 +470,11 @@ deleteUser(user: User): void {
   getBodegaById(id: number | undefined): Bodega | undefined {
     console.log(id);
     if (id === undefined) return undefined;
-    const bodega : Bodega | undefined = this.bodegas.find(bodega => bodega.id === id);
+    const bodega : Bodega | undefined = this.bodegas.find(bodega => bodega.id == id);
     console.log(JSON.stringify(bodega));
     return bodega
   }
 
-  // Obtener el nombre de la bodega por su ID
-  getBodegaNombre(idBodega: number): string {
-    if (!idBodega) return '';
-    
-    // Bodegas especiales
-    switch(idBodega) {
-      case 0: return 'Bodega Virtual';
-      case 1: return 'Bodega Central';
-      case 23: return 'Bodega Devoluciones';
-      default:
-        // Buscar en las bodegas filtradas
-        const bodega = this.filteredBodegas.find(b => b.id === idBodega);
-        return bodega ? bodega.nombre : 'Bodega no encontrada';
-    }
-  }
 
   // Método para cancelar la edición
   cancelEdit(user: User): void {
