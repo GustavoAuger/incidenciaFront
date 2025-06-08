@@ -19,17 +19,8 @@
 
     <!-- Contenido principal -->
     <div [class.opacity-0]="isLoading" [class.invisible]="isLoading">
-        <!-- Botón Nuevo Usuario -->
-        <div class="flex justify-between items-center mb-4 mt-4">
-            <h3 class="text-lg font-semibold"></h3>
-            <button class="btn btn-sm flex items-center space-x-2 text-white" style="background-color: #00bcd4;" (click)="toggleCreateUserForm()">
-                <span class="material-symbols-outlined">add</span>
-                <span>Nuevo Usuario</span>
-            </button>
-        </div>
-
         <!-- User Creation Form -->
-        <div *ngIf="showCreateUserForm" class="bg-base-100 border border-base-content/10 rounded-lg p-6 mb-6">
+        <div *ngIf="showCreateUserForm" class="bg-base-100 border border-base-content/10 rounded-lg p-6 mb-6 mt-4">
             <h4 class="text-lg font-semibold mb-4">Crear Nuevo Usuario</h4>
             
             <!-- Primera fila: 3 columnas -->
@@ -178,8 +169,14 @@
             </div>
         </div>
 
-        <h3 class="text-lg font-semibold">Lista de Usuarios</h3>
-        <br>
+        <!-- Fila de Título y Botón Nuevo Usuario -->
+        <div class="flex justify-between items-center mb-4 mt-6">
+            <h3 class="text-lg font-semibold">Administrar Usuarios</h3>
+            <button class="btn btn-sm flex items-center space-x-2 text-white" style="background-color: #00bcd4;" (click)="toggleCreateUserForm()">
+                <span class="material-symbols-outlined">{{ showCreateUserForm ? 'remove' : 'add' }}</span>
+                <span>Nuevo Usuario</span>
+            </button>
+        </div>
         
         <!-- Filtros de búsqueda -->
         <div class="flex flex-wrap gap-4 mb-4">
