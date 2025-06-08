@@ -398,6 +398,7 @@ deleteUser(user: User): void {
     this._userService.createUser(userToCreate).subscribe({
       next: (response: boolean) => {
         if (response) {
+          this.getBodegaUsers();
           this.getUsuarios();
           this.toggleCreateUserForm();
           this.resetNewUserForm();
