@@ -145,12 +145,14 @@
         <div class="flex justify-end mt-6 space-x-2">
             <button class="btn btn-ghost btn-sm" (click)="toggleCreateUserForm()">Cancelar</button>
             <button 
-                class="btn btn-primary btn-sm" 
+                class="btn btn-sm flex items-center space-x-2 text-white"
+                [class.bg-[#00bcd4]]="isFormValid()"
+                [class.bg-gray-400]="!isFormValid()"
                 (click)="createUser()"
                 [disabled]="!isFormValid()"
-                [class.opacity-50]="!isFormValid()"
                 [class.cursor-not-allowed]="!isFormValid()">
-                Crear Usuario
+                <span class="material-symbols-outlined">add</span>
+                <span>Crear Usuario</span>
             </button>
         </div>
     </div>
