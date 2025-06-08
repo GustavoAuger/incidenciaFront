@@ -14,31 +14,30 @@
         <!-- Primera fila: 3 columnas -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <!-- Email -->
-            <div class="form-control w-full">
+            <div class="form-control w-full relative">
                 <div class="label">
                     <span class="label-text">Email</span>
                 </div>
-                <div class="relative">
-                    <div class="flex items-center">
-                        <input 
-                            type="text" 
-                            [(ngModel)]="emailPrefix" 
-                            (input)="onEmailPrefixChange()"
-                            (keydown)="onEmailKeyDown($event)"
-                            class="input input-bordered input-sm w-full bg-transparent border-r-0 rounded-r-none" 
-                            [class.input-error]="emailExists"
-                            [class.input-success]="!emailExists && emailPrefix"
-                            placeholder="usuario"
-                        />
-                        <div class="input input-bordered input-sm rounded-l-none border-l-0 bg-gray-50 text-gray-600 flex items-center">
-                            &#64;head.com
-                        </div>
+                <div class="flex items-center">
+                    <input 
+                        type="text" 
+                        [(ngModel)]="emailPrefix" 
+                        (input)="onEmailPrefixChange()"
+                        (keydown)="onEmailKeyDown($event)"
+                        class="input input-bordered input-sm w-full bg-transparent border-r-0 rounded-r-none" 
+                        [class.input-error]="emailExists"
+                        [class.input-success]="!emailExists && emailPrefix"
+                        placeholder="usuario"
+                    />
+                    <div class="input input-bordered input-sm rounded-l-none border-l-0 bg-gray-50 text-gray-600 flex items-center">
+                        &#64;head.com
                     </div>
                 </div>
-                <div *ngIf="emailPrefix" class="label p-0 mt-1 min-h-6">
-                    <span class="label-text-alt text-error" *ngIf="emailExists">
-                        Email no disponible
-                    </span>
+                <!-- Validación de correo (solo muestra error si el correo existe) -->
+                <div *ngIf="emailPrefix && emailExists" class="absolute z-10 w-full mt-1 bg-base-100 border border-error/20 rounded-md shadow-lg p-2">
+                    <div class="text-error text-xs flex items-center">
+                        <span class="mr-1">✗</span> Email no disponible
+                    </div>
                 </div>
             </div>
 
@@ -57,8 +56,8 @@
                     maxlength="10"
                 />
                 
-                <!-- Validaciones de contraseña (solo se muestra si hay texto) -->
-                <div *ngIf="newUser.password" class="absolute z-10 w-full mt-1 bg-base-100 border border-base-300 rounded-md shadow-lg p-2">
+                <!-- Validaciones de contraseña (solo muestra lo que falta) -->
+                <div *ngIf="newUser.password && passwordInvalid" class="absolute z-10 w-full mt-1 bg-base-100 border border-error/20 rounded-md shadow-lg p-2">
                     <ul class="grid grid-cols-2 gap-1 text-xs">
                         <li *ngIf="!passwordHasUppercase" class="text-error flex items-center">
                             <span class="mr-1">✗</span> 1 mayúscula
@@ -72,44 +71,34 @@
                         <li *ngIf="!passwordHasValidLength" class="text-error flex items-center">
                             <span class="mr-1">✗</span> 8-10 caracteres
                         </li>
-                        <li *ngIf="passwordHasUppercase" class="text-success flex items-center">
-                            <span class="mr-1">✓</span> 1 mayúscula
-                        </li>
-                        <li *ngIf="passwordHasLowercase" class="text-success flex items-center">
-                            <span class="mr-1">✓</span> 1 minúscula
-                        </li>
-                        <li *ngIf="passwordHasNumber" class="text-success flex items-center">
-                            <span class="mr-1">✓</span> 1 número
-                        </li>
-                        <li *ngIf="passwordHasValidLength" class="text-success flex items-center">
-                            <span class="mr-1">✓</span> 8-10 caracteres
-                        </li>
                     </ul>
                 </div>
             </div>
 
             <!-- Confirmar Contraseña -->
-            <div class="form-control w-full">
+            <div class="form-control w-full relative">
                 <div class="label">
                     <span class="label-text">Confirmar Contraseña</span>
                 </div>
                 <input 
                     type="password" 
                     [(ngModel)]="confirmPassword" 
-                    (input)="onConfirmPasswordChange()" 
-                    class="input input-bordered input-sm w-full" 
+                    (input)="validatePasswordsMatch()" 
+                    class="input input-bordered input-sm w-full"
                     [class.input-error]="!passwordsMatch && confirmPassword"
                     [class.input-success]="passwordsMatch && confirmPassword"
-                    maxlength="10"
                 />
-                <div *ngIf="!passwordsMatch && confirmPassword" class="text-error text-xs mt-1">
-                    Las contraseñas no coinciden
+                <!-- Validación de coincidencia (solo muestra error si no coinciden) -->
+                <div *ngIf="confirmPassword && !passwordsMatch" class="absolute z-10 w-full mt-1 bg-base-100 border border-error/20 rounded-md shadow-lg p-2">
+                    <div class="text-error text-xs flex items-center">
+                        <span class="mr-1">✗</span> Las contraseñas no coinciden
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Segunda fila: 2 columnas -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Segunda fila -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
             <!-- Rol -->
             <div class="form-control w-full">
                 <div class="label">
@@ -126,23 +115,28 @@
             </div>
 
             <!-- Bodega (solo para rol Tienda) -->
-            <div *ngIf="isTiendaRole" class="form-control w-full">
-                <div class="label">
-                    <span class="label-text">Bodega</span>
-                    <span *ngIf="isTiendaRole && !newUser.id_bodega" class="label-text-alt text-error"></span>
+            <div class="form-control w-full" [class.md:col-span-2]="!isTiendaRole">
+                <div *ngIf="isTiendaRole">
+                    <div class="label">
+                        <span class="label-text">Bodega</span>
+                        <span *ngIf="isTiendaRole && !newUser.id_bodega" class="label-text-alt text-error"></span>
+                    </div>
+                    <select 
+                        [(ngModel)]="newUser.id_bodega" 
+                        class="select select-bordered select-sm w-full"
+                        [class.select-error]="isTiendaRole && !newUser.id_bodega"
+                        required
+                    >
+                        <option [ngValue]="0" disabled>Seleccione una bodega</option>
+                        <option *ngFor="let bodega of filteredBodegas" [ngValue]="bodega.id">
+                            {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
+                        </option>
+                    </select>
                 </div>
-                <select 
-                    [(ngModel)]="newUser.id_bodega" 
-                    class="select select-bordered select-sm w-full"
-                    [class.select-error]="isTiendaRole && !newUser.id_bodega"
-                    required
-                >
-                    <option [ngValue]="0" disabled>Seleccione una bodega</option>
-                    <option *ngFor="let bodega of filteredBodegas" [ngValue]="bodega.id">
-                        {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
-                    </option>
-                </select>
             </div>
+
+            <!-- Columna vacía -->
+            <div *ngIf="isTiendaRole" class="hidden md:block"></div>
         </div>
 
         <!-- Botones de acción -->
