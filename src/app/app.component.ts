@@ -19,6 +19,7 @@ export class AppComponent implements OnInit, OnDestroy {
   isNotLogin: boolean = false;
   username: string = '';
   userBodega: string = '';
+  userRol: string = '';
   private routerSubscription: any;
 
   constructor(
@@ -62,17 +63,24 @@ export class AppComponent implements OnInit, OnDestroy {
         const userEmail = localStorage.getItem('username');
         const currentUser = users.find(user => user.email === userEmail);
         
-        if (currentUser && currentUser.bodega) {
-          this.userBodega = currentUser.bodega;
+        if (currentUser) {
+          this.userBodega = currentUser.bodega || 'Sin bodega asignada';
+          this.userRol = currentUser.rol ? this.capitalizeFirstLetter(currentUser.rol) : 'Rol no definido';
         } else {
           this.userBodega = 'Sin bodega asignada';
+          this.userRol = 'Rol no definido';
         }
       },
       error: (error) => {
         console.error('Error al cargar la información del usuario:', error);
         this.userBodega = 'Bodega no disponible';
+        this.userRol = 'Rol no disponible';
       }
     });
+  }
+
+  private capitalizeFirstLetter(string: string): string {
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   }
 
   navigateToHome(): void {
