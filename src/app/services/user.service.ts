@@ -18,7 +18,7 @@ export class UserService {
     return this.http.get<User[]>(this.apiUrl + '/getUsers');
   }
 
-  updateUser(user: User): Observable<boolean> {
+  updateUser(user: User, password?: string): Observable<boolean> {
     if (!user.id) {
       throw new Error('User ID is required for updating');
     }
@@ -28,8 +28,10 @@ export class UserService {
       email: user.email, 
       id_rol: user.id_rol,
       id_bodega: user.id_bodega,
-      estado: user.estado
+      estado: user.estado,
+      contrasena: password || null
     };
+    
     return this.http.post<boolean>(this.apiUrl+'/modifyUser', body);
   }
 

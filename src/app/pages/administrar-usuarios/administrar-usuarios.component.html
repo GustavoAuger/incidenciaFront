@@ -282,26 +282,12 @@
                         </select>
                     </td>
                     <td class="flex space-x-2">
-                        <!-- Botón Editar/Guardar -->
-                        <button *ngIf="!user.isEditing" 
-                                class="btn btn-ghost btn-xs" 
-                                (click)="startEditing(user)">
+                        <!-- Botón Editar -->
+                        <button class="btn btn-ghost btn-xs" (click)="openEditModal(user)">
                             <span class="material-symbols-outlined icono-editar">edit</span>
                         </button>
-                        <button *ngIf="user.isEditing" 
-                                class="btn btn-ghost btn-xs" 
-                                (click)="saveUser(user)">
-                            <span class="material-symbols-outlined text-green-500">save</span>
-                        </button>
-                    
-                        <!-- Botón Cancelar (solo en modo edición) -->
-                        <button *ngIf="user.isEditing" 
-                                class="btn btn-ghost btn-xs" 
-                                (click)="cancelEdit(user)">
-                            <span class="material-symbols-outlined text-red-500">close</span>
-                        </button>
                         
-                        <!-- Botón Eliminar (solo cuando no está en modo edición) -->
+                        <!-- Botón Eliminar -->
                         <button 
                             class="btn btn-ghost btn-xs"
                             (click)="deleteUser(user)"
@@ -341,6 +327,154 @@
                 [class.btn-disabled]="currentPage === totalPages"
                 (click)="changePage(currentPage + 1)">
                 <i class="fas fa-chevron-right text-sm"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Edición de Usuario -->
+<div *ngIf="showEditModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+        <!-- Encabezado del Modal -->
+        <div class="flex justify-between items-center p-4 border-b">
+            <h3 class="text-lg font-semibold">Editar Usuario</h3>
+            <button class="btn btn-ghost btn-sm" (click)="closeEditModal()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <!-- Contenido del Modal -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 gap-4">
+                <!-- Información del Usuario -->
+                <div class="bg-base-200 p-4 rounded-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <div class="text-sm text-gray-500">Nombre</div>
+                            <div class="font-medium">{{userToEdit?.nombre}}</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-500">Email</div>
+                            <div class="font-medium">{{userToEdit?.email}}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rol y Bodega en la misma fila -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Rol -->
+                    <div class="form-control w-full">
+                        <div class="label">
+                            <span class="label-text">Rol (*)</span>
+                        </div>
+                        <select 
+                            [(ngModel)]="userToEdit!.id_rol" 
+                            class="select select-bordered w-full"
+                            (change)="onEditRoleChange(); checkForChanges()"
+                        >
+                            <option [ngValue]="0" disabled>Seleccione un rol</option>
+                            <option *ngFor="let rol of roles" [ngValue]="rol.id">
+                                {{ rol.nombre | initCapFirst }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Bodega (solo para rol Tienda) -->
+                    <div *ngIf="editIsTiendaRole" class="form-control w-full">
+                        <div class="label">
+                            <span class="label-text">Bodega (*)</span>
+                        </div>
+                        <select 
+                            [(ngModel)]="userToEdit!.id_bodega" 
+                            class="select select-bordered w-full"
+                            (change)="checkForChanges()"
+                            [class.select-error]="editIsTiendaRole && !userToEdit!.id_bodega"
+                        >
+                            <option [ngValue]="0" disabled>Seleccione una bodega</option>
+                            <option *ngFor="let bodega of filteredBodegas" [ngValue]="bodega.id">
+                                {{ bodega.nombre | initCapFirst }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Contraseñas en la misma fila -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <!-- Nueva Contraseña -->
+                    <div class="form-control w-full">
+                        <div class="label">
+                            <span class="label-text">Nueva Contraseña (opcional)</span>
+                        </div>
+                        <input 
+                            type="password" 
+                            [(ngModel)]="editPassword"
+                            (keyup)="validateEditPassword(); checkForChanges()"
+                            (keydown.space)="$event.preventDefault()"
+                            maxlength="10"
+                            class="input input-bordered w-full"
+                            placeholder="Dejar en blanco para no cambiar"
+                        >
+                    </div>
+
+                    <!-- Confirmar Contraseña -->
+                    <div class="form-control w-full">
+                        <div class="label">
+                            <span class="label-text">Confirmar Contraseña</span>
+                        </div>
+                        <input 
+                            type="password" 
+                            [(ngModel)]="editConfirmPassword"
+                            (keyup)="validateEditPasswordsMatch(); checkForChanges()"
+                            (keydown.space)="$event.preventDefault()"
+                            maxlength="10"
+                            class="input input-bordered w-full"
+                            [disabled]="!editPassword"
+                            placeholder=""
+                        >
+                    </div>
+                </div>
+
+                <!-- Mensajes de validación de contraseña -->
+                <div *ngIf="editPassword" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    <div>
+                        <div class="text-xs" [class.text-error]="!editPasswordHasUppercase" [class.text-success]="editPasswordHasUppercase">
+                            • Al menos una letra mayúscula
+                        </div>
+                        <div class="text-xs" [class.text-error]="!editPasswordHasLowercase" [class.text-success]="editPasswordHasLowercase">
+                            • Al menos una letra minúscula
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-xs" [class.text-error]="!editPasswordHasNumber" [class.text-success]="editPasswordHasNumber">
+                            • Al menos un número
+                        </div>
+                        <div class="text-xs" [class.text-error]="!editPasswordHasValidLength" [class.text-success]="editPasswordHasValidLength">
+                            • Mínimo 8 caracteres
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje de error de coincidencia -->
+                <div *ngIf="editConfirmPassword && !editPasswordsMatch" class="text-error text-xs mt-1">
+                    Las contraseñas no coinciden
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Pie del Modal -->
+        <div class="flex justify-end gap-2 p-4 border-t">
+            <button class="btn btn-ghost" (click)="closeEditModal()">Cancelar</button>
+            <button 
+                class="btn" 
+                [class.btn-primary]="hasChanges && isEditFormValid()" 
+                [class.btn-disabled]="!hasChanges || !isEditFormValid()"
+                [style.background-color]="!hasChanges || !isEditFormValid() ? '#9ca3af' : ''"
+                [style.border-color]="!hasChanges || !isEditFormValid() ? '#9ca3af' : ''"
+                [style.color]="!hasChanges || !isEditFormValid() ? '#6b7280' : 'white'"
+                (click)="saveUserChanges()"
+                [disabled]="!hasChanges || !isEditFormValid()">
+                Guardar Cambios
             </button>
         </div>
     </div>

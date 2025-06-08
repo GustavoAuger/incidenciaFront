@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -79,7 +79,27 @@ export class AdministrarUsuariosComponent {
   showSuccessMessage: boolean = false;
   successMessage: string = '';
 
-  constructor(private router: Router, private _userService: UserService) {}
+  showEditModal: boolean = false;
+  userToEdit: User | null = null;
+  editPassword: string = '';
+  editConfirmPassword: string = '';
+  editEmailPrefix: string = '';
+  editIsTiendaRole: boolean = false;
+  editEmailInvalid: boolean = false;
+  editEmailExists: boolean = false;
+  editIsEmailValid: boolean = false;
+  editPasswordInvalid: boolean = false;
+  editPasswordsMatch: boolean = true;
+  editPasswordHasUppercase: boolean = false;
+  editPasswordHasLowercase: boolean = false;
+  editPasswordHasNumber: boolean = false;
+  editPasswordHasValidLength: boolean = false;
+
+  // Propiedad para rastrear si se han realizado cambios
+  hasChanges: boolean = false;
+  originalUserData: User | null = null;
+
+  constructor(private router: Router, private _userService: UserService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     // Obtener el ID del usuario logueado desde localStorage
@@ -454,6 +474,22 @@ deleteUser(user: User): void {
     return bodega
   }
 
+  // Obtener el nombre de la bodega por su ID
+  getBodegaNombre(idBodega: number): string {
+    if (!idBodega) return '';
+    
+    // Bodegas especiales
+    switch(idBodega) {
+      case 0: return 'Bodega Virtual';
+      case 1: return 'Bodega Central';
+      case 23: return 'Bodega Devoluciones';
+      default:
+        // Buscar en las bodegas filtradas
+        const bodega = this.filteredBodegas.find(b => b.id === idBodega);
+        return bodega ? bodega.nombre : 'Bodega no encontrada';
+    }
+  }
+
   // Método para cancelar la edición
   cancelEdit(user: User): void {
     // Simplemente cerramos el modo de edición sin guardar cambios
@@ -552,5 +588,248 @@ deleteUser(user: User): void {
     } else if (this.newUser.id_rol === 1) {
       this.newUser.id_bodega = 23;
     }
+  }
+
+  // Manejar cambio de rol en edición
+  onEditRoleChange(): void {
+    if (!this.userToEdit) return;
+    
+    // Obtener el objeto rol completo para el ID seleccionado
+    const selectedRole = this.roles.find(r => r.id === this.userToEdit!.id_rol);
+    this.editIsTiendaRole = selectedRole?.nombre.toLowerCase() === 'tienda';
+    
+    // Asignar bodega según el rol
+    if (selectedRole) {
+      switch(selectedRole.nombre.toLowerCase()) {
+        case 'emisor':
+          // Bodega Devoluciones
+          this.userToEdit.id_bodega = 22;
+          break;
+        case 'gestor':
+          // Bodega Virtual (ID 0) en lugar de Bodega Central
+          this.userToEdit.id_bodega = 21;
+          break;
+        case 'admin':
+          // Bodega Virtual
+          this.userToEdit.id_bodega = 23;
+          break;
+        case 'tienda':
+          // No asignar bodega, se seleccionará del dropdown
+          this.userToEdit.id_bodega = 0;
+          break;
+        default:
+          this.userToEdit.id_bodega = 0;
+      }
+    }
+  }
+
+  // Método para abrir el modal de edición
+  openEditModal(user: User): void {
+    this.userToEdit = { ...user };
+    this.originalUserData = { ...user }; // Guardar una copia del usuario original
+    this.editPassword = '';
+    this.editConfirmPassword = '';
+    this.editIsTiendaRole = user.rol?.toLowerCase() === 'tienda';
+    this.hasChanges = false; // Inicialmente no hay cambios
+    this.resetEditPasswordValidation();
+    this.showEditModal = true;
+  }
+
+  // Cerrar modal de edición
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.userToEdit = null;
+    this.originalUserData = null;
+    this.editPassword = '';
+    this.editConfirmPassword = '';
+    this.hasChanges = false;
+  }
+
+  // Método para verificar cambios en los campos del formulario
+  checkForChanges(): void {
+    if (!this.userToEdit || !this.originalUserData) {
+      this.hasChanges = false;
+      return;
+    }
+
+    // Verificar cambios en los campos básicos
+    const basicFieldsChanged = 
+      this.userToEdit.nombre !== this.originalUserData.nombre ||
+      this.userToEdit.email !== this.originalUserData.email ||
+      this.userToEdit.id_rol !== this.originalUserData.id_rol ||
+      this.userToEdit.id_bodega !== this.originalUserData.id_bodega ||
+      this.userToEdit.estado !== this.originalUserData.estado;
+
+    // Verificar si hay cambios en la contraseña
+    const passwordChanged = !!this.editPassword;
+
+    this.hasChanges = basicFieldsChanged || passwordChanged;
+  }
+
+  // Resetear validación de contraseña en edición
+  resetEditPasswordValidation(): void {
+    this.editPasswordInvalid = false;
+    this.editPasswordsMatch = true;
+    this.editPasswordHasUppercase = false;
+    this.editPasswordHasLowercase = false;
+    this.editPasswordHasNumber = false;
+    this.editPasswordHasValidLength = false;
+  }
+
+  // Validar contraseña en edición
+  validateEditPassword(): void {
+    if (!this.editPassword) {
+      this.resetEditPasswordValidation();
+      return;
+    }
+
+    // Validar longitud máxima de 10 caracteres
+    if (this.editPassword.length > 10) {
+      this.editPassword = this.editPassword.slice(0, 10); // Truncar a 10 caracteres
+    }
+
+    this.editPasswordHasUppercase = /[A-Z]/.test(this.editPassword);
+    this.editPasswordHasLowercase = /[a-z]/.test(this.editPassword);
+    this.editPasswordHasNumber = /[0-9]/.test(this.editPassword);
+    this.editPasswordHasValidLength = this.editPassword.length >= 8 && this.editPassword.length <= 10;
+    
+    this.editPasswordInvalid = !(
+      this.editPasswordHasUppercase &&
+      this.editPasswordHasLowercase &&
+      this.editPasswordHasNumber &&
+      this.editPasswordHasValidLength
+    );
+
+    // Validar que las contraseñas coincidan si hay confirmación
+    if (this.editConfirmPassword) {
+      this.validateEditPasswordsMatch();
+    }
+  }
+
+  // Validar que coincidan las contraseñas en edición
+  validateEditPasswordsMatch(): void {
+    if (this.editPassword && this.editConfirmPassword) {
+      this.editPasswordsMatch = this.editPassword === this.editConfirmPassword;
+    } else {
+      this.editPasswordsMatch = true;
+    }
+  }
+
+  // Validar email en edición
+  validateEditEmail(): void {
+    if (!this.userToEdit?.email) return;
+    
+    const email = this.userToEdit.email.toLowerCase();
+    this.editIsEmailValid = email.endsWith('@head.com');
+    
+    if (this.editIsEmailValid) {
+      this.checkEditEmailExists(email);
+    } else {
+      this.editEmailExists = false;
+    }
+  }
+
+  // Verificar si el email ya existe en edición
+  checkEditEmailExists(email: string): void {
+    if (!email.endsWith('@head.com')) {
+      this.editIsEmailValid = false;
+      this.editEmailExists = false;
+      return;
+    }
+
+    this.editIsEmailValid = true;
+    const emailLower = email.toLowerCase();
+    this.editEmailExists = this.users_list.some(user => 
+      user.email.toLowerCase() === emailLower && 
+      user.estado === true &&
+      user.id !== this.userToEdit?.id
+    );
+  }
+
+  // Validar formulario de edición
+  isEditFormValid(): boolean {
+    if (!this.userToEdit) return false;
+    
+    // Validar que se haya seleccionado un rol
+    if (!this.userToEdit.id_rol) {
+      return false;
+    }
+    
+    // Si es rol Tienda, validar que se haya seleccionado una bodega
+    const selectedRole = this.roles.find(r => r.id === this.userToEdit!.id_rol);
+    const isTiendaRole = selectedRole?.nombre.toLowerCase() === 'tienda';
+    
+    if (isTiendaRole && !this.userToEdit.id_bodega) {
+      return false;
+    }
+    
+    // Si se está cambiando la contraseña, validar que sea válida
+    if (this.editPassword || this.editConfirmPassword) {
+      // Si hay contraseña, validar que cumpla con los requisitos y que coincida
+      if (this.editPasswordInvalid || !this.editPasswordsMatch) {
+        return false;
+      }
+      
+      // Si hay contraseña, debe tener al menos 8 caracteres
+      if (this.editPassword.length < 8) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  // Guardar cambios del usuario
+  saveUserChanges(): void {
+    console.log('Iniciando guardado de cambios...');
+    
+    if (!this.userToEdit) {
+      console.error('No hay usuario para actualizar');
+      return;
+    }
+
+    if (!this.isEditFormValid()) {
+      console.error('El formulario no es válido');
+      console.log('Estado de validación:', {
+        id_rol: this.userToEdit.id_rol,
+        id_bodega: this.userToEdit.id_bodega,
+        editPassword: this.editPassword,
+        editPasswordInvalid: this.editPasswordInvalid,
+        editPasswordsMatch: this.editPasswordsMatch
+      });
+      return;
+    }
+
+    console.log('Datos a enviar:', {
+      ...this.userToEdit,
+      contrasena: this.editPassword || '[NO CAMBIA]'
+    });
+
+    // Si se proporcionó una nueva contraseña, incluirla
+    const passwordToUpdate = this.editPassword || undefined;
+
+    console.log('Llamando a updateUser...');
+    this._userService.updateUser(this.userToEdit, passwordToUpdate).subscribe({
+      next: (response: boolean) => {
+        console.log('Respuesta del servidor:', response);
+        if (response) {
+          console.log('Usuario actualizado exitosamente');
+          this.getUsuarios();
+          this.closeEditModal();
+          
+          // Mostrar mensaje de éxito
+          this.showSuccessMessage = true;
+          this.successMessage = 'Usuario actualizado con éxito';
+          setTimeout(() => {
+            this.showSuccessMessage = false;
+          }, 3000);
+        } else {
+          console.error('El servidor no pudo actualizar el usuario');
+        }
+      },
+      error: (error) => {
+        console.error('Error al actualizar usuario', error);
+      }
+    });
   }
 }
