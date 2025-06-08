@@ -234,6 +234,7 @@ deleteUser(user: User): void {
   this._userService.updateUser(userUpdate).subscribe({
     next: (response: boolean) => {
       if(response){
+        this.getBodegaUsers();
         this.getUsuarios();
       }
     },
@@ -814,6 +815,7 @@ deleteUser(user: User): void {
         console.log('Respuesta del servidor:', response);
         if (response) {
           console.log('Usuario actualizado exitosamente');
+          this.getBodegaUsers();
           this.getUsuarios();
           this.closeEditModal();
           
