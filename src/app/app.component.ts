@@ -83,6 +83,11 @@ export class AppComponent implements OnInit, OnDestroy {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   }
 
+  isAdmin(): boolean {
+    const roleId = localStorage.getItem('id_rol');
+    return roleId === '1'; // 1 es el ID para el rol de administrador
+  }
+
   navigateToHome(): void {
     this.router.navigate(['/home']);
   }
