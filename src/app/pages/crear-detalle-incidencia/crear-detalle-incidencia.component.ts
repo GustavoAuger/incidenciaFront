@@ -143,24 +143,65 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   skuEnabled: boolean = false;
   fieldsEnabled: boolean = false;
 
+  limpiarErrores() { //limpia el recuadro rojo de los campos
+    const tipoDiferencia = document.getElementsByClassName("tipoDiferencia");
+    const sku = document.getElementsByClassName("sku");
+    const cantidad = document.getElementsByClassName("cantidad");
+    const numGuia = document.getElementsByClassName("numGuia");
 
+    // Remover la clase de error de todos los elementos
+    for (let i = 0; i < tipoDiferencia.length; i++) {
+      tipoDiferencia[i].classList.remove("campo-obligatorio-error");
+    }
+    for (let i = 0; i < sku.length; i++) {
+      sku[i].classList.remove("campo-obligatorio-error");
+    }
+    for (let i = 0; i < cantidad.length; i++) {
+      cantidad[i].classList.remove("campo-obligatorio-error");
+    }
+    for (let i = 0; i < numGuia.length; i++) {
+      numGuia[i].classList.remove("campo-obligatorio-error");
+    }
+  }
 
   agregarDetalle() {
+    this.limpiarErrores();
     // Validar campos requeridos
-    if (!this.detalleIncidencia.tipoDiferencia) {
-      alert('Seleccione un tipo de diferencia');
+    if (!this.detalleIncidencia.tipoDiferencia || !this.detalleIncidencia.sku || !this.detalleIncidencia.cantidad || !this.detalleIncidencia.numGuia) {
+      alert('Completar campos obligatorios');
+          // Marcar los campos que no están completos
+      if (!this.detalleIncidencia.tipoDiferencia) {
+        const elementos = document.getElementsByClassName("tipoDiferencia");
+        for (let i = 0; i < elementos.length; i++) {
+          elementos[i].classList.add("campo-obligatorio-error");
+        }
+      }
+      if (!this.detalleIncidencia.sku) {
+        const elementos = document.getElementsByClassName("sku");
+        for (let i = 0; i < elementos.length; i++) {
+          elementos[i].classList.add("campo-obligatorio-error");
+        }
+      }
+      if (!this.detalleIncidencia.cantidad) {
+        const elementos = document.getElementsByClassName("cantidad");
+        for (let i = 0; i < elementos.length; i++) {
+          elementos[i].classList.add("campo-obligatorio-error");
+        }
+      }
+      if (!this.detalleIncidencia.numGuia) {
+        const elementos = document.getElementsByClassName("numGuia");
+        for (let i = 0; i < elementos.length; i++) {
+          elementos[i].classList.add("campo-obligatorio-error");
+        }
+      }
       return;
     }
-    if (!this.detalleIncidencia.sku) {
-      alert('Ingrese un SKU');
+
+    // Validar la cantidad según el tipo de diferencia
+    if (!this.validarCantidad()) {
       return;
     }
-    // Validar que la cantidad sea un número entero positivo
-    const cantidad = Number(this.detalleIncidencia.cantidad);
-    if (!Number.isInteger(cantidad) || cantidad <= 0) {
-      alert('La cantidad debe ser un número entero positivo');
-      return;
-    }
+
     if (!this.detalleIncidencia.descripcion) {
       alert('Busque el producto para obtener la descripción');
       return;
@@ -198,7 +239,46 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
       idIncidencia: this.incidenciaId
     };
   }
-
+  validarCantidad() {
+    if (this.detalleIncidencia.tipoDiferencia === 'faltante') {
+      // Buscar la guía actual
+      const guiaSeleccionada = this.guias.find(guia => 
+        String(guia.numguia).trim() === String(this.detalleIncidencia.numGuia).trim()
+      );
+  
+      if (guiaSeleccionada) {
+        // Buscar el SKU en la guía
+        const skuEnGuia = guiaSeleccionada.sku_total.find(item => 
+          String(item.sku).trim() === String(this.detalleIncidencia.sku).trim()
+        );
+  
+        if (skuEnGuia) {
+          const cantidadIngresada = Number(this.detalleIncidencia.cantidad);
+          const cantidadEnGuia = Number(skuEnGuia.total);
+  
+          if (cantidadIngresada > cantidadEnGuia) {
+            alert(`La cantidad faltante no puede ser mayor a la cantidad en la guía: ${cantidadEnGuia}`);
+            this.detalleIncidencia.cantidad = null;
+            const elementos = document.getElementsByClassName("cantidad");
+            for (let i = 0; i < elementos.length; i++) {
+              elementos[i].classList.add("campo-obligatorio-error");
+            }
+            return false;
+          
+          }
+          else {
+            const cantidad = document.getElementsByClassName("cantidad");
+            for (let i = 0; i < cantidad.length; i++) {
+              cantidad[i].classList.remove("campo-obligatorio-error");
+            }
+            return true;
+          }
+        }
+        
+      }
+    }
+    return true;
+  }
   eliminarDetalle(index: number) {
     this.detalles.splice(index, 1);
     console.log(this.detalles);
@@ -263,6 +343,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
 
   // Método que se ejecuta cuando cambia el número de guía
   onGuiaChange(): void {
+    this.limpiarErrores();
     if (this.detalleIncidencia.numGuia) {
       const numGuiaBuscado = String(this.detalleIncidencia.numGuia).trim();
       console.log('Número de guía buscado:', numGuiaBuscado);
@@ -286,7 +367,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
           this.skuEnabled = true;
         } else {
           console.log('La guía no pertenece a la bodega del usuario');
-          alert('La guía encontrada no pertenece a su bodega');
+          alert('La guía ingresada no tiene como destino su bodega');
           this.detalleIncidencia.numGuia = null;
           this.skuEnabled = false;
         }
@@ -320,6 +401,16 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
       return;
     }
 
+    // Verificar si el SKU ya existe en los detalles
+    const skuExistente = this.detalles.find(detalle => 
+      String(detalle.sku).trim() === String(this.detalleIncidencia.sku).trim()
+    );
+
+    if (skuExistente) {
+      alert('Este SKU ya ha sido agregado a los detalles');
+      return;
+    }
+
     // Buscar la guía seleccionada
     const guiaSeleccionada = this.guias.find(guia => 
       String(guia.numguia).trim() === String(this.detalleIncidencia.numGuia).trim()
@@ -335,7 +426,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
       String(item.sku).trim() === String(this.detalleIncidencia.sku).trim()
     );
 
-    if (!skuEnGuia) {
+    if (!skuEnGuia && this.detalleIncidencia.tipoDiferencia === 'faltante') {
       alert('El SKU ingresado no existe en la guía seleccionada');
       this.detalleIncidencia.sku = null;
       this.detalleIncidencia.descripcion = '';
@@ -351,6 +442,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
         );
 
         if (productoEncontrado) {
+          this.limpiarErrores();
           this.detalleIncidencia.descripcion = productoEncontrado.descripcion;
           this.fieldsEnabled = true;
         } else {
@@ -400,4 +492,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     });
   }
 }
+
+  
+
 

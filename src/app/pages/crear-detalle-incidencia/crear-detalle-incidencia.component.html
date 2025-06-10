@@ -33,45 +33,46 @@
       <div class="p-8 bg-gray-50">
         <form #detalleForm="ngForm">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="form-control">
-              
-              <label class="label font-semibold text-gray-700">N° Guía</label><br>
-              <input type="number" 
-       
-                     class="input input-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.numGuia" name="numGuia" min="0" placeholder="Ingrese N° documento" (change)="onGuiaChange()" />
-            </div>
-
-            <div class="form-control">
-              <label class="label font-semibold text-gray-700">SKU</label><br>
-              <div class="flex gap-4">
-                <input class="input input-bordered flex-1 bg-white" [(ngModel)]="detalleIncidencia.sku" name="sku" required placeholder="Ingrese SKU" [disabled]="!skuEnabled"  />
-                <button type="button" class="btna btn-primary w-24"  (click)="buscarProducto()">BUSCAR</button>
-              </div>
-            </div>
-
-            <div class="form-control">
-              <label class="label font-semibold text-gray-700">Descripción</label><br>
-              <input class="input input-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.descripcion" name="descripcion" placeholder="Descripción del producto" readonly />
-            </div>
-
-            <div class="form-control">
-              <label class="label font-semibold text-gray-700">Cantidad</label><br>
-              <input type="number" class="input input-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.cantidad" name="cantidad" required min="1" step="1" placeholder="Ingrese cantidad" [disabled]="!fieldsEnabled" />
-            </div>
-
             <div class="form-control"> 
-              <label class="label font-semibold text-gray-700">Tipo de Diferencia</label><br> 
-              <select class="select select-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.tipoDiferencia" name="tipoDiferencia" [disabled]="!fieldsEnabled" required> 
+              <label class="label font-semibold text-gray-700">Tipo de Diferencia (*)</label><br> 
+              <select class="select select-bordered w-full bg-white tipoDiferencia" [(ngModel)]="detalleIncidencia.tipoDiferencia" name="tipoDiferencia" required> 
                 <option value="" disabled selected>Seleccione tipo</option> 
                 <option *ngFor="let tipo of tiposDiferencia" [value]="tipo">{{tipo}}</option> 
               </select> 
             </div>
-
             <div class="form-control">
-              <label class="label font-semibold text-gray-700">N° Bulto</label><br>
-              <input class="input input-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.numBulto" name="numBulto" placeholder="Ingrese N° bulto" [disabled]="!fieldsEnabled" />
+              
+              <label class="label font-semibold text-gray-700">N° Guía (*)</label><br>
+              <input type="number" 
+       
+                     class="input input-bordered w-full bg-white numGuia" [(ngModel)]="detalleIncidencia.numGuia" name="numGuia" min="0" placeholder="Ingrese N° documento" (change)="onGuiaChange()" />
             </div>
 
+            <div class="form-control">
+              <label class="label font-semibold text-gray-700">SKU (*)</label><br>
+              <div class="flex gap-4">
+                <input class="input input-bordered flex-1 bg-white sku" [(ngModel)]="detalleIncidencia.sku" name="sku" required placeholder="Ingrese SKU" [disabled]="!skuEnabled && (detalleIncidencia.tipoDiferencia=='faltante' || detalleIncidencia.tipoDiferencia=='') "  />
+                <button type="button" class="btna btn-primary w-24"  (click)="buscarProducto()">BUSCAR</button>
+              </div>
+            </div>
+
+            
+
+            <div class="form-control">
+              <label class="label font-semibold text-gray-700">Cantidad (*)</label><br>
+              <input type="number" class="input input-bordered w-full bg-white cantidad" [(ngModel)]="detalleIncidencia.cantidad" name="cantidad" required min="1" step="1" placeholder="Ingrese cantidad" (change)="validarCantidad()" [disabled]="!fieldsEnabled" />
+            </div>
+
+
+
+            <div class="form-control">
+              <label class="label font-semibold text-gray-700">N° Bulto </label><br>
+              <input class="input input-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.numBulto" name="numBulto" placeholder="Ingrese N° bulto" [disabled]="!fieldsEnabled" />
+            </div>
+            <div class="form-control">
+              <label class="label font-semibold text-gray-700">Descripción</label><br>
+              <input class="input input-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.descripcion" name="descripcion" placeholder="Descripción del producto" readonly />
+            </div>
             <div class="form-control">
               <label class="label font-semibold text-gray-700">Peso Origen (Kg)</label><br>
               <input class="input input-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.pesoOrigen" name="pesoOrigen" min="0" step="0.01" placeholder="Ingrese peso origen" [disabled]="!fieldsEnabled" />
@@ -96,31 +97,31 @@
         <table class="table w-full">
           <!-- head -->
           <thead>
-          <tr class="text-black">
-            <th>N°</th>
-            <th>Tipo de Diferencia</th>
-            <th>SKU</th>
-            <th>Descripción</th>
-            <th>Cantidad</th>
-            <th>N° Documento</th>
-            <th>N° Bulto</th>
-            <th>Peso Origen</th>
-            <th>Peso Recepción</th>
-            <th>Acciones</th>
-          </tr>
+           <tr class="text-black">
+             <th class="text-center">N°</th>
+             <th class="text-center">Tipo de Diferencia</th>
+             <th class="text-center">SKU</th>
+             <th class="text-center">Descripción</th>
+             <th class="text-center">Cantidad</th>
+             <th class="text-center">N° Documento</th>
+             <th class="text-center">N° Bulto</th>
+             <th class="text-center">Peso Origen</th>
+             <th class="text-center">Peso Recepción</th>
+             <th class="text-center">Acciones</th>
+           </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let detalle of detalles; let i = index" class="hover:bg-gray-100">
-              <td>{{i + 1}}</td>
-              <td>{{detalle.tipoDiferencia}}</td>
-              <td>{{detalle.sku}}</td>
-              <td>{{detalle.descripcion}}</td>
-              <td>{{detalle.cantidad}}</td>
-              <td>{{detalle.numGuia}}</td>
-              <td>{{detalle.numBulto}}</td>
-              <td>{{detalle.pesoOrigen}}</td>
-              <td>{{detalle.pesoRecepcion}}</td>
-              <td>
+             <tr *ngFor="let detalle of detalles; let i = index" class="hover:bg-gray-100">
+               <td class="text-center">{{i + 1}}</td>
+               <td class="text-center">{{detalle.tipoDiferencia}}</td>
+               <td class="text-center">{{detalle.sku}}</td>
+               <td class="text-center">{{detalle.descripcion}}</td>
+               <td class="text-center">{{detalle.cantidad}}</td>
+               <td class="text-center">{{detalle.numGuia}}</td>
+               <td class="text-center">{{detalle.numBulto}}</td>
+               <td class="text-center">{{detalle.pesoOrigen}}</td>
+               <td class="text-center">{{detalle.pesoRecepcion}}</td>
+               <td class="text-center">
                 <button 
                 class="btn btnb btn-sm"
                 [ngClass]="{

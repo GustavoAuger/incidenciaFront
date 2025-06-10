@@ -94,3 +94,6 @@
     background-color: #ffffff;
     color: rgb(207, 0, 0);
   }
+  .campo-obligatorio-error {
+    border-color: red !important; /* Asegúrate de usar !important si otros estilos están afectando el borde */
+  }
