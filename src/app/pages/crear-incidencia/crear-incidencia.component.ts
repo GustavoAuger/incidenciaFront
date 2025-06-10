@@ -74,12 +74,59 @@ export class CrearIncidenciaComponent {
     this.getTransportistas();
     this.getBodegas();
     this.getTipoIncidencias();
-  }
+        // Observar cambios en id_tipo_incidencia
+    this.watchTipoIncidencia();
 
-  onSubmit() {
-    // Guardar los datos en el servicio
-    this._incidenciaService.setIncidenciaParcial(this.incidencia);
     
+  }
+    watchTipoIncidencia() {
+      // Cuando cambie el tipo de incidencia a 1, establecer bodega 21
+      if (this.incidencia.id_tipo_incidencia == 1) {
+        this.incidencia.id_bodega = 21;
+      }
+    }
+    removeImage(index: number) {
+      this.selectedImages.splice(index, 1);
+    }
+
+    selectedImages: Array<{file: File, preview: string}> = [];
+
+  onFileSelected(event: any) {
+    const files = event.target.files;
+    if (files) {
+      // Limitar a 2 imágenes
+      const remainingSlots = 2 - this.selectedImages.length;
+      const filesToAdd = Array.from(files).slice(0, remainingSlots);
+
+      filesToAdd.forEach((file: any) => {
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (e: any) => {
+            this.selectedImages.push({
+              file: file,
+              preview: e.target.result
+            });
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Limpiar input si ya hay 2 imágenes
+      if (this.selectedImages.length >= 2) {
+        event.target.value = '';
+      }
+    }
+  }
+  onSubmit() {
+   
+    if (this.selectedImages.length > 0) {
+      // Manejo de enviío de imagenes
+      const formData = new FormData();
+      this.selectedImages.forEach((image, index) => {
+        formData.append(`imagen${index + 1}`, image.file);
+      });
+
+    }
     // Encontrar los nombres correspondientes
     const bodegaSeleccionada = this.lista_bodegas.find(b => b.id === this.incidencia.id_bodega);
 
@@ -94,6 +141,9 @@ export class CrearIncidenciaComponent {
 
     if(this.incidencia.id_transportista === 4){
       this.incidencia.ots = " ";
+    }
+    if (this.incidencia.id_tipo_incidencia == 1) {
+      this.incidencia.id_bodega = 21;
     }
     // Navegar al siguiente componente con los datos
     const navigationExtras = {
@@ -110,7 +160,8 @@ export class CrearIncidenciaComponent {
         }
       }
     };
-    
+     // Guardar los datos en el servicio
+    this._incidenciaService.setIncidenciaParcial(this.incidencia);
     this.router.navigate(['/crear-detalle-incidencia'], navigationExtras);
 }
 
@@ -195,3 +246,4 @@ export class CrearIncidenciaComponent {
     });
   }
 }
+
