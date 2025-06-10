@@ -29,7 +29,9 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     transportistaNombre: '',
     ots: '',
     fechaRecepcion: null,
-    tipo_estado:''
+    tipo_estado:'',
+    total_item:0,
+    valorizado:0,
   };
 
   detalleIncidencia: any = {
@@ -314,7 +316,9 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
         // Agregamos las propiedades faltantes
         origen_id_local: incidenciaParcial.origen_id_local || '',
         destino_id_bodega: incidenciaParcial.destino_id_bodega || '',
-        tipo_estado: incidenciaParcial.tipo_estado || ''
+        tipo_estado: incidenciaParcial.tipo_estado || '',
+        total_item: incidenciaParcial.total_item || 0,
+        valorizado: incidenciaParcial.valorizado || 0
       },
       detalles: this.detalles
     };

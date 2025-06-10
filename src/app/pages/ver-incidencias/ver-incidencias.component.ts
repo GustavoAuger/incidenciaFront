@@ -284,9 +284,64 @@ getTipoIncidencia() {
   }
 // Método para exportar a Excel todas las incidencias
   exportToExcel(): void {
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.incidencias);
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.incidenciasFiltradas);
     const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
     XLSX.writeFile(workbook, 'Incidencias.xlsx');
   }
 
+  exportToExcel2(): void {
+    const incidenciasExpandidas: any[] = [];
+    let incidenciasProcesadas = 0;
+    
+    this.incidenciasFiltradas.forEach(incidencia => {
+      if (incidencia.id === undefined) {
+        // Si no hay ID, agregamos la incidencia sin detalles
+        incidenciasExpandidas.push(incidencia);
+        incidenciasProcesadas++;
+        
+        if (incidenciasProcesadas === this.incidenciasFiltradas.length) {
+          const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(incidenciasExpandidas);
+          const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+          XLSX.writeFile(workbook, 'Incidencias_con_detalles.xlsx');
+        }
+        return;
+      }
+
+      this._incidenciaService.getDetallesIncidencia(incidencia.id).subscribe({
+        next: (detalles) => {
+          if (detalles.length === 0) {
+            incidenciasExpandidas.push(incidencia);
+          } else {
+            detalles.forEach(detalle => {
+              incidenciasExpandidas.push({
+                ...incidencia,
+                detalle_producto: detalle.sku,
+                detalle_cantidad: detalle.cantidad
+              });
+            });
+          }
+          
+          incidenciasProcesadas++;
+          
+          if (incidenciasProcesadas === this.incidenciasFiltradas.length) {
+            const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(incidenciasExpandidas);
+            const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+            XLSX.writeFile(workbook, 'Incidencias_con_detalles.xlsx');
+          }
+        },
+        error: (error) => {
+          console.error('Error al obtener detalles:', error);
+          // En caso de error, agregamos la incidencia sin detalles
+          incidenciasExpandidas.push(incidencia);
+          incidenciasProcesadas++;
+          
+          if (incidenciasProcesadas === this.incidenciasFiltradas.length) {
+            const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(incidenciasExpandidas);
+            const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+            XLSX.writeFile(workbook, 'Incidencias_con_detalles.xlsx');
+          }
+        }
+      });
+    });
+  }
 }

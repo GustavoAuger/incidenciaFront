@@ -91,7 +91,7 @@
                     download
                 </span>
             </button>
-            <button class="export-btn"> 
+            <button class="export-btn" (click)="exportToExcel2()"> 
                 EXPORTAR DETALLE
                 <span class="material-symbols-outlined">
                     download
@@ -130,8 +130,8 @@
           <td>{{ incidencia.origen_id_local }}</td>
           <td>{{ incidencia.destino_id_bodega }}</td>
           <td>{{ incidencia.destino! | initCapFirst}}</td>
-          <td>{{ incidencia.ots }}</td>
-          <td>{{ incidencia.id_estado }}</td>
+          <td>{{ incidencia.total_item }}</td>
+          <td>{{ incidencia.valorizado }}</td>
           <td>{{ incidencia.ots }}</td>
           <td>{{ incidencia.transportista }}</td>
           <td>{{ incidencia.tipo_estado | initCapFirst}}</td>

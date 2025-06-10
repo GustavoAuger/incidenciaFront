@@ -38,7 +38,9 @@ export class CrearIncidenciaComponent {
     transportista: '',
     id_transportista: 0,
     tipo_estado: '',
-    id_tipo_incidencia: 0
+    id_tipo_incidencia: 0,
+    total_item: 0,
+    valorizado: 0
   };
 
   constructor(
@@ -165,6 +167,16 @@ export class CrearIncidenciaComponent {
     this.router.navigate(['/crear-detalle-incidencia'], navigationExtras);
 }
 
+//validar rol de usuario para permitir opciones de tipo incidencia
+  validarTipo(){
+
+    if (this._userService.isEmisor()) {
+      
+
+        this.lista_tipo_incidencia = this.lista_tipo_incidencia.filter(tipo => tipo.id !== 1);
+
+    }
+  }
 
 
 

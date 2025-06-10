@@ -15,6 +15,8 @@ export interface Incidencia {
     destino?: string;
     id_tipo_incidencia?: number;
     tipo_estado: string;
+    valorizado: number;
+    total_item:number;
     
 }
 
