@@ -1,86 +1,122 @@
-<div class="px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center mb-4 mt-6">
-        <h3 class="text-lg font-semibold"></h3>
-        <button class="btn btn-sm flex items-center space-x-2 text-white" style="background-color: #00bcd4;" (click)="toggleCreateUserForm()">
-            <span class="material-symbols-outlined">add</span>
-            <span>Nuevo Usuario</span>
-        </button>
+<div class="px-4 sm:px-6 lg:px-8 bg-[#f5f5f5] min-h-screen -mt-1 pt-1 relative">
+    <!-- Loading Overlay -->
+    <div *ngIf="isLoading" class="fixed inset-0 bg-[#f5f5f5] bg-opacity-90 flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="loading loading-spinner loading-lg" style="color: #00bcd4;"></div>
+            <p class="mt-2 text-gray-600">Cargando ...</p>
+        </div>
     </div>
 
-    <!-- User Creation Form -->
-    <div *ngIf="showCreateUserForm" class="bg-base-100 border border-base-content/10 rounded-lg p-6 mb-6">
-        <h4 class="text-lg font-semibold mb-4">Crear Nuevo Usuario</h4>
-        <div class="grid grid-cols-3 gap-4">
-            <div>
-                <label class="form-control w-full">
-                    <div class="label">
-                        <span class="label-text">Email</span>
-                    </div>
-                    <input 
-                        type="email" 
-                        [(ngModel)]="newUser.email" 
-                        (ngModelChange)="newUser.email = $event.toLowerCase()"
-                        (input)="onEmailChange()" 
-                        class="input input-bordered input-sm w-full" 
-                        [class.input-error]="(emailInvalid || emailExists) && newUser.email"
-                        [class.input-success]="!emailInvalid && !emailExists && newUser.email"
-                    />
-                    <div *ngIf="newUser.email" class="label p-0 mt-1 min-h-6 flex flex-col">
-                        <span class="label-text-alt" [class.text-error]="emailInvalid" [class.text-success]="!emailInvalid">
-                            <span *ngIf="emailInvalid">El email debe terminar en &#64;head.com</span>
-                        </span>
-                        <span class="label-text-alt" [class.text-error]="emailExists" [class.text-success]="!emailExists">
-                            <span *ngIf="emailExists">Email no disponible</span>
-                        </span>
-                    </div>
-                </label>
-            </div>
-            <div>
-                <label class="form-control w-full">
-                    <div class="label">
-                        <span class="label-text">Usuario</span>
-                    </div>
-                    <input type="text" [(ngModel)]="newUser.nombre" [readonly]="true" class="input input-bordered input-sm w-full bg-base-200" />
-                </label>
-            </div>
+    <!-- Mensaje de éxito -->
+    <div *ngIf="showSuccessMessage" class="fixed bottom-4 right-4 z-50">
+        <div class="flex items-center bg-white text-gray-800 px-6 py-3 rounded-lg shadow-lg border border-gray-200">
+            <svg class="w-6 h-6 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>{{ successMessage }}</span>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div [class.opacity-0]="isLoading" [class.invisible]="isLoading">
+        <!-- User Creation Form -->
+        <div *ngIf="showCreateUserForm" class="bg-base-100 border border-base-content/10 rounded-lg p-6 mb-6 mt-4">
+            <h4 class="text-lg font-semibold mb-4">Crear Nuevo Usuario</h4>
             
-            <div>
-                <label class="form-control w-full">
+            <!-- Primera fila: 3 columnas -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <!-- Email -->
+                <div class="form-control w-full relative">
                     <div class="label">
-                        <span class="label-text">Contraseña</span>
+                        <span class="label-text">Email (*)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <input 
+                            type="text" 
+                            [(ngModel)]="emailPrefix" 
+                            (input)="onEmailPrefixChange()"
+                            (keydown)="onEmailKeyDown($event)"
+                            class="input input-bordered input-sm w-full bg-transparent border-r-0 rounded-r-none" 
+                            [class.input-error]="emailExists"
+                            [class.input-success]="!emailExists && emailPrefix"
+                            placeholder="usuario"
+                        />
+                        <div class="input input-bordered input-sm rounded-l-none border-l-0 bg-gray-50 text-gray-600 flex items-center">
+                            &#64;head.com
+                        </div>
+                    </div>
+                    <!-- Validación de correo (solo muestra error si el correo existe) -->
+                    <div *ngIf="emailPrefix && emailExists" class="absolute z-10 w-full mt-1 bg-base-100 border border-error/20 rounded-md shadow-lg p-2">
+                        <div class="text-error text-xs flex items-center">
+                            <span class="mr-1">✗</span> Email no disponible
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contraseña -->
+                <div class="form-control w-full relative">
+                    <div class="label">
+                        <span class="label-text">Contraseña (*)</span>
                     </div>
                     <input 
                         type="password" 
                         [(ngModel)]="newUser.password" 
                         (input)="onPasswordChange()" 
+                        (keydown.space)="$event.preventDefault()"
                         class="input input-bordered input-sm w-full" 
-                        [class.input-error]="passwordInvalid"
+                        [class.input-error]="(passwordInvalid || !passwordsMatch) && newUser.password"
+                        [class.input-success]="!passwordInvalid && newUser.password && newUser.password.length > 0"
                         maxlength="10"
-                        (keydown)="onPasswordKeyDown($event)"
                     />
-                    <div class="label">
-                        <span class="label-text-alt">La contraseña debe contener:</span>
+                    
+                    <!-- Validaciones de contraseña (solo muestra lo que falta) -->
+                    <div *ngIf="newUser.password && passwordInvalid" class="absolute z-10 w-full mt-1 bg-base-100 border border-error/20 rounded-md shadow-lg p-2">
+                        <ul class="grid grid-cols-2 gap-1 text-xs">
+                            <li *ngIf="!passwordHasUppercase" class="text-error flex items-center">
+                                <span class="mr-1">✗</span> 1 mayúscula
+                            </li>
+                            <li *ngIf="!passwordHasLowercase" class="text-error flex items-center">
+                                <span class="mr-1">✗</span> 1 minúscula
+                            </li>
+                            <li *ngIf="!passwordHasNumber" class="text-error flex items-center">
+                                <span class="mr-1">✗</span> 1 número
+                            </li>
+                            <li *ngIf="!passwordHasValidLength" class="text-error flex items-center">
+                                <span class="mr-1">✗</span> 8-10 caracteres
+                            </li>
+                        </ul>
                     </div>
-                    <ul class="text-xs text-gray-500 pl-4">
-                        <li [class.text-success]="passwordHasUppercase" [class.text-error]="!passwordHasUppercase">
-                            <span *ngIf="passwordHasUppercase">✓</span> Al menos una letra mayúscula (A-Z)
-                        </li>
-                        <li [class.text-success]="passwordHasLowercase" [class.text-error]="!passwordHasLowercase">
-                            <span *ngIf="passwordHasLowercase">✓</span> Al menos una letra minúscula (a-z)
-                        </li>
-                        <li [class.text-success]="passwordHasNumber" [class.text-error]="!passwordHasNumber">
-                            <span *ngIf="passwordHasNumber">✓</span> Al menos un número (0-9)
-                        </li>
-                        <li [class.text-success]="passwordHasValidLength" [class.text-error]="!passwordHasValidLength">
-                            <span *ngIf="passwordHasValidLength">✓</span> Entre 8 y 10 caracteres
-                        </li>
-                    </ul>
-                </label>
-            </div>
-            <div>
-                <label class="form-control w-full">
+                </div>
+
+                <!-- Confirmar Contraseña -->
+                <div class="form-control w-full relative">
                     <div class="label">
-                        <span class="label-text">Rol</span>
+                        <span class="label-text">Confirmar Contraseña (*)</span>
+                    </div>
+                    <input 
+                        type="password" 
+                        [(ngModel)]="confirmPassword" 
+                        (input)="validatePasswordsMatch()" 
+                        (keydown.space)="$event.preventDefault()"
+                        class="input input-bordered input-sm w-full"
+                        [class.input-error]="!passwordsMatch && confirmPassword"
+                        [class.input-success]="passwordsMatch && confirmPassword"
+                    />
+                    <!-- Validación de coincidencia (solo muestra error si no coinciden) -->
+                    <div *ngIf="confirmPassword && !passwordsMatch" class="absolute z-10 w-full mt-1 bg-base-100 border border-error/20 rounded-md shadow-lg p-2">
+                        <div class="text-error text-xs flex items-center">
+                            <span class="mr-1">✗</span> Las contraseñas no coinciden
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Segunda fila -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+                <!-- Rol -->
+                <div class="form-control w-full">
+                    <div class="label">
+                        <span class="label-text">Rol (*)</span>
                     </div>
                     <select 
                         [(ngModel)]="newUser.id_rol" 
@@ -90,54 +126,63 @@
                         <option [ngValue]="0" disabled>Seleccione un rol</option>
                         <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.nombre | initCapFirst }}</option>
                     </select>
-                </label>
-            </div>
-            <div *ngIf="isTiendaRole">
-                <label class="form-control w-full">
-                    <div class="label">
-                        <span class="label-text">Bodega</span>
-                        <span *ngIf="isTiendaRole && !newUser.id_bodega" class="label-text-alt text-error"></span>
+                </div>
+
+                <!-- Bodega (solo para rol Tienda) -->
+                <div class="form-control w-full" [class.md:col-span-2]="!isTiendaRole">
+                    <div *ngIf="isTiendaRole">
+                        <div class="label">
+                            <span class="label-text">Bodega (*)</span>
+                            <span *ngIf="isTiendaRole && !newUser.id_bodega" class="label-text-alt text-error"></span>
+                        </div>
+                        <select 
+                            [(ngModel)]="newUser.id_bodega" 
+                            class="select select-bordered select-sm w-full"
+                            [class.select-error]="isTiendaRole && !newUser.id_bodega"
+                            required
+                        >
+                            <option [ngValue]="0" disabled>Seleccione una bodega</option>
+                            <option *ngFor="let bodega of filteredBodegas" [ngValue]="bodega.id">
+                                {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
+                            </option>
+                        </select>
                     </div>
-                    <select 
-                        [(ngModel)]="newUser.id_bodega" 
-                        class="select select-bordered select-sm w-full"
-                        [class.select-error]="isTiendaRole && !newUser.id_bodega"
-                        required
-                    >
-                        <option [ngValue]="0" disabled>Seleccione una bodega</option>
-                        <option *ngFor="let bodega of filteredBodegas" [ngValue]="bodega.id">
-                            {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
-                        </option>
-                    </select>
-                </label>
+                </div>
+
+                <!-- Columna vacía -->
+                <div *ngIf="isTiendaRole" class="hidden md:block"></div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="flex justify-end mt-6 space-x-2">
+                <button class="btn btn-ghost btn-sm" (click)="toggleCreateUserForm()">Cancelar</button>
+                <button 
+                    class="btn btn-sm flex items-center space-x-2 text-white"
+                    [class.bg-[#00bcd4]]="isFormValid()"
+                    [class.bg-gray-400]="!isFormValid()"
+                    (click)="createUser()"
+                    [disabled]="!isFormValid()"
+                    [class.cursor-not-allowed]="!isFormValid()">
+                    <span class="material-symbols-outlined">add</span>
+                    <span>Crear Usuario</span>
+                </button>
             </div>
         </div>
-        <div class="flex justify-end mt-4 space-x-2">
-            <button class="btn btn-ghost btn-sm" (click)="toggleCreateUserForm()">Cancelar</button>
-            <button 
-                class="btn btn-primary btn-sm" 
-                (click)="createUser()"
-                [disabled]="!isFormValid()"
-                [class.opacity-50]="!isFormValid()"
-                [class.cursor-not-allowed]="!isFormValid()">
-                Crear Usuario
+
+        <!-- Fila de Título y Botón Nuevo Usuario -->
+        <div class="flex justify-between items-center mb-4 mt-6">
+            <h3 class="text-lg font-semibold">Administrar Usuarios</h3>
+            <button class="btn btn-sm flex items-center space-x-2 text-white" style="background-color: #00bcd4;" (click)="toggleCreateUserForm()">
+                <span class="material-symbols-outlined">{{ showCreateUserForm ? 'remove' : 'add' }}</span>
+                <span>Nuevo Usuario</span>
             </button>
         </div>
-    </div>
-
-    <h3 class="text-lg font-semibold">Lista de Usuarios</h3>
-    <br>
-    <!-- Loading Screen -->
-    <div *ngIf="isLoading" class="w-full h-full flex items-center justify-center">
-        <span class="loading loading-spinner loading-lg text-primary"></span>
-    </div>
-    
-    <div *ngIf="!isLoading">
+        
         <!-- Filtros de búsqueda -->
         <div class="flex flex-wrap gap-4 mb-4">
             <div class="form-control w-full max-w-xs">
                 <label class="label">
-                    <span class="label-text">Filtrar por usuario</span>
+                    <span class="label-text">Usuario</span>
                 </label>
                 <input 
                 type="text" 
@@ -149,7 +194,7 @@
         </div>
         <div class="form-control w-full max-w-xs">
             <label class="label">
-                <span class="label-text">Filtrar por email</span>
+                <span class="label-text">Email</span>
             </label>
             <input 
                 type="text" 
@@ -164,57 +209,65 @@
     
 
     <!-- User List -->
-    <div *ngIf="!isLoading" class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
-        <table class="table">
+    <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+        <table class="table table-fixed w-full">
+            <colgroup>
+                <col style="width: 4rem;"> <!-- # -->
+                <col style="width: 20%;"> <!-- Usuario -->
+                <col style="width: 20%;"> <!-- Email -->
+                <col style="width: 20%;"> <!-- Rol -->
+                <col style="width: 20%;"> <!-- Bodega -->
+                <col style="width: 15rem;"> <!-- Acciones -->
+            </colgroup>
             <!-- head -->
             <thead>
                 <tr>
-                    <th></th>
-                    <th>
-                        <div class="flex items-center gap-1 cursor-pointer" (click)="sortTable('usuario')">
-                            Usuario
+                    <th class="text-center">#</th>
+                    <th class="text-center">
+                        <div class="flex items-center justify-center gap-1 cursor-pointer" (click)="sortTable('usuario')">
+                            <span>Usuario</span>
                             <i class="fas {{ getSortIcon('usuario') }}"></i>
                         </div>
                     </th>
-                    <th>
-                        <div class="flex items-center gap-1 cursor-pointer" (click)="sortTable('email')">
-                            Email
+                    <th class="text-center">
+                        <div class="flex items-center justify-center gap-1 cursor-pointer" (click)="sortTable('email')">
+                            <span>Email</span>
                             <i class="fas {{ getSortIcon('email') }}"></i>
                         </div>
-                    </th>                    
-                    <th>
-                        <div class="flex items-center gap-1 cursor-pointer" (click)="sortTable('rol')">
-                            Rol
+                    </th>
+                    <th class="text-center">
+                        <div class="flex items-center justify-center gap-1 cursor-pointer" (click)="sortTable('rol')">
+                            <span>Rol</span>
                             <i class="fas {{ getSortIcon('rol') }}"></i>
                         </div>
                     </th>
-                    <th>
-                        <div class="flex items-center gap-1 cursor-pointer" (click)="sortTable('bodega')">
-                            Bodega
+                    <th class="text-center">
+                        <div class="flex items-center justify-center gap-1 cursor-pointer" (click)="sortTable('bodega')">
+                            <span>Bodega</span>
                             <i class="fas {{ getSortIcon('bodega') }}"></i>
                         </div>
                     </th>
-                    <th>Acción</th>
+                    <th class="text-center">Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let user of paginatedUsers; let i = index">
-                    <th>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</th>
-                    <td>
-                        <span *ngIf="!user.isEditing">{{ user.nombre! | initCapFirst }}</span>
-                        <input *ngIf="user.isEditing" type="text" [(ngModel)]="user.nombre" class="input input-bordered input-xs w-full max-w-xs">
+                <tr *ngFor="let user of paginatedUsers; let i = index" class="hover:bg-gray-100 cursor-pointer transition-colors">
+                    <td class="text-center">{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                    <td class="text-center">
+                        <span *ngIf="!user.isEditing" class="block w-full">{{ user.nombre! | initCapFirst }}</span>
+                        <input *ngIf="user.isEditing" type="text" [(ngModel)]="user.nombre" class="input input-bordered input-xs w-full text-center">
                     </td>
-                    <td>
-                        <span *ngIf="!user.isEditing">{{ user.email }}</span>
-                        <input *ngIf="user.isEditing" type="email" [(ngModel)]="user.email" class="input input-bordered input-xs w-full max-w-xs">
+                    <td class="text-center">
+                        <span *ngIf="!user.isEditing" class="block w-full">{{ user.email }}</span>
+                        <input *ngIf="user.isEditing" type="email" [(ngModel)]="user.email" class="input input-bordered input-xs w-full text-center">
                     </td>
-                    <td>
-                        <span *ngIf="!user.isEditing">{{ user.rol! | initCapFirst }}</span>
+                    <td class="text-center">
+                        <span *ngIf="!user.isEditing" class="block w-full">{{ user.rol! | initCapFirst }}</span>
                         <select 
                             *ngIf="user.isEditing" 
                             [(ngModel)]="user.id_rol" 
                             (change)="onRoleChange()"
-                            class="select select-bordered select-xs w-full max-w-xs"
+                            class="select select-bordered select-xs w-full text-center"
                             [disabled]="!canEditRole(user.id)"
                             [class.bg-base-200]="!canEditRole(user.id)"
                             [title]="!canEditRole(user.id) ? 'No puedes modificar tu propio rol' : 'Seleccionar rol'"
@@ -223,47 +276,39 @@
                             <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.nombre | initCapFirst }}</option>
                         </select>
                     </td>
-                    <td>
-                        <span *ngIf="!user.isEditing">
-                            <span *ngIf="user.bodega">
-                                {{ user.bodega! | initCapFirst }}
+                    <td class="text-center">
+                        <span *ngIf="!user.isEditing" class="block w-full">
+                            <span *ngIf="user.bodega && bodegas.length > 0">
+                                {{ getBodegaById(user.id_bodega!)?.id_bodega || ' ' }} - {{ user.bodega! | initCapFirst }}
+                            </span>
+                            <span *ngIf="user.bodega && bodegas.length === 0" class="loading loading-spinner loading-xs"></span>
+                            <span *ngIf="!user.bodega" class="text-gray-500">
+                                Sin bodega asignada
                             </span>
                         </span>
-                        <select *ngIf="user.isEditing" [(ngModel)]="user.id_bodega" class="select select-bordered select-xs w-full max-w-xs">
-                            <option *ngFor="let bodega of bodegas" [value]="bodega.id">{{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}</option>
+                        <select *ngIf="user.isEditing" [(ngModel)]="user.id_bodega" class="select select-bordered select-xs w-full text-center">
+                            <option [ngValue]="null" disabled>Seleccione una bodega</option>
+                            <option *ngFor="let bodega of bodegas" [ngValue]="bodega.id">
+                                {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
+                            </option>
                         </select>
                     </td>
-                    <td class="flex space-x-2">
-                        <!-- Botón Editar/Guardar -->
-                        <button *ngIf="!user.isEditing" 
-                                class="btn btn-ghost btn-xs" 
-                                (click)="startEditing(user)">
-                            <span class="material-symbols-outlined icono-editar">edit</span>
-                        </button>
-                        <button *ngIf="user.isEditing" 
-                                class="btn btn-ghost btn-xs" 
-                                (click)="saveUser(user)">
-                            <span class="material-symbols-outlined text-green-500">save</span>
-                        </button>
-                    
-                        <!-- Botón Cancelar (solo en modo edición) -->
-                        <button *ngIf="user.isEditing" 
-                                class="btn btn-ghost btn-xs" 
-                                (click)="cancelEdit(user)">
-                            <span class="material-symbols-outlined text-red-500">close</span>
-                        </button>
-                        
-                        <!-- Botón Eliminar (solo cuando no está en modo edición) -->
-                        <button 
-                            class="btn btn-ghost btn-xs"
-                            (click)="deleteUser(user)"
-                            [disabled]="!canDeleteUser(user.id)"
-                            [class.opacity-50]="!canDeleteUser(user.id)"
-                            [class.text-error]="canDeleteUser(user.id)"
-                            [title]="!canDeleteUser(user.id) ? 'No puedes eliminarte a ti mismo' : 'Eliminar usuario'"
-                        >
-                            <span class="material-symbols-outlined">delete</span>
-                        </button>
+                    <td class="text-center">
+                        <div class="flex justify-center space-x-2">
+                            <button class="btn btn-ghost btn-xs" (click)="openEditModal(user)">
+                                <span class="material-symbols-outlined icono-editar">edit</span>
+                            </button>
+                            <button 
+                                class="btn btn-ghost btn-xs"
+                                (click)="deleteUser(user)"
+                                [disabled]="!canDeleteUser(user.id)"
+                                [class.opacity-50]="!canDeleteUser(user.id)"
+                                [class.text-error]="canDeleteUser(user.id)"
+                                [title]="!canDeleteUser(user.id) ? 'No puedes eliminarte a ti mismo' : 'Eliminar usuario'"
+                            >
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             </tbody>
@@ -294,6 +339,160 @@
                 (click)="changePage(currentPage + 1)">
                 <i class="fas fa-chevron-right text-sm"></i>
             </button>
+        </div>
+    </div>
+    
+    <!-- Botón Volver -->
+    <div class="px-8 py-6 bg-[#f5f5f5] -mx-8 mt-4">
+        <button class="btn btn-sm flex items-center space-x-2 bg-gray-400 hover:bg-gray-500 text-white" (click)="navigateTo('/home')">
+            <span class="material-symbols-outlined">arrow_back</span>
+            <span>Volver</span>
+        </button>
+    </div>
+
+    <!-- Modal de Edición de Usuario -->
+    <div *ngIf="showEditModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <!-- Encabezado del Modal -->
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="text-lg font-semibold">Editar Usuario</h3>
+                <button class="btn btn-ghost btn-sm" (click)="closeEditModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <!-- Contenido del Modal -->
+            <div class="p-6">
+                <div class="grid grid-cols-1 gap-4">
+                    <!-- Información del Usuario -->
+                    <div class="bg-base-200 p-4 rounded-lg">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <div class="text-sm text-gray-500">Nombre</div>
+                                <div class="font-medium">{{userToEdit?.nombre}}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500">Email</div>
+                                <div class="font-medium">{{userToEdit?.email}}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rol y Bodega en la misma fila -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Rol -->
+                        <div class="form-control w-full">
+                            <div class="label">
+                                <span class="label-text">Rol (*)</span>
+                            </div>
+                            <select 
+                                [(ngModel)]="userToEdit!.id_rol" 
+                                class="select select-bordered w-full"
+                                (change)="onEditRoleChange(); checkForChanges()"
+                            >
+                                <option [ngValue]="0" disabled>Seleccione un rol</option>
+                                <option *ngFor="let rol of roles" [ngValue]="rol.id">
+                                    {{ rol.nombre | initCapFirst }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Bodega (solo para rol Tienda) -->
+                        <div *ngIf="editIsTiendaRole" class="form-control w-full">
+                            <div class="label">
+                                <span class="label-text">Bodega (*)</span>
+                            </div>
+                            <select 
+                                [(ngModel)]="userToEdit!.id_bodega" 
+                                class="select select-bordered w-full"
+                                (change)="checkForChanges()"
+                                [class.select-error]="editIsTiendaRole && !userToEdit!.id_bodega"
+                            >
+                                <option [ngValue]="0" disabled>Seleccione una bodega</option>
+                                <option *ngFor="let bodega of filteredBodegas" [ngValue]="bodega.id">
+                                    {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Contraseñas en la misma fila -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <!-- Nueva Contraseña -->
+                        <div class="form-control w-full">
+                            <div class="label">
+                                <span class="label-text">Nueva Contraseña (opcional)</span>
+                            </div>
+                            <input 
+                                type="password" 
+                                [(ngModel)]="editPassword"
+                                (keyup)="validateEditPassword(); checkForChanges()"
+                                (keydown.space)="$event.preventDefault()"
+                                maxlength="10"
+                                class="input input-bordered w-full"
+                                placeholder="Dejar en blanco para no cambiar"
+                            >
+                        </div>
+
+                        <!-- Confirmar Contraseña -->
+                        <div class="form-control w-full">
+                            <div class="label">
+                                <span class="label-text">Confirmar Contraseña</span>
+                            </div>
+                            <input 
+                                type="password" 
+                                [(ngModel)]="editConfirmPassword"
+                                (keyup)="validateEditPasswordsMatch(); checkForChanges()"
+                                (keydown.space)="$event.preventDefault()"
+                                maxlength="10"
+                                class="input input-bordered w-full"
+                                [disabled]="!editPassword"
+                                placeholder=""
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Mensajes de validación de contraseña -->
+                    <div *ngIf="editPassword" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        <div>
+                            <div class="text-xs" [class.text-error]="!editPasswordHasUppercase" [class.text-success]="editPasswordHasUppercase">
+                                • Al menos una letra mayúscula
+                            </div>
+                            <div class="text-xs" [class.text-error]="!editPasswordHasLowercase" [class.text-success]="editPasswordHasLowercase">
+                                • Al menos una letra minúscula
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-xs" [class.text-error]="!editPasswordHasNumber" [class.text-success]="editPasswordHasNumber">
+                                • Al menos un número
+                            </div>
+                            <div class="text-xs" [class.text-error]="!editPasswordHasValidLength" [class.text-success]="editPasswordHasValidLength">
+                                • Mínimo 8 caracteres
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mensaje de error de coincidencia -->
+                    <div *ngIf="editConfirmPassword && !editPasswordsMatch" class="text-error text-xs mt-1">
+                        Las contraseñas no coinciden
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Pie del Modal -->
+            <div class="flex justify-end gap-2 p-4 border-t">
+                <button class="btn btn-ghost" (click)="closeEditModal()">Cancelar</button>
+                <button 
+                    class="btn text-white" 
+                    [class.btn-disabled]="!hasChanges || !isEditFormValid()"
+                    [style.background-color]="hasChanges && isEditFormValid() ? '#00bcd4' : '#9ca3af'"
+                    [style.border-color]="hasChanges && isEditFormValid() ? '#00bcd4' : '#9ca3af'"
+                    (click)="saveUserChanges()"
+                    [disabled]="!hasChanges || !isEditFormValid()">
+                    Guardar Cambios
+                </button>
+            </div>
         </div>
     </div>
 </div>

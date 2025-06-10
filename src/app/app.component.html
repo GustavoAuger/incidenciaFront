@@ -12,8 +12,15 @@
         <div class="flex-1"></div>
         <div class="flex items-center gap-4" *ngIf="isAuthenticated && isNotLogin">
             <div class="text-right">
-                <p class="font-medium">{{ username }}</p>
-                <p class="text-sm opacity-75">{{ userBodega }}</p>
+                <p class="text-lg font-semibold">{{ username }}</p>
+                <div class="flex items-center gap-2 text-xs text-gray-500 tracking-wide">
+                    <button *ngIf="isAdmin()" class="btn btn-circle btn-xs p-1 bg-gray-100 hover:bg-gray-200 transition-all duration-200 shadow-sm hover:shadow-md active:shadow-sm active:translate-y-0.5">
+                        <i class="fas fa-user-secret text-base"></i>
+                    </button>
+                    <span class="uppercase">{{ userRol}}</span>
+                    <span>|</span>
+                    <span class="uppercase">{{ userBodega}}</span>
+                </div>
             </div>
             <button (click)="onLogout($event)" class="btn btn-outline btn-md">
                 Cerrar Sesión
