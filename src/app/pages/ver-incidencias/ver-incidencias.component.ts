@@ -24,7 +24,41 @@ export class VerIncidenciasComponent implements OnInit {
   // Lista filtrada de incidencias
   incidenciasFiltradas: Incidencia[] = [];
   isLoading: boolean = true;
-  
+  //para los colores grises
+  isOrigenOpen = false;
+  isDestinoOpen = false;
+  isTransporteOpen = false;
+  isFechaDesdeOpen = false;
+  isFechaHastaOpen = false;
+  isTipoIncidenciaOpen = false;
+  isEstadoOpen = false;
+
+  // Función para controlar la apertura de los selects
+  onSelectOpen(select: string) {
+    switch(select) {
+      case 'fechaDesde':
+        this.isFechaDesdeOpen = !this.isFechaDesdeOpen;
+        break;
+      case 'fechaHasta':
+        this.isFechaHastaOpen = !this.isFechaHastaOpen;
+        break;
+      case 'tipoIncidencia':
+        this.isTipoIncidenciaOpen =!this.isTipoIncidenciaOpen;
+        break;  
+      case 'origen':
+        this.isOrigenOpen = !this.isOrigenOpen;
+        break;
+      case 'destino':
+        this.isDestinoOpen = !this.isDestinoOpen;
+        break;
+      case 'transporte':
+        this.isTransporteOpen = !this.isTransporteOpen;
+        break;
+      case 'estado':
+        this.isEstadoOpen =!this.isEstadoOpen;
+        break;
+    }
+  }
   // Datos de bodegas
   bodegas: Bodega[] = [ ];
 
@@ -36,7 +70,7 @@ export class VerIncidenciasComponent implements OnInit {
     'Nuevo',
     'En Revisión',
     'Aceptada',
-    'Rechazadaa'
+    'Rechazada'
   ];
 
   // Transportes (POR AHORA ESTO SE DEBE TRAER DE LA BD)
@@ -204,8 +238,14 @@ getTipoIncidencia() {
         (incidencia.fecha_recepcion && new Date(incidencia.fecha_recepcion) >= new Date(this.filtros.fechaDesde));
       const cumpleFechaHasta = !this.filtros.fechaHasta || 
         (incidencia.fecha_recepcion && new Date(incidencia.fecha_recepcion) <= new Date(this.filtros.fechaHasta));
+
+
       const cumpleNumeroIncidencia = !this.filtros.numeroIncidencia || 
-        (incidencia.id?.toString() || '').includes(this.filtros.numeroIncidencia);
+        (incidencia.id?.toString().toLowerCase() || '').includes(this.filtros.numeroIncidencia.toLowerCase()) ||
+        (incidencia.id?.toString().toLowerCase() || '').includes(this.filtros.numeroIncidencia.replace('inc', '').toLowerCase()) ||
+        ('inc' + (incidencia.id?.toString() || '').toLowerCase()).includes(this.filtros.numeroIncidencia.toLowerCase());
+      
+
       const cumpleTipoIncidencia = !this.filtros.tipoIncidencia || 
         incidencia.id_tipo_incidencia?.toString() === this.filtros.tipoIncidencia;
       const cumpleOrigen = !this.filtros.origen || 
