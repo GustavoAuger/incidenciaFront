@@ -301,9 +301,13 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
       alert('Error: No se encontraron los datos de la incidencia');
       return;
     }
-
+    // Calcular totales
+    const tot_item = this.incidenciaService.calcularTotalItems(this.detalles);
+    const totalizado = this.incidenciaService.calcularValorizado(this.detalles, this.guias);
+    
     // Crear el objeto para enviar al backend
     const datosParaEnviar = {
+      detalles: this.detalles,
       incidencia: {
         id_bodega: incidenciaParcial.id_bodega,
         ots: incidenciaParcial.ots,
@@ -317,10 +321,10 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
         origen_id_local: incidenciaParcial.origen_id_local || '',
         destino_id_bodega: incidenciaParcial.destino_id_bodega || '',
         tipo_estado: incidenciaParcial.tipo_estado || '',
-        total_item: incidenciaParcial.total_item || 0,
-        valorizado: incidenciaParcial.valorizado || 0
-      },
-      detalles: this.detalles
+        total_item: tot_item,
+        valorizado: totalizado
+      }
+      
     };
     console.log(datosParaEnviar);
     // Llamar al servicio para crear la incidencia
@@ -469,9 +473,15 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
       return;
     }
 
+    // Calcular totales
+    const tot_item = this.incidenciaService.calcularTotalItems(this.detalles);
+    const totalizado = this.incidenciaService.calcularValorizado(this.detalles, this.guias);
+
     // Preparar los datos para actualizar
     const datosActualizados = {
       incidencia: this.incidencia.id,
+      total_item: tot_item,
+      valorizado: totalizado,
       detalles: this.detalles.map(detalle => ({
         ...detalle,
         estado: true // Campo para softDelete, true significa activo
@@ -480,7 +490,6 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
 
     // Llamar al servicio para actualizar la incidencia
     this.incidenciaService.actualizarDetallesIncidencia(datosActualizados).subscribe({
-    
       next: (response) => {
         if (response) {
           alert('Incidencia actualizada con éxito');
