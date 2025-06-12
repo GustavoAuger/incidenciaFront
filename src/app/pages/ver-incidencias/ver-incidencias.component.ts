@@ -113,23 +113,32 @@ export class VerIncidenciasComponent implements OnInit {
     const id_usuario = userIdString ? parseInt(userIdString, 10) : 0;
     //manejo de fechas
     const today = new Date();
+    const today30 = new Date(today);
     const maxDate = today.toISOString().split('T')[0];
     const fechaInput = document.querySelector('input[name="fecha"]');
     const fechaInput2 = document.querySelector('input[name="fecha2"]');
-    
+    today30.setDate(today30.getDate() - 30);
+    const minDate = today30.toISOString().split('T')[0]; // Formato yyyy-mm-dd
+
+    // Establecer los valores iniciales de los filtros de fecha
+    this.filtros.fechaHasta = maxDate;
+    this.filtros.fechaDesde = minDate;
+
     if (fechaInput && fechaInput2) {
       fechaInput.setAttribute('max', maxDate);
       fechaInput2.setAttribute('max', maxDate);
-    
-      // Add event listener to update fecha2's min date when fecha1 changes
+
+      // Configurar eventos para actualizar los límites de las fechas
       fechaInput.addEventListener('change', (e) => {
         const fecha1Value = (e.target as HTMLInputElement).value;
         if (fecha1Value) {
           fechaInput2.setAttribute('min', fecha1Value);
+        } else {
+          // Si se borra la fecha, se restablecen los límites #arreglado el bug del borrar fecha
+          fechaInput2.removeAttribute('min');
         }
       });
-    
-      // Add event listener to update fecha1's max date when fecha2 changes
+
       fechaInput2.addEventListener('change', (e) => {
         const fecha2Value = (e.target as HTMLInputElement).value;
         if (fecha2Value) {
@@ -140,7 +149,7 @@ export class VerIncidenciasComponent implements OnInit {
       });
     }
     this.cargarIncidencias(id_usuario);
-    this.getBodegas(); 
+    this.getBodegas();
     this.getTipoIncidencia();
 }
 

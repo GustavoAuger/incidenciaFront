@@ -12,7 +12,6 @@
           name="tipo_incidencia"
           #origen="ngModel"
           class="select select-bordered w-full"
-          (change)="validarTipo()"
           [class.select-error]="transportista.invalid && (transportista.dirty || transportista.touched)"
           required>
           <option disabled selected value="">Seleccione tipo incidencia</option>

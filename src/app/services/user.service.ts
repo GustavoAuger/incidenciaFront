@@ -79,20 +79,30 @@ export class UserService {
     return this.http.get<User>(`${this.apiUrl}/getUserByUsername/${username}`);
   }
   // Métodos auxiliares para verificar roles
+
+
+  getrol(){
+    const roleId = localStorage.getItem('id_rol');
+    return roleId;
+  }
   isAdmin(): boolean {
-    return this.user.id_rol === 1;
+    const id = this.getrol();
+    return id === "1";
   }
 
   isEmisor(): boolean {
-    return this.user.id_rol === 2;
+    const id = this.getrol();
+    return id === "2";
   }
 
   isGestor(): boolean {
-    return this.user.id_rol === 3;
+    const id = this.getrol();
+    return id === "3";
   }
 
   isTienda(): boolean {
-    return this.user.id_rol === 4;
+    const id = this.getrol();
+    return id === "4";
   }
 
 

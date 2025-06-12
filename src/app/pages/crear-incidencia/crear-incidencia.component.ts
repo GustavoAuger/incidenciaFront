@@ -91,6 +91,8 @@ export class CrearIncidenciaComponent {
       this.selectedImages.splice(index, 1);
     }
 
+
+
     selectedImages: Array<{file: File, preview: string}> = [];
 
   onFileSelected(event: any) {
@@ -167,16 +169,7 @@ export class CrearIncidenciaComponent {
     this.router.navigate(['/crear-detalle-incidencia'], navigationExtras);
 }
 
-//validar rol de usuario para permitir opciones de tipo incidencia
-  validarTipo(){
 
-    if (this._userService.isEmisor()) {
-      
-
-        this.lista_tipo_incidencia = this.lista_tipo_incidencia.filter(tipo => tipo.id !== 1);
-
-    }
-  }
 
 
 
@@ -203,16 +196,42 @@ export class CrearIncidenciaComponent {
       }
     })
   }
-  getTipoIncidencias(){  //nuevo revisar
+  getTipoIncidencias(){  //refactor para que muestre tipo de incidencia de acuerdo a su rol
     this._incidenciaService.getTipoIncidencia().subscribe({
       next: (tipo_incidencia: Tipo_incidencia[]) => {
+        
         this.lista_tipo_incidencia = tipo_incidencia;
+        if (this._userService.isEmisor()) {
+          this.lista_tipo_incidencia = this.lista_tipo_incidencia.filter(tipo => tipo.id !== 1 && tipo.id!== 3);
+          console.log(this.lista_tipo_incidencia);
+        }
+        else if (this._userService.isTienda()) {
+          this.lista_tipo_incidencia = this.lista_tipo_incidencia.filter(tipo => tipo.id !== 2);
+          console.log(this.lista_tipo_incidencia);
+        }
+        else{
+          this.lista_tipo_incidencia = this.lista_tipo_incidencia;
+          console.log(this.lista_tipo_incidencia);
+        }
       },
       error: (error: Error) => {
         console.error('Error fetching bodegas', error);
       }
     })
   }
+
+      //validar rol de usuario para permitir opciones de tipo incidencia
+    validarTipo(){
+
+      if (this._userService.isEmisor()) {
+          this.lista_tipo_incidencia = this.lista_tipo_incidencia.filter(tipo => tipo.id !== 1);
+          console.log(this.lista_tipo_incidencia);
+      }
+      else if (this._userService.isTienda()) {
+        this.lista_tipo_incidencia = this.lista_tipo_incidencia.filter(tipo => tipo.id !== 1);
+        console.log(this.lista_tipo_incidencia);
+      }
+    }
 
   getUserId() {
     const usernameStorage = localStorage.getItem('username');

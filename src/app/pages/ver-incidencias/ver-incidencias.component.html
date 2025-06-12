@@ -3,13 +3,13 @@
         <div class="date-filters">
             <div class="filter-group">
                 <label>Desde</label>
-                <input type="date" class="date-input" 
+                <input type="date" class="date-input" value="{minDate}"  #fechaInput
                 [ngClass]="{'text-gray-400': !filtros.fechaDesde && !isFechaDesdeOpen, 'text-black': filtros.fechaDesde || isFechaDesdeOpen}"
                 name="fecha" [(ngModel)]="filtros.fechaDesde" (ngModelChange)="aplicarFiltros()">
             </div>
             <div class="filter-group">
                 <label>Hasta</label>
-                <input type="date" class="date-input" 
+                <input type="date" class="date-input"  value="" #fechaInput2
                 [ngClass]="{'text-gray-400': !filtros.fechaHasta && !isFechaHastaOpen, 'text-black': filtros.fechaHasta || isFechaHastaOpen}"
                 name="fecha2" [(ngModel)]="filtros.fechaHasta" (ngModelChange)="aplicarFiltros()">
             </div>
