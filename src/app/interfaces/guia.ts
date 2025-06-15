@@ -1,6 +1,7 @@
 export interface SkuTotal {
   sku: string;
   total: number;
+  precio: number;
 }
 
 export interface Guia {

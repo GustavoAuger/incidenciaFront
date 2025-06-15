@@ -78,9 +78,35 @@ export class IncidenciaService {
 
   actualizarDetallesIncidencia(data: { 
     incidencia: Incidencia, 
+    total_item: number,
+    valorizado: number,
     detalles: DetalleIncidencia[] 
   }): Observable<boolean> {
     console.log(data);
     return this.http.post<boolean>(this.apiUrl + '/actualizarDetalle', data);
   }
+
+  // Método para calcular el total de items
+  calcularTotalItems(detalles: DetalleIncidencia[]): number {
+    return detalles.reduce((total, detalle) => {
+      return total + detalle.cantidad;
+    }, 0);
+  }
+
+  // Método para calcular el valorizado total
+  calcularValorizado(detalles: DetalleIncidencia[], guias: any[]): number {
+    return detalles.reduce((total, detalle) => {
+      // Buscar la guía correspondiente al detalle
+      const guia = guias.find(g => g.numguia === detalle.numGuia);
+      if (!guia) return total;
+
+      // Buscar el SKU en la guía para obtener el precio
+      const skuInfo = guia.sku_total.find((item: any) => item.sku === detalle.sku);
+      if (!skuInfo) return total;
+
+      // Multiplicar el precio por la cantidad del detalle
+      return total + (skuInfo.precio * detalle.cantidad);
+    }, 0);
+  }
+
 }

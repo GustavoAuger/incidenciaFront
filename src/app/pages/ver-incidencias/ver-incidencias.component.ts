@@ -24,7 +24,41 @@ export class VerIncidenciasComponent implements OnInit {
   // Lista filtrada de incidencias
   incidenciasFiltradas: Incidencia[] = [];
   isLoading: boolean = true;
-  
+  //para los colores grises
+  isOrigenOpen = false;
+  isDestinoOpen = false;
+  isTransporteOpen = false;
+  isFechaDesdeOpen = false;
+  isFechaHastaOpen = false;
+  isTipoIncidenciaOpen = false;
+  isEstadoOpen = false;
+
+  // Función para controlar la apertura de los selects
+  onSelectOpen(select: string) {
+    switch(select) {
+      case 'fechaDesde':
+        this.isFechaDesdeOpen = !this.isFechaDesdeOpen;
+        break;
+      case 'fechaHasta':
+        this.isFechaHastaOpen = !this.isFechaHastaOpen;
+        break;
+      case 'tipoIncidencia':
+        this.isTipoIncidenciaOpen =!this.isTipoIncidenciaOpen;
+        break;  
+      case 'origen':
+        this.isOrigenOpen = !this.isOrigenOpen;
+        break;
+      case 'destino':
+        this.isDestinoOpen = !this.isDestinoOpen;
+        break;
+      case 'transporte':
+        this.isTransporteOpen = !this.isTransporteOpen;
+        break;
+      case 'estado':
+        this.isEstadoOpen =!this.isEstadoOpen;
+        break;
+    }
+  }
   // Datos de bodegas
   bodegas: Bodega[] = [ ];
 
@@ -36,7 +70,7 @@ export class VerIncidenciasComponent implements OnInit {
     'Nuevo',
     'En Revisión',
     'Aceptada',
-    'Rechazadaa'
+    'Rechazada'
   ];
 
   // Transportes (POR AHORA ESTO SE DEBE TRAER DE LA BD)
@@ -79,23 +113,32 @@ export class VerIncidenciasComponent implements OnInit {
     const id_usuario = userIdString ? parseInt(userIdString, 10) : 0;
     //manejo de fechas
     const today = new Date();
+    const today30 = new Date(today);
     const maxDate = today.toISOString().split('T')[0];
     const fechaInput = document.querySelector('input[name="fecha"]');
     const fechaInput2 = document.querySelector('input[name="fecha2"]');
-    
+    today30.setDate(today30.getDate() - 30);
+    const minDate = today30.toISOString().split('T')[0]; // Formato yyyy-mm-dd
+
+    // Establecer los valores iniciales de los filtros de fecha
+    this.filtros.fechaHasta = maxDate;
+    this.filtros.fechaDesde = minDate;
+
     if (fechaInput && fechaInput2) {
       fechaInput.setAttribute('max', maxDate);
       fechaInput2.setAttribute('max', maxDate);
-    
-      // Add event listener to update fecha2's min date when fecha1 changes
+
+      // Configurar eventos para actualizar los límites de las fechas
       fechaInput.addEventListener('change', (e) => {
         const fecha1Value = (e.target as HTMLInputElement).value;
         if (fecha1Value) {
           fechaInput2.setAttribute('min', fecha1Value);
+        } else {
+          // Si se borra la fecha, se restablecen los límites #arreglado el bug del borrar fecha
+          fechaInput2.removeAttribute('min');
         }
       });
-    
-      // Add event listener to update fecha1's max date when fecha2 changes
+
       fechaInput2.addEventListener('change', (e) => {
         const fecha2Value = (e.target as HTMLInputElement).value;
         if (fecha2Value) {
@@ -106,7 +149,7 @@ export class VerIncidenciasComponent implements OnInit {
       });
     }
     this.cargarIncidencias(id_usuario);
-    this.getBodegas(); 
+    this.getBodegas();
     this.getTipoIncidencia();
 }
 
@@ -204,8 +247,14 @@ getTipoIncidencia() {
         (incidencia.fecha_recepcion && new Date(incidencia.fecha_recepcion) >= new Date(this.filtros.fechaDesde));
       const cumpleFechaHasta = !this.filtros.fechaHasta || 
         (incidencia.fecha_recepcion && new Date(incidencia.fecha_recepcion) <= new Date(this.filtros.fechaHasta));
+
+
       const cumpleNumeroIncidencia = !this.filtros.numeroIncidencia || 
-        (incidencia.id?.toString() || '').includes(this.filtros.numeroIncidencia);
+        (incidencia.id?.toString().toLowerCase() || '').includes(this.filtros.numeroIncidencia.toLowerCase()) ||
+        (incidencia.id?.toString().toLowerCase() || '').includes(this.filtros.numeroIncidencia.replace('inc', '').toLowerCase()) ||
+        ('inc' + (incidencia.id?.toString() || '').toLowerCase()).includes(this.filtros.numeroIncidencia.toLowerCase());
+      
+
       const cumpleTipoIncidencia = !this.filtros.tipoIncidencia || 
         incidencia.id_tipo_incidencia?.toString() === this.filtros.tipoIncidencia;
       const cumpleOrigen = !this.filtros.origen || 
@@ -244,9 +293,64 @@ getTipoIncidencia() {
   }
 // Método para exportar a Excel todas las incidencias
   exportToExcel(): void {
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.incidencias);
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.incidenciasFiltradas);
     const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
     XLSX.writeFile(workbook, 'Incidencias.xlsx');
   }
 
+  exportToExcel2(): void {
+    const incidenciasExpandidas: any[] = [];
+    let incidenciasProcesadas = 0;
+    
+    this.incidenciasFiltradas.forEach(incidencia => {
+      if (incidencia.id === undefined) {
+        // Si no hay ID, agregamos la incidencia sin detalles
+        incidenciasExpandidas.push(incidencia);
+        incidenciasProcesadas++;
+        
+        if (incidenciasProcesadas === this.incidenciasFiltradas.length) {
+          const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(incidenciasExpandidas);
+          const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+          XLSX.writeFile(workbook, 'Incidencias_con_detalles.xlsx');
+        }
+        return;
+      }
+
+      this._incidenciaService.getDetallesIncidencia(incidencia.id).subscribe({
+        next: (detalles) => {
+          if (detalles.length === 0) {
+            incidenciasExpandidas.push(incidencia);
+          } else {
+            detalles.forEach(detalle => {
+              incidenciasExpandidas.push({
+                ...incidencia,
+                detalle_producto: detalle.sku,
+                detalle_cantidad: detalle.cantidad
+              });
+            });
+          }
+          
+          incidenciasProcesadas++;
+          
+          if (incidenciasProcesadas === this.incidenciasFiltradas.length) {
+            const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(incidenciasExpandidas);
+            const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+            XLSX.writeFile(workbook, 'Incidencias_con_detalles.xlsx');
+          }
+        },
+        error: (error) => {
+          console.error('Error al obtener detalles:', error);
+          // En caso de error, agregamos la incidencia sin detalles
+          incidenciasExpandidas.push(incidencia);
+          incidenciasProcesadas++;
+          
+          if (incidenciasProcesadas === this.incidenciasFiltradas.length) {
+            const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(incidenciasExpandidas);
+            const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+            XLSX.writeFile(workbook, 'Incidencias_con_detalles.xlsx');
+          }
+        }
+      });
+    });
+  }
 }

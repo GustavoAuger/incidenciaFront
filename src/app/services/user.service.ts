@@ -12,6 +12,7 @@ import { map } from 'rxjs/operators';
 })
 export class UserService {
   private apiUrl = environment.apiUrl;
+  private user!: User;
   constructor(private http: HttpClient) { }
   
   getUsuarios(): Observable<User[]> {
@@ -77,4 +78,32 @@ export class UserService {
   getUserByUsername(username: string): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/getUserByUsername/${username}`);
   }
+  // Métodos auxiliares para verificar roles
+
+
+  getrol(){
+    const roleId = localStorage.getItem('id_rol');
+    return roleId;
+  }
+  isAdmin(): boolean {
+    const id = this.getrol();
+    return id === "1";
+  }
+
+  isEmisor(): boolean {
+    const id = this.getrol();
+    return id === "2";
+  }
+
+  isGestor(): boolean {
+    const id = this.getrol();
+    return id === "3";
+  }
+
+  isTienda(): boolean {
+    const id = this.getrol();
+    return id === "4";
+  }
+
+
 }
