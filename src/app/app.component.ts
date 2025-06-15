@@ -1,26 +1,33 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { AuthService } from './services/auth.service';
 import { UserService } from './services/user.service';
-import { filter } from 'rxjs/operators';
 import { User } from './interfaces/user';
+import { Rol } from './interfaces/rol';
+import { InitCapFirstPipe } from './pipes/init-cap-first.pipe';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet],
+  imports: [CommonModule, RouterOutlet, InitCapFirstPipe, FormsModule],
   providers: [AuthService, UserService],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, OnDestroy {
+  title='proyecto';
   isAuthenticated: boolean = false;
   isNotLogin: boolean = false;
   username: string = '';
   userBodega: string = '';
   userRol: string = '';
-  private routerSubscription: any;
+  roles: Rol[] = [];
+  selectedRoleId: number | null = null;
+  private routerSubscription: Subscription | undefined;
 
   constructor(
     private router: Router,
@@ -35,7 +42,10 @@ export class AppComponent implements OnInit, OnDestroy {
     ).subscribe(() => {
       this.isNotLogin = this.router.url !== '/login';
       this.updateAuthStatus();
+      
     });
+
+    this.getRoles();
   }
 
   ngOnDestroy(): void {
@@ -43,6 +53,11 @@ export class AppComponent implements OnInit, OnDestroy {
       this.routerSubscription.unsubscribe();
     }
   }
+
+  get isAdminUser(): boolean {
+    return localStorage.getItem('is_admin') === 'true';
+  }
+  
 
   private updateAuthStatus(): void {
     this.isAuthenticated = this.authService.isAuthenticated();
@@ -65,7 +80,22 @@ export class AppComponent implements OnInit, OnDestroy {
         
         if (currentUser) {
           this.userBodega = currentUser.bodega || 'Sin bodega asignada';
-          this.userRol = currentUser.rol ? this.capitalizeFirstLetter(currentUser.rol) : 'Rol no definido';
+          
+          // Guardar si el usuario es administrador (solo la primera vez)
+          if (localStorage.getItem('is_admin') === null) {
+            const isAdmin = currentUser.id_rol === 1; // Asumiendo que 1 es el ID de administrador
+            localStorage.setItem('is_admin', isAdmin.toString());
+          }
+          
+          // Usar el rol del localStorage si existe, si no, usar el del usuario
+          const roleId = localStorage.getItem('id_rol') || currentUser.id_rol?.toString();
+          if (roleId) {
+            this.selectedRoleId = Number(roleId);
+            const role = this.roles.find(r => r.id === this.selectedRoleId);
+            this.userRol = role ? this.capitalizeFirstLetter(role.nombre) : 'Rol no definido';
+          } else {
+            this.userRol = currentUser.rol ? this.capitalizeFirstLetter(currentUser.rol) : 'Rol no definido';
+          }
         } else {
           this.userBodega = 'Sin bodega asignada';
           this.userRol = 'Rol no definido';
@@ -84,8 +114,30 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   isAdmin(): boolean {
-    const roleId = localStorage.getItem('id_rol');
-    return roleId === '1'; // 1 es el ID para el rol de administrador
+    // Verificar si el usuario es administrador (originalmente)
+    return localStorage.getItem('is_admin') === 'true';
+  }
+
+  saveRoleChange() {
+    if (this.selectedRoleId !== null) {
+      // Guardar el nuevo rol en localStorage
+      localStorage.setItem('id_rol', this.selectedRoleId.toString());
+      
+      // Actualizar la interfaz
+      const selectedRole = this.roles.find(r => r.id === this.selectedRoleId);
+      if (selectedRole) {
+        this.userRol = this.capitalizeFirstLetter(selectedRole.nombre);
+      }
+      
+      // Cerrar el modal
+      const modal = document.getElementById('adminModal') as HTMLDialogElement;
+      if (modal) {
+        modal.close();
+      }
+      
+      // Recargar la página para aplicar los cambios
+      window.location.reload();
+    }
   }
 
   navigateToHome(): void {
@@ -96,5 +148,32 @@ export class AppComponent implements OnInit, OnDestroy {
     event.preventDefault();
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  openAdminModal() {
+    const modal = document.getElementById('adminModal') as HTMLDialogElement;
+    if (modal) {
+      modal.showModal();
+    }
+  }
+
+  getRoles(): void {
+    this.userService.getRoles().subscribe({
+      next: (roles) => {
+        this.roles = roles;
+        // Set the selected role from localStorage
+        const storedRoleId = localStorage.getItem('id_rol');
+        if (storedRoleId) {
+          this.selectedRoleId = Number(storedRoleId);
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar los roles:', error);
+      }
+    });
+  }
+
+  getLocalStorageItem(key: string): string | null {
+    return localStorage.getItem(key);
   }
 }
