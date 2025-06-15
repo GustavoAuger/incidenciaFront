@@ -198,8 +198,8 @@ getTipoIncidencia() {
     this.isLoading = true;
     this._incidenciaService.getIncidencias(id_usuario).subscribe(
       (incidencias) => {
-        console.log('dasdsa',incidencias);
-        this.incidencias = incidencias;
+        // Ordenar incidencias por ID de forma descendente
+        this.incidencias = incidencias.sort((a, b) => (b.id || 0) - (a.id || 0));
         this.incidenciasFiltradas = [...this.incidencias];
         this.isLoading = false;
       },
