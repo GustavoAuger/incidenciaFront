@@ -204,6 +204,10 @@ getTipoIncidencia() {
         // Ordenar incidencias por ID de forma descendente
         this.incidencias = incidencias.sort((a, b) => (b.id || 0) - (a.id || 0));
         this.incidenciasFiltradas = [...this.incidencias];
+        
+        // Aplicar filtros después de cargar las incidencias
+        this.aplicarFiltros();
+        
         this.isLoading = false;
       },
       (error) => {
