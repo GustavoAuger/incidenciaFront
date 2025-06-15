@@ -34,7 +34,7 @@ export class AuthService {
         localStorage.setItem('access_token', response.access_token);
         localStorage.setItem('id_usuario', response.id.toString());
         localStorage.setItem('id_bodega', response.id_bodega.toString());
-        localStorage.setItem('id_rol', response.id_rol.toString()); // Añadir esta línea
+        localStorage.setItem('id_rol', response.id_rol.toString()); 
         this.loggedIn = valid;
         this.username = user.email;
         localStorage.setItem('username', user.email);
@@ -62,23 +62,29 @@ export class AuthService {
     localStorage.removeItem('is_admin');
     localStorage.removeItem('id_usuario');
     localStorage.removeItem('id_bodega');
-    localStorage.removeItem('id_rol'); // Añadir esta línea
+    localStorage.removeItem('id_rol'); 
     this.loggedIn = false;
     this.username = '';
   }
 
   isAuthenticated(): boolean {
-    // Verificar tanto el estado actual como el token en localStorage
-    const isStillValid = this.hasValidToken();
+    // Always check localStorage directly for the most current state
+    const hasToken = this.hasValidToken();
+    this.loggedIn = hasToken;
     
-    // Sincronizar el estado
-    this.loggedIn = isStillValid;
-    
-    if (!isStillValid) {
-      // Limpiar datos de sesión si el token no es válido
+    if (!hasToken) {
       this.logout();
     }
     
     return this.loggedIn;
+  }
+
+  refreshAuthState(): void {
+    this.loggedIn = this.hasValidToken();
+    if (this.loggedIn) {
+      this.username = localStorage.getItem('username') || '';
+    } else {
+      this.username = '';
+    }
   }
 }

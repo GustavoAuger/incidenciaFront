@@ -129,6 +129,9 @@ export class AppComponent implements OnInit, OnDestroy {
         this.userRol = this.capitalizeFirstLetter(selectedRole.nombre);
       }
       
+      // Refresh the authentication state
+      this.authService.refreshAuthState();
+      
       // Cerrar el modal
       const modal = document.getElementById('adminModal') as HTMLDialogElement;
       if (modal) {

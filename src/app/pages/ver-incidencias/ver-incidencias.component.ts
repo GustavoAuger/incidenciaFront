@@ -9,13 +9,12 @@ import { Bodega } from '../../interfaces/bodega';
 import { Tipo_incidencia} from '../../interfaces/tipo_incidencia';
 import { Filtros } from '../../interfaces/filtros';
 import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
-import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-ver-incidencias',
   standalone: true,
-  imports: [CommonModule, FormsModule, InitCapFirstPipe, DateFormatPipe],
+  imports: [CommonModule, FormsModule, InitCapFirstPipe],
   templateUrl: './ver-incidencias.component.html',
   styleUrl: './ver-incidencias.component.css'
 })
