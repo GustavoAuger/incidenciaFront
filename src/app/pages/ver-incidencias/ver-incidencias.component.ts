@@ -35,6 +35,10 @@ export class VerIncidenciasComponent implements OnInit {
   isTipoIncidenciaOpen = false;
   isEstadoOpen = false;
 
+  // Propiedades para ordenamiento
+  sortColumn: string = 'id';
+  sortDirection: 'asc' | 'desc' = 'desc';
+
   // Función para controlar la apertura de los selects
   onSelectOpen(select: string) {
     switch(select) {
@@ -265,13 +269,11 @@ getTipoIncidencia() {
       const cumpleFechaHasta = !this.filtros.fechaHasta || 
         (incidencia.fecha_recepcion && new Date(incidencia.fecha_recepcion) <= new Date(this.filtros.fechaHasta));
 
-
       const cumpleNumeroIncidencia = !this.filtros.numeroIncidencia || 
         (incidencia.id?.toString().toLowerCase() || '').includes(this.filtros.numeroIncidencia.toLowerCase()) ||
         (incidencia.id?.toString().toLowerCase() || '').includes(this.filtros.numeroIncidencia.replace('inc', '').toLowerCase()) ||
         ('inc' + (incidencia.id?.toString() || '').toLowerCase()).includes(this.filtros.numeroIncidencia.toLowerCase());
       
-
       const cumpleTipoIncidencia = !this.filtros.tipoIncidencia || 
         incidencia.id_tipo_incidencia?.toString() === this.filtros.tipoIncidencia;
       const cumpleOrigen = !this.filtros.origen || 
@@ -284,14 +286,17 @@ getTipoIncidencia() {
         incidencia.transportista === this.filtros.transporte;
       const cumpleEstado = !this.filtros.estado || 
         (incidencia.tipo_estado.toLowerCase() || '').includes(this.filtros.estado.toLowerCase());
+      
       return cumpleFechaDesde && cumpleFechaHasta && cumpleNumeroIncidencia && 
              cumpleTipoIncidencia && cumpleOrigen && cumpleDestino && cumpleOTS && 
              cumpleTransporte && cumpleEstado;
     });
 
+    // Aplicar el ordenamiento actual después de filtrar
+    this.sortTable(this.sortColumn);
+    
     this.updatePagination();
   }
-
 
   limpiarFiltros() {
     this.filtros = {
@@ -376,5 +381,51 @@ getTipoIncidencia() {
     if (!idUsuario) return 'N/A';
     const usuario = this.usuarios.find(u => u.id === idUsuario);
     return usuario ? usuario.nombre : 'N/A';
+  }
+
+  // Método para ordenar la tabla
+  sortTable(column: string): void {
+    if (this.sortColumn === column) {
+      // Si ya está ordenado por esta columna, invertir la dirección
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // Si es una columna nueva, ordenar en orden ascendente por defecto
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+
+    this.incidenciasFiltradas.sort((a, b) => {
+      let valueA: any;
+      let valueB: any;
+
+      // Manejar el caso especial para el número de incidencia
+      if (column === 'id') {
+        valueA = a.id || 0;
+        valueB = b.id || 0;
+      } else if (column === 'fecha_emision' || column === 'fecha_recepcion') {
+        // Para fechas, convertir a timestamp para comparar
+        valueA = a[column] ? new Date(a[column] as string).getTime() : 0;
+        valueB = b[column] ? new Date(b[column] as string).getTime() : 0;
+      } else {
+        // Para otros campos, usar el valor directamente
+        valueA = a[column as keyof Incidencia] || '';
+        valueB = b[column as keyof Incidencia] || '';
+      }
+
+      // Comparar los valores
+      if (valueA < valueB) {
+        return this.sortDirection === 'asc' ? -1 : 1;
+      }
+      if (valueA > valueB) {
+        return this.sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }
+
+  // Método para obtener el ícono de ordenamiento
+  getSortIcon(column: string): string {
+    if (this.sortColumn !== column) return 'fa-sort';
+    return this.sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
   }
 }

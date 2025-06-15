@@ -108,19 +108,55 @@
       <!-- head -->
       <thead>
         <tr>
-          <th></th>
-          <th>N° Incidencia</th>
-          <th>Fecha Emisión</th>
-          <th>Fecha Recepción</th>
-          <th>Usuario</th>
-          <th>Bodega Origen</th>
-          <th>Bodega Destino</th>
-          <th>Nombre Destino</th>
-          <th>Unidades</th>
-          <th>Valorizado</th>
-          <th>OTS</th>
-          <th>Transporte</th>
-          <th>Estado</th>
+          <th>#</th>
+          <th (click)="sortTable('id')" style="cursor: pointer;">
+            N° Incidencia
+            <i class="fas {{ getSortIcon('id') }}"></i>
+          </th>
+          <th (click)="sortTable('fecha_emision')" style="cursor: pointer;">
+            Fecha Emisión
+            <i class="fas {{ getSortIcon('fecha_emision') }}"></i>
+          </th>
+          <th (click)="sortTable('fecha_recepcion')" style="cursor: pointer;">
+            Fecha Recepción
+            <i class="fas {{ getSortIcon('fecha_recepcion') }}"></i>
+          </th>
+          <th (click)="sortTable('usuario')" style="cursor: pointer;">
+            Usuario
+            <i class="fas {{ getSortIcon('usuario') }}"></i>
+          </th>
+          <th (click)="sortTable('origen_id_local')" style="cursor: pointer;">
+            Bodega Origen
+            <i class="fas {{ getSortIcon('origen_id_local') }}"></i>
+          </th>
+          <th (click)="sortTable('destino_id_bodega')" style="cursor: pointer;">
+            Bodega Destino
+            <i class="fas {{ getSortIcon('destino_id_bodega') }}"></i>
+          </th>
+          <th (click)="sortTable('destino')" style="cursor: pointer;">
+            Nombre Destino
+            <i class="fas {{ getSortIcon('destino') }}"></i>
+          </th>
+          <th (click)="sortTable('total_item')" style="cursor: pointer;">
+            Unidades
+            <i class="fas {{ getSortIcon('total_item') }}"></i>
+          </th>
+          <th (click)="sortTable('valorizado')" style="cursor: pointer;">
+            Valorizado
+            <i class="fas {{ getSortIcon('valorizado') }}"></i>
+          </th>
+          <th (click)="sortTable('ots')" style="cursor: pointer;">
+            OTS
+            <i class="fas {{ getSortIcon('ots') }}"></i>
+          </th>
+          <th (click)="sortTable('transportista')" style="cursor: pointer;">
+            Transporte
+            <i class="fas {{ getSortIcon('transportista') }}"></i>
+          </th>
+          <th (click)="sortTable('tipo_estado')" style="cursor: pointer;">
+            Estado
+            <i class="fas {{ getSortIcon('tipo_estado') }}"></i>
+          </th>
           <th>Acción</th>
         </tr>
       </thead>
