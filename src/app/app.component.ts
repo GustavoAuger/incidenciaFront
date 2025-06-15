@@ -28,12 +28,17 @@ export class AppComponent implements OnInit, OnDestroy {
   roles: Rol[] = [];
   selectedRoleId: number | null = null;
   private routerSubscription: Subscription | undefined;
+  showBodegaDropdown = false;
+  selectedBodegaId: number | null = null;
+  tiendaBodegas: any[] = [];
 
   constructor(
     private router: Router,
     private authService: AuthService,
     private userService: UserService
-  ) {}
+  ) {
+    this.loadTiendaBodegas();
+  }
 
   ngOnInit(): void {
     this.updateAuthStatus();    
@@ -73,38 +78,51 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private loadUserInfo(): void {
+    // Cargar primero desde localStorage para mostrar algo rápido
+    const savedBodegaNombre = localStorage.getItem('bodega_nombre');
+    const savedRolId = localStorage.getItem('id_rol');
+    const savedRolNombre = localStorage.getItem('rol_nombre');
+    
+    if (savedBodegaNombre) {
+      this.userBodega = savedBodegaNombre;
+    }
+    
+    if (savedRolNombre) {
+      this.userRol = savedRolNombre;
+    } else if (savedRolId) {
+      const role = this.roles.find(r => r.id === Number(savedRolId));
+      if (role) {
+        this.userRol = this.capitalizeFirstLetter(role.nombre);
+        localStorage.setItem('rol_nombre', this.userRol); // Guardar para futuras cargas
+      }
+    }
+    
+    // Luego cargar la información detallada del usuario
     this.userService.getUsuarios().subscribe({
       next: (users: User[]) => {
         const userEmail = localStorage.getItem('username');
-        const currentUser = users.find(user => user.email === userEmail);
+        if (!userEmail) return;
         
-        if (currentUser) {
-          this.userBodega = currentUser.bodega || 'Sin bodega asignada';
-          
-          // Guardar si el usuario es administrador (solo la primera vez)
-          if (localStorage.getItem('is_admin') === null) {
-            const isAdmin = currentUser.id_rol === 1; // Asumiendo que 1 es el ID de administrador
-            localStorage.setItem('is_admin', isAdmin.toString());
+        const currentUser = users.find(user => user.email === userEmail);
+        if (!currentUser) return;
+        
+        // Si no tenemos un rol guardado, intentar obtenerlo del usuario
+        if (!savedRolId && currentUser.id_rol) {
+          this.selectedRoleId = currentUser.id_rol;
+          const role = this.roles.find(r => r.id === this.selectedRoleId);
+          if (role) {
+            this.userRol = this.capitalizeFirstLetter(role.nombre);
+            localStorage.setItem('rol_nombre', this.userRol);
           }
-          
-          // Usar el rol del localStorage si existe, si no, usar el del usuario
-          const roleId = localStorage.getItem('id_rol') || currentUser.id_rol?.toString();
-          if (roleId) {
-            this.selectedRoleId = Number(roleId);
-            const role = this.roles.find(r => r.id === this.selectedRoleId);
-            this.userRol = role ? this.capitalizeFirstLetter(role.nombre) : 'Rol no definido';
-          } else {
-            this.userRol = currentUser.rol ? this.capitalizeFirstLetter(currentUser.rol) : 'Rol no definido';
-          }
-        } else {
-          this.userBodega = 'Sin bodega asignada';
-          this.userRol = 'Rol no definido';
+        }
+        
+        // Cargar bodegas de tienda si es necesario
+        if (this.selectedRoleId === 4) {
+          this.loadTiendaBodegas();
         }
       },
       error: (error) => {
         console.error('Error al cargar la información del usuario:', error);
-        this.userBodega = 'Bodega no disponible';
-        this.userRol = 'Rol no disponible';
       }
     });
   }
@@ -118,19 +136,63 @@ export class AppComponent implements OnInit, OnDestroy {
     return localStorage.getItem('is_admin') === 'true';
   }
 
+  onRoleChange(roleId: number | null): void {
+    this.selectedRoleId = roleId;
+    this.showBodegaDropdown = roleId === 4; // Show dropdown only for Tienda role (ID 4)
+    
+    // Si se selecciona un rol que no es Tienda, limpiar la bodega seleccionada
+    if (roleId !== 4) {
+      this.selectedBodegaId = null;
+    } else {
+      // Si se selecciona Tienda, intentar cargar la bodega guardada
+      const savedBodegaId = localStorage.getItem('id_bodega');
+      if (savedBodegaId) {
+        this.selectedBodegaId = Number(savedBodegaId);
+      }
+    }
+  }
+
   saveRoleChange() {
     if (this.selectedRoleId !== null) {
-      // Guardar el nuevo rol en localStorage
-      localStorage.setItem('id_rol', this.selectedRoleId.toString());
+      // Determinar la bodega según el rol
+      let bodegaId = '';
+      let bodegaNombre = '';
+      let rolNombre = '';
       
-      // Actualizar la interfaz
+      // Obtener el nombre del rol seleccionado
       const selectedRole = this.roles.find(r => r.id === this.selectedRoleId);
       if (selectedRole) {
-        this.userRol = this.capitalizeFirstLetter(selectedRole.nombre);
+        rolNombre = this.capitalizeFirstLetter(selectedRole.nombre);
       }
       
-      // Refresh the authentication state
-      this.authService.refreshAuthState();
+      if (this.selectedRoleId === 2) { // Emisor
+        bodegaId = '22';
+        bodegaNombre = 'Bodega Devoluciones';
+      } else if (this.selectedRoleId === 1) { // Admin
+        bodegaId = '23';
+        bodegaNombre = 'Bodega Virtual';
+      } else if (this.selectedRoleId === 3) { // Gestor
+        bodegaId = '21';
+        bodegaNombre = 'Bodega Central';
+      } else if (this.selectedRoleId === 4) { // Tienda
+        if (!this.selectedBodegaId) {
+          alert('Por favor seleccione una bodega');
+          return;
+        }
+        bodegaId = this.selectedBodegaId.toString();
+        const selectedBodega = this.tiendaBodegas.find(b => b.id === bodegaId);
+        bodegaNombre = selectedBodega?.nombre || `Tienda ${bodegaId}`;
+      }
+      
+      // Guardar todo en localStorage
+      localStorage.setItem('id_rol', this.selectedRoleId.toString());
+      localStorage.setItem('id_bodega', bodegaId);
+      localStorage.setItem('bodega_nombre', bodegaNombre);
+      localStorage.setItem('rol_nombre', rolNombre); // Guardar el nombre del rol
+      
+      // Actualizar las propiedades del componente
+      this.userBodega = bodegaNombre;
+      this.userRol = rolNombre;
       
       // Cerrar el modal
       const modal = document.getElementById('adminModal') as HTMLDialogElement;
@@ -138,8 +200,10 @@ export class AppComponent implements OnInit, OnDestroy {
         modal.close();
       }
       
-      // Recargar la página para aplicar los cambios
-      window.location.reload();
+      // Recargar la página para asegurar consistencia
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     }
   }
 
@@ -154,6 +218,25 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   openAdminModal() {
+    // Cargar el rol actual del localStorage
+    const savedRolId = localStorage.getItem('id_rol');
+    if (savedRolId) {
+      this.selectedRoleId = Number(savedRolId);
+      // Si el rol es Tienda (ID 4), mostrar el dropdown de bodegas
+      this.showBodegaDropdown = this.selectedRoleId === 4;
+      
+      // Si hay una bodega guardada, seleccionarla
+      if (this.selectedRoleId === 4) {
+        const savedBodegaId = localStorage.getItem('id_bodega');
+        if (savedBodegaId) {
+          this.selectedBodegaId = Number(savedBodegaId);
+        }
+      }
+    } else {
+      this.selectedRoleId = null;
+      this.showBodegaDropdown = false;
+    }
+    
     const modal = document.getElementById('adminModal') as HTMLDialogElement;
     if (modal) {
       modal.showModal();
@@ -172,6 +255,43 @@ export class AppComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error al cargar los roles:', error);
+      }
+    });
+  }
+
+  private loadTiendaBodegas(): void {
+    this.userService.getBodegas().subscribe({
+      next: (bodegas: any[]) => {
+        // Filtrar solo las bodegas de tienda (excluyendo bodegas especiales)
+        this.tiendaBodegas = bodegas.filter(bodega => {
+          if (!bodega.id) return false;
+          
+          const id = bodega.id.toString();
+          // Excluir bodegas especiales
+          const esBodegaEspecial = [
+            '21', '22', '23', 'BC-001', 'BDE-001', 'BV-001', 'LO-000', 'LO000'
+          ].includes(id);
+          
+          return !esBodegaEspecial;
+        });
+        
+        // Si hay una bodega guardada en localStorage, seleccionarla
+        const savedBodegaId = localStorage.getItem('id_bodega');
+        if (savedBodegaId) {
+          this.selectedBodegaId = Number(savedBodegaId);
+          
+          // Si es una bodega de tienda, actualizar el nombre si es necesario
+          if (savedBodegaId !== '21' && savedBodegaId !== '22' && savedBodegaId !== '23') {
+            const bodega = this.tiendaBodegas.find(b => b.id.toString() === savedBodegaId);
+            if (bodega && !localStorage.getItem('bodega_nombre')) {
+              localStorage.setItem('bodega_nombre', bodega.nombre || `Tienda ${savedBodegaId}`);
+              this.userBodega = bodega.nombre || `Tienda ${savedBodegaId}`;
+            }
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar las bodegas de tienda:', error);
       }
     });
   }
