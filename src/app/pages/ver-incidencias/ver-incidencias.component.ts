@@ -402,6 +402,10 @@ getTipoIncidencia() {
       if (column === 'id') {
         valueA = a.id || 0;
         valueB = b.id || 0;
+      } else if (column === 'usuario') {
+        // Ordenar por nombre de usuario
+        valueA = this.getNombreUsuario(a.id_usuario).toLowerCase();
+        valueB = this.getNombreUsuario(b.id_usuario).toLowerCase();
       } else if (column === 'fecha_emision' || column === 'fecha_recepcion') {
         // Para fechas, convertir a timestamp para comparar
         valueA = a[column] ? new Date(a[column] as string).getTime() : 0;

@@ -104,7 +104,23 @@
 
    <!-- Incidencia List -->
 <div *ngIf="!isLoading" class="overflow-x-auto w-full">
-    <table class="min-w-full divide-y divide-gray-200">
+    <table class="min-w-full divide-y divide-gray-200 table-fixed">
+      <colgroup>
+        <col style="width: 40px;"> <!-- # -->
+        <col style="width: 100px;"> <!-- N° Incidencia -->
+        <col style="width: 100px;"> <!-- Fecha Emisión -->
+        <col style="width: 100px;"> <!-- Fecha Recepción -->
+        <col style="width: 120px;"> <!-- Usuario -->
+        <col style="width: 100px;"> <!-- Bodega Origen -->
+        <col style="width: 100px;"> <!-- Bodega Destino -->
+        <col style="width: 120px;"> <!-- Nombre Destino -->
+        <col style="width: 80px;">  <!-- Unidades -->
+        <col style="width: 100px;"> <!-- Valorizado -->
+        <col style="width: 100px;"> <!-- OTS -->
+        <col style="width: 100px;"> <!-- Transporte -->
+        <col style="width: 100px;"> <!-- Estado -->
+        <col style="width: 80px;">  <!-- Acción -->
+      </colgroup>
       <thead class="bg-gray-100">
         <tr>
           <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">#</th>
