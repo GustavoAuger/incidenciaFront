@@ -112,6 +112,7 @@
           <th>N° Incidencia</th>
           <th>Fecha Emisión</th>
           <th>Fecha Recepción</th>
+          <th>Usuario</th>
           <th>Bodega Origen</th>
           <th>Bodega Destino</th>
           <th>Nombre Destino</th>
@@ -129,6 +130,7 @@
           <td>{{ "INC"+incidencia.id }}</td>
           <td>{{ incidencia.fecha_emision | dateFormat}}</td>
           <td>{{ incidencia.fecha_recepcion | dateFormat}}</td>
+          <td>{{ getNombreUsuario(incidencia.id_usuario) }}</td>
           <td>{{ incidencia.origen_id_local }}</td>
           <td>{{ incidencia.destino_id_bodega }}</td>
           <td>{{ incidencia.destino! | initCapFirst}}</td>

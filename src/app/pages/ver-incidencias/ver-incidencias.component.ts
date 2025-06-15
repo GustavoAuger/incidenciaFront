@@ -23,6 +23,8 @@ export class VerIncidenciasComponent implements OnInit {
   incidencias: Incidencia[] = [];
   // Lista filtrada de incidencias
   incidenciasFiltradas: Incidencia[] = [];
+  // Lista de usuarios para mapear ID a nombre
+  usuarios: any[] = [];
   isLoading: boolean = true;
   //para los colores grises
   isOrigenOpen = false;
@@ -111,6 +113,21 @@ export class VerIncidenciasComponent implements OnInit {
   ngOnInit() {
     const userIdString = localStorage.getItem('id_usuario');
     const id_usuario = userIdString ? parseInt(userIdString, 10) : 0;
+    
+    // Cargar usuarios primero
+    this._userService.getUsuarios().subscribe({
+      next: (usuarios) => {
+        this.usuarios = usuarios;
+        // Una vez cargados los usuarios, cargar las incidencias
+        this.cargarIncidencias(id_usuario);
+      },
+      error: (error) => {
+        console.error('Error al cargar usuarios', error);
+        // Intentar cargar incidencias de todos modos
+        this.cargarIncidencias(id_usuario);
+      }
+    });
+
     //manejo de fechas
     const today = new Date();
     const today30 = new Date(today);
@@ -148,12 +165,12 @@ export class VerIncidenciasComponent implements OnInit {
         }
       });
     }
-    this.cargarIncidencias(id_usuario);
+    
     this.getBodegas();
     this.getTipoIncidencia();
-}
+  }
 
-getBodegas() {
+  getBodegas() {
     this._userService.getBodegas().subscribe({
         next: (bodegas: Bodega[]) => {
             this.bodegas = bodegas;
@@ -352,5 +369,12 @@ getTipoIncidencia() {
         }
       });
     });
+  }
+
+  // Método para obtener el nombre del usuario por su ID
+  getNombreUsuario(idUsuario: number | undefined): string {
+    if (!idUsuario) return 'N/A';
+    const usuario = this.usuarios.find(u => u.id === idUsuario);
+    return usuario ? usuario.nombre : 'N/A';
   }
 }
