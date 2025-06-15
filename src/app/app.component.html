@@ -66,18 +66,21 @@
             <option [ngValue]="null" disabled>Seleccione una bodega...</option>
             <option *ngFor="let bodega of tiendaBodegas" 
                     [ngValue]="bodega.id">
-              {{ bodega.nombre || 'Bodega ' + bodega.id_bodega }}
+              {{ (bodega.id_bodega + ' - ' + (bodega.nombre | initCapFirst)) || 'Bodega ' + bodega.id_bodega }}
             </option>
           </select>
         </div>
 
         <div class="modal-action">
-          <div class="flex gap-2">
-            <button class="btn btn-primary" (click)="saveRoleChange()">Guardar</button>
-            <form method="dialog">
-              <button class="btn">Cerrar</button>
-            </form>
-          </div>
+          <button class="btn btn-ghost" (click)="closeModal()">Cancelar</button>
+          <button 
+              class="btn text-white" 
+              [class.btn-disabled]="!selectedRoleId || (showBodegaDropdown && !selectedBodegaId)" 
+              [style.background-color]="(selectedRoleId && (!showBodegaDropdown || selectedBodegaId)) ? '#00bcd4' : '#9ca3af'"
+              [style.border-color]="(selectedRoleId && (!showBodegaDropdown || selectedBodegaId)) ? '#00bcd4' : '#9ca3af'"
+              (click)="saveRoleChange()">
+              Guardar Cambios
+          </button>
         </div>
       </div>
     </dialog>

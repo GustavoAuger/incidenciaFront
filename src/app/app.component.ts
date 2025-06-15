@@ -195,15 +195,19 @@ export class AppComponent implements OnInit, OnDestroy {
       this.userRol = rolNombre;
       
       // Cerrar el modal
-      const modal = document.getElementById('adminModal') as HTMLDialogElement;
-      if (modal) {
-        modal.close();
-      }
+      this.closeModal();
       
       // Recargar la página para asegurar consistencia
       setTimeout(() => {
         window.location.reload();
       }, 100);
+    }
+  }
+
+  closeModal() {
+    const modal = document.getElementById('adminModal') as HTMLDialogElement;
+    if (modal) {
+      modal.close();
     }
   }
 
