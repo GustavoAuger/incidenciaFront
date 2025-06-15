@@ -4,14 +4,14 @@
             <div class="filter-group">
                 <label>Fecha Recepción</label>
                 <label>Desde</label>
-                <input type="date" class="date-input" value="{minDate}"  #fechaInput
+                <input type="date" class="date-input text-xs p-1 h-8" value="{minDate}"  #fechaInput
                 [ngClass]="{'text-gray-400': !filtros.fechaDesde && !isFechaDesdeOpen, 'text-black': filtros.fechaDesde || isFechaDesdeOpen}"
                 name="fecha" [(ngModel)]="filtros.fechaDesde" (ngModelChange)="aplicarFiltros()">
             </div>
             <div class="filter-group">
                 <label>&nbsp;</label>
                 <label>Hasta</label>
-                <input type="date" class="date-input"  value="" #fechaInput2
+                <input type="date" class="date-input text-xs p-1 h-8"  value="" #fechaInput2
                 [ngClass]="{'text-gray-400': !filtros.fechaHasta && !isFechaHastaOpen, 'text-black': filtros.fechaHasta || isFechaHastaOpen}"
                 name="fecha2" [(ngModel)]="filtros.fechaHasta" (ngModelChange)="aplicarFiltros()">
             </div>
@@ -20,11 +20,11 @@
         <div class="other-filters">
             <div class="filter-group">
                 <label>N° Incidencia</label>
-                <input type="text" class="text-input" [(ngModel)]="filtros.numeroIncidencia" (ngModelChange)="aplicarFiltros()">
+                <input type="text" class="text-input text-xs p-1 h-8" [(ngModel)]="filtros.numeroIncidencia" (ngModelChange)="aplicarFiltros()">
             </div>
             <div class="filter-group">
                 <label>Tipo Incidencia</label>
-                <select class="select-input" 
+                <select class="select-input text-xs p-1 h-8" 
                 [ngClass]="{'text-gray-400': !filtros.tipoIncidencia && !isTipoIncidenciaOpen, 'text-black': filtros.tipoIncidencia || isTipoIncidenciaOpen}"
                 [(ngModel)]="filtros.tipoIncidencia" (ngModelChange)="aplicarFiltros()" (click)="onSelectOpen('tipoIncidencia')">
                     <option value="">Seleccionar...</option>
@@ -33,7 +33,7 @@
             </div>
             <div class="filter-group">
               <label>Bodega Origen</label>
-              <select class="select-input"
+              <select class="select-input text-xs p-1 h-8"
               [ngClass]="{'text-gray-400': !filtros.origen && !isOrigenOpen, 'text-black': filtros.origen || isOrigenOpen}"
               [(ngModel)]="filtros.origen" 
               (ngModelChange)="aplicarFiltros()" 
@@ -44,7 +44,7 @@
             </div>
             <div class="filter-group">
                 <label>Bodega Destino</label>
-                <select class="select-input"
+                <select class="select-input text-xs p-1 h-8"
                 [ngClass]="{'text-gray-400': !filtros.destino && !isDestinoOpen, 'text-black': filtros.destino || isDestinoOpen}"
                 [(ngModel)]="filtros.destino" 
                 (ngModelChange)="aplicarFiltros()" 
@@ -55,11 +55,11 @@
             </div>
             <div class="filter-group">
                 <label>OTS</label>
-                <input type="text" class="text-input" [(ngModel)]="filtros.ots" (ngModelChange)="aplicarFiltros()">
+                <input type="text" class="text-input text-xs p-1 h-8" [(ngModel)]="filtros.ots" (ngModelChange)="aplicarFiltros()">
             </div>
             <div class="filter-group">
                 <label>Transporte</label>
-                <select class="select-input"
+                <select class="select-input text-xs p-1 h-8"
                 [ngClass]="{'text-gray-400': !filtros.transporte && !isTransporteOpen, 'text-black': filtros.transporte || isTransporteOpen}"
                 [(ngModel)]="filtros.transporte" 
                 (ngModelChange)="aplicarFiltros()" 
@@ -70,7 +70,7 @@
             </div>
             <div class="filter-group">
                 <label>Estado</label>
-                <select class="select-input" 
+                <select class="select-input text-xs p-1 h-8" 
                 [ngClass]="{'text-gray-400': !filtros.estado && !isEstadoOpen, 'text-black': filtros.estado || isEstadoOpen}"
                 [(ngModel)]="filtros.estado" (ngModelChange)="aplicarFiltros()" (click)="onSelectOpen('estado')">
                     <option value="">Seleccionar...</option>
