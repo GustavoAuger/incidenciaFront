@@ -103,87 +103,175 @@
     </div>
 
    <!-- Incidencia List -->
-<div *ngIf="!isLoading" class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
-    <table class="table">
-      <!-- head -->
-      <thead>
+<div *ngIf="!isLoading" class="overflow-x-auto w-full">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-100">
         <tr>
-          <th>#</th>
-          <th (click)="sortTable('id')" style="cursor: pointer;">
-            N° Incidencia
-            <i class="fas {{ getSortIcon('id') }}"></i>
+          <th class="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">#</th>
+          <th (click)="sortTable('id')" class="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>N° Incidencia</span>
+              <i class="fas {{ getSortIcon('id') }} ml-1"></i>
+            </div>
           </th>
-          <th (click)="sortTable('fecha_emision')" style="cursor: pointer;">
-            Fecha Emisión
-            <i class="fas {{ getSortIcon('fecha_emision') }}"></i>
+          <th (click)="sortTable('fecha_emision')" class="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Fecha Emisión</span>
+              <i class="fas {{ getSortIcon('fecha_emision') }} ml-1"></i>
+            </div>
           </th>
-          <th (click)="sortTable('fecha_recepcion')" style="cursor: pointer;">
-            Fecha Recepción
-            <i class="fas {{ getSortIcon('fecha_recepcion') }}"></i>
+          <th (click)="sortTable('fecha_recepcion')" class="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Fecha Recepción</span>
+              <i class="fas {{ getSortIcon('fecha_recepcion') }} ml-1"></i>
+            </div>
           </th>
-          <th (click)="sortTable('usuario')" style="cursor: pointer;">
-            Usuario
-            <i class="fas {{ getSortIcon('usuario') }}"></i>
+          <th (click)="sortTable('usuario')" class="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Usuario</span>
+              <i class="fas {{ getSortIcon('usuario') }} ml-1"></i>
+            </div>
           </th>
-          <th (click)="sortTable('origen_id_local')" style="cursor: pointer;">
-            Bodega Origen
-            <i class="fas {{ getSortIcon('origen_id_local') }}"></i>
+          <th (click)="sortTable('origen_id_local')" class="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Bodega Origen</span>
+              <i class="fas {{ getSortIcon('origen_id_local') }} ml-1"></i>
+            </div>
           </th>
-          <th (click)="sortTable('destino_id_bodega')" style="cursor: pointer;">
-            Bodega Destino
-            <i class="fas {{ getSortIcon('destino_id_bodega') }}"></i>
+          <th (click)="sortTable('destino_id_bodega')" class="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Bodega Destino</span>
+              <i class="fas {{ getSortIcon('destino_id_bodega') }} ml-1"></i>
+            </div>
           </th>
-          <th (click)="sortTable('destino')" style="cursor: pointer;">
-            Nombre Destino
-            <i class="fas {{ getSortIcon('destino') }}"></i>
+          <th (click)="sortTable('destino')" class="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Nombre Destino</span>
+              <i class="fas {{ getSortIcon('destino') }} ml-1"></i>
+            </div>
           </th>
-          <th (click)="sortTable('total_item')" style="cursor: pointer;">
-            Unidades
-            <i class="fas {{ getSortIcon('total_item') }}"></i>
+          <th (click)="sortTable('total_item')" class="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Unidades</span>
+              <i class="fas {{ getSortIcon('total_item') }} ml-1"></i>
+            </div>
           </th>
-          <th (click)="sortTable('valorizado')" style="cursor: pointer;">
-            Valorizado
-            <i class="fas {{ getSortIcon('valorizado') }}"></i>
+          <th (click)="sortTable('valorizado')" class="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Valorizado</span>
+              <i class="fas {{ getSortIcon('valorizado') }} ml-1"></i>
+            </div>
           </th>
-          <th (click)="sortTable('ots')" style="cursor: pointer;">
-            OTS
-            <i class="fas {{ getSortIcon('ots') }}"></i>
+          <th (click)="sortTable('ots')" class="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>OTS</span>
+              <i class="fas {{ getSortIcon('ots') }} ml-1"></i>
+            </div>
           </th>
-          <th (click)="sortTable('transportista')" style="cursor: pointer;">
-            Transporte
-            <i class="fas {{ getSortIcon('transportista') }}"></i>
+          <th (click)="sortTable('transportista')" class="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Transporte</span>
+              <i class="fas {{ getSortIcon('transportista')}} ml-1"></i>
+            </div>
           </th>
-          <th (click)="sortTable('tipo_estado')" style="cursor: pointer;">
-            Estado
-            <i class="fas {{ getSortIcon('tipo_estado') }}"></i>
+          <th (click)="sortTable('tipo_estado')" class="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Estado</span>
+              <i class="fas {{ getSortIcon('tipo_estado')}} ml-1"></i>
+            </div>
           </th>
-          <th>Acción</th>
+          <th class="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Acción</th>
         </tr>
       </thead>
-      <tbody>
-        <tr *ngFor="let incidencia of paginatedIncidencias; let i = index">
-          <th>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</th>
-          <td>{{ "INC"+incidencia.id }}</td>
-          <td>{{ incidencia.fecha_emision | dateFormat}}</td>
-          <td>{{ incidencia.fecha_recepcion | dateFormat}}</td>
-          <td>{{ getNombreUsuario(incidencia.id_usuario) }}</td>
-          <td>{{ incidencia.origen_id_local }}</td>
-          <td>{{ incidencia.destino_id_bodega }}</td>
-          <td>{{ incidencia.destino! | initCapFirst}}</td>
-          <td>{{ incidencia.total_item }}</td>
-          <td>{{ incidencia.valorizado }}</td>
-          <td>{{ incidencia.ots }}</td>
-          <td>{{ incidencia.transportista }}</td>
-          <td>{{ incidencia.tipo_estado | initCapFirst}}</td>
-          <td>
-            <button (click)="verDetalle(incidencia)" class="btn btn-ghost btn-xs">
-                <span class="material-symbols-outlined text-blue-500">visibility</span>
-            </button>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr *ngFor="let incidencia of paginatedIncidencias; let i = index" class="hover:bg-gray-50">
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ (currentPage - 1) * itemsPerPage + i + 1 }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.id ? 'INC' + incidencia.id.toString() : '' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.fecha_emision | date:'dd/MM/yyyy' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.fecha_recepcion | date:'dd/MM/yyyy' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ getNombreUsuario(incidencia.id_usuario) || 'N/A' | initCapFirst }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.origen_id_local || 'N/A' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.destino_id_bodega || 'N/A' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.destino || 'N/A' | initCapFirst }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.total_item || '0' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ (incidencia.valorizado | currency:'CLP':'symbol-narrow':'1.0-0') || '$0' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.ots || 'N/A' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.transportista || 'N/A' | initCapFirst }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              <span [ngClass]="{
+                'px-2 py-1 rounded-full text-xs': true,
+                'bg-yellow-100 text-yellow-800': incidencia.tipo_estado === 'Pendiente',
+                'bg-blue-100 text-blue-800': incidencia.tipo_estado === 'En Revisión',
+                'bg-green-100 text-green-800': incidencia.tipo_estado === 'Aceptada',
+                'bg-red-100 text-red-800': incidencia.tipo_estado === 'Rechazada'
+              }">
+                {{ incidencia.tipo_estado | initCapFirst }}
+              </span>
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              <div class="flex justify-center space-x-1">
+                <button (click)="verDetalle(incidencia)" class="btn btn-ghost btn-xs">
+                  <i class="fas fa-eye text-blue-500"></i>
+                </button>
+              </div>
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
-    
+  </div>
+
     <!-- Controles de paginación -->
     <div class="flex justify-center p-4 bg-base-100">
       <div class="join">
@@ -208,5 +296,4 @@
         </button>
       </div>
     </div>
-  </div>
 </div>
