@@ -319,8 +319,12 @@ export class AppComponent implements OnInit, OnDestroy {
     this.selectedBodegaId = null;
     this.isFormValid = false;
     
+    // Verificar si estamos en una ruta donde no se debe mostrar el rol de admin
+    const currentRoute = this.router.url;
+    const hideAdminRole = currentRoute === '/crear-incidencia' || currentRoute === '/incidencias-sin-resolver';
+    
     // Cargar los roles para el modal (filtrados si es necesario)
-    this.getRolesForModal();
+    this.getRolesForModal(hideAdminRole);
     
     // Mostrar el dropdown de bodegas si el rol actual es Tienda
     const savedRolId = localStorage.getItem('id_rol');
@@ -345,6 +349,31 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Modificar getRolesForModal para aceptar un parámetro que indique si se debe ocultar el rol de admin
+  getRolesForModal(hideAdminRole: boolean = false): void {
+    this.userService.getRoles().subscribe({
+      next: (roles) => {
+        const currentRoleId = localStorage.getItem('id_rol');
+        
+        // Filtrar el rol de administrador si es necesario
+        if (currentRoleId === '1' || hideAdminRole) {
+          this.modalRoles = roles.filter(rol => rol.id !== 1); // Excluir el rol de administrador
+        } else {
+          this.modalRoles = roles; // Mostrar todos los roles
+        }
+        
+        // Actualizar el rol seleccionado
+        const storedRoleId = localStorage.getItem('id_rol');
+        if (storedRoleId) {
+          this.selectedRoleId = Number(storedRoleId);
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar los roles:', error);
+      }
+    });
+  }
+
   private loadRolesForNavbar(): void {
     this.userService.getRoles().subscribe({
       next: (roles) => {
@@ -354,29 +383,6 @@ export class AppComponent implements OnInit, OnDestroy {
         // Si el usuario está autenticado, cargar su información
         if (this.isAuthenticated) {
           this.loadUserInfo();
-        }
-      },
-      error: (error) => {
-        console.error('Error al cargar los roles:', error);
-      }
-    });
-  }
-
-  getRolesForModal(): void {
-    this.userService.getRoles().subscribe({
-      next: (roles) => {
-        // Filtrar el rol de administrador solo para el modal
-        const currentRoleId = localStorage.getItem('id_rol');
-        if (currentRoleId === '1') { // Si es administrador
-          this.modalRoles = roles.filter(rol => rol.id !== 1); // Excluir el rol de administrador
-        } else {
-          this.modalRoles = roles; // Mostrar todos los roles si no es administrador
-        }
-        
-        // Actualizar el rol seleccionado
-        const storedRoleId = localStorage.getItem('id_rol');
-        if (storedRoleId) {
-          this.selectedRoleId = Number(storedRoleId);
         }
       },
       error: (error) => {
