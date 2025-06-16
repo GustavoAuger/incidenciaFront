@@ -230,6 +230,10 @@ getTipoIncidencia() {
         // Ordenar incidencias por ID de forma descendente
         this.incidencias = incidencias.sort((a, b) => (b.id || 0) - (a.id || 0));
         
+        // Establecer la columna de ordenación y dirección por defecto
+        this.sortColumn = 'id';
+        this.sortDirection = 'desc';
+        
         if (localStorage.getItem('id_rol') == '2') {
           this.incidencias = this.incidencias.filter((inc) => inc.destino_id_bodega == 'BDE-001');
         } else if (localStorage.getItem('id_rol') == '4') {
@@ -360,8 +364,8 @@ getTipoIncidencia() {
              cumpleEstado;
     });
 
-    // Aplicar el ordenamiento actual después de filtrar
-    this.sortTable(this.sortColumn);
+    // Ordenar por ID descendente después de filtrar
+    this.incidenciasFiltradas.sort((a, b) => (b.id || 0) - (a.id || 0));
     
     // Actualizar la paginación
     this.updatePagination();
