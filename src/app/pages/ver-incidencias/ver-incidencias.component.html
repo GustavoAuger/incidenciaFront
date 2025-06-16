@@ -48,9 +48,11 @@
               [(ngModel)]="filtros.origen" 
               (ngModelChange)="aplicarFiltros()" 
               (click)="onSelectOpen('origen')">
-        <option value="">Seleccionar...</option>
-                  <option *ngFor="let bodega of bodegas" [value]="bodega.id_bodega">{{bodega.id_bodega}} - {{bodega.nombre | initCapFirst}}</option>
-              </select> 
+                  <option value="">Seleccionar...</option>
+                  <option *ngFor="let bodega of bodegasOrigen" [value]="bodega.id_bodega">
+                    {{ bodega.nombre }}
+                  </option>
+              </select>
             </div>
             <div class="filter-group">
                 <label>Bodega Destino</label>
@@ -59,8 +61,10 @@
                 [(ngModel)]="filtros.destino" 
                 (ngModelChange)="aplicarFiltros()" 
                 (click)="onSelectOpen('destino')">
-          <option value="">Seleccionar...</option>
-                    <option *ngFor="let bodega of bodegas" [value]="bodega.nombre">{{bodega.id_bodega}} - {{bodega.nombre | initCapFirst}}</option>
+                    <option value="">Seleccionar...</option>
+                    <option *ngFor="let bodega of bodegasDestino" [value]="bodega.id_bodega">
+                      {{ bodega.nombre }}
+                    </option>
                 </select>
             </div>
             <div class="filter-group">

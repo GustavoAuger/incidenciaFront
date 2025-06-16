@@ -68,6 +68,8 @@ export class VerIncidenciasComponent implements OnInit {
   }
   // Datos de bodegas
   bodegas: Bodega[] = [ ];
+  bodegasOrigen: Bodega[] = [];
+  bodegasDestino: Bodega[] = [];
 
   // Tipos de incidencia
   tiposIncidencia: Tipo_incidencia[] = [ ];
@@ -191,6 +193,16 @@ export class VerIncidenciasComponent implements OnInit {
     this._userService.getBodegas().subscribe({
         next: (bodegas: Bodega[]) => {
             this.bodegas = bodegas;
+            
+            // Filtrar bodegas para el dropdown de origen (excluir BDE-001 y LO-000)
+            this.bodegasOrigen = bodegas.filter(bodega => 
+              bodega.id_bodega !== 'BDE-001' && bodega.id_bodega !== 'LO-000'
+            );
+            
+            // Filtrar bodegas para el dropdown de destino (excluir BC-001 y LO-000)
+            this.bodegasDestino = bodegas.filter(bodega => 
+              bodega.id_bodega !== 'BC-001' && bodega.id_bodega !== 'LO-000'
+            );
         },
         error: (error: Error) => {
             console.error('Error al obtener bodegas', error);
