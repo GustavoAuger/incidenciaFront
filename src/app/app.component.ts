@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -32,10 +32,13 @@ export class AppComponent implements OnInit, OnDestroy {
   selectedBodegaId: number | null = null;
   tiendaBodegas: any[] = [];
 
+  private _isAdmin: boolean = false;
+
   constructor(
     private router: Router,
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     this.loadTiendaBodegas();
   }
@@ -59,10 +62,9 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  get isAdminUser(): boolean {
-    return localStorage.getItem('is_admin') === 'true';
+  get isAdmin(): boolean {
+    return this._isAdmin;
   }
-  
 
   private updateAuthStatus(): void {
     this.isAuthenticated = this.authService.isAuthenticated();
@@ -78,47 +80,62 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private loadUserInfo(): void {
-    // Cargar primero desde localStorage para mostrar algo rápido
-    const savedBodegaNombre = localStorage.getItem('bodega_nombre');
-    const savedRolId = localStorage.getItem('id_rol');
-    const savedRolNombre = localStorage.getItem('rol_nombre');
+    // Obtener el email del usuario logueado
+    const userEmail = localStorage.getItem('username');
+    if (!userEmail) return;
     
-    if (savedBodegaNombre) {
-      this.userBodega = savedBodegaNombre;
-    }
+    // Limpiar el estado de admin al cargar
+    this._isAdmin = false;
     
-    if (savedRolNombre) {
-      this.userRol = savedRolNombre;
-    } else if (savedRolId) {
-      const role = this.roles.find(r => r.id === Number(savedRolId));
-      if (role) {
-        this.userRol = this.capitalizeFirstLetter(role.nombre);
-        localStorage.setItem('rol_nombre', this.userRol); // Guardar para futuras cargas
-      }
-    }
-    
-    // Luego cargar la información detallada del usuario
+    // Siempre cargar la información del usuario desde la base de datos
     this.userService.getUsuarios().subscribe({
       next: (users: User[]) => {
-        const userEmail = localStorage.getItem('username');
-        if (!userEmail) return;
-        
         const currentUser = users.find(user => user.email === userEmail);
         if (!currentUser) return;
         
-        // Si no tenemos un rol guardado, intentar obtenerlo del usuario
-        if (!savedRolId && currentUser.id_rol) {
-          this.selectedRoleId = currentUser.id_rol;
-          const role = this.roles.find(r => r.id === this.selectedRoleId);
-          if (role) {
-            this.userRol = this.capitalizeFirstLetter(role.nombre);
-            localStorage.setItem('rol_nombre', this.userRol);
-          }
+        // Obtener el rol y bodega originales del usuario desde la base de datos
+        const originalRolId = currentUser.id_rol;
+        const originalBodegaId = currentUser.id_bodega;
+        
+        // Actualizar el estado de admin
+        this._isAdmin = originalRolId === 1;
+        
+        // Guardar los valores originales en localStorage
+        localStorage.setItem('original_id_rol', originalRolId.toString());
+        localStorage.setItem('original_id_bodega', originalBodegaId!.toString());
+        
+        // Si no hay un rol temporal, usar los valores originales
+        if (!localStorage.getItem('id_rol') || !localStorage.getItem('id_bodega')) {
+          localStorage.setItem('id_rol', originalRolId.toString());
+          localStorage.setItem('id_bodega', originalBodegaId!.toString());
         }
         
+        // Actualizar la UI con los valores actuales (pueden ser temporales)
+        const currentRolId = parseInt(localStorage.getItem('id_rol') || originalRolId.toString(), 10);
+        const currentBodegaId = parseInt(localStorage.getItem('id_bodega') || originalBodegaId!.toString(), 10);
+        
+        // Actualizar el nombre del rol
+        const role = this.roles.find(r => r.id === currentRolId);
+        if (role) {
+          this.userRol = this.capitalizeFirstLetter(role.nombre);
+          localStorage.setItem('rol_nombre', this.userRol);
+        }
+        
+        // Actualizar el nombre de la bodega
+        this.userBodega = this.getBodegaName(currentBodegaId);
+        localStorage.setItem('bodega_nombre', this.userBodega);
+        
+        // Forzar la detección de cambios para actualizar la UI
+        this.changeDetectorRef.detectChanges();
+        
         // Cargar bodegas de tienda si es necesario
-        if (this.selectedRoleId === 4) {
+        if (currentRolId === 4) {
           this.loadTiendaBodegas();
+        }
+        
+        // Si es admin, asegurarse de que el botón de admin sea visible
+        if (originalRolId === 1) {
+          localStorage.setItem('is_admin', 'true');
         }
       },
       error: (error) => {
@@ -126,14 +143,40 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     });
   }
+  
+  private getBodegaName(bodegaId: number): string {
+    // Mapeo de IDs de bodega a nombres
+    const bodegasMap: {[key: number]: string} = {
+      1: 'LOCAL BELLOTO',
+      2: 'LOCAL MARINA',
+      3: 'LOCAL MELIPILLA',
+      4: 'LOCAL CONCEPCION CENTRO',
+      5: 'LOCAL LA SERENA',
+      6: 'LOCAL ANTOFAGASTA',
+      7: 'LOCAL LOS ANGELES',
+      8: 'LOCAL RANCAGUA',
+      9: 'LOCAL TALCA',
+      10: 'LOCAL CHILLAN',
+      11: 'LOCAL CURICO',
+      12: 'LOCAL ARICA',
+      13: 'LOCAL PUERTO MONTT',
+      14: 'LOCAL PATIO MAIPU',
+      15: 'LOCAL PLAZA VESPUCIO',
+      16: 'LOCAL PLAZA SUR',
+      17: 'LOCAL IQUIQUE',
+      18: 'LOCAL VALDIVIA',
+      19: 'LOCAL TEMUCO',
+      20: 'LOCAL CALAMA',
+      21: 'BODEGA CENTRAL',
+      22: 'BODEGA DEVOLUCIONES',
+      23: 'BODEGA VIRTUAL'
+    };
+    
+    return bodegasMap[bodegaId] || `Bodega ${bodegaId}`;
+  }
 
   private capitalizeFirstLetter(string: string): string {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-  }
-
-  isAdmin(): boolean {
-    // Verificar si el usuario es administrador (originalmente)
-    return localStorage.getItem('is_admin') === 'true';
   }
 
   onRoleChange(roleId: number | null): void {
@@ -217,6 +260,27 @@ export class AppComponent implements OnInit, OnDestroy {
 
   onLogout(event: Event): void {
     event.preventDefault();
+    
+    // Guardar el email para usarlo después de limpiar
+    const userEmail = localStorage.getItem('username');
+    
+    // Limpiar todo el localStorage excepto los valores necesarios para la próxima sesión
+    const originalIdRol = localStorage.getItem('original_id_rol');
+    const originalIdBodega = localStorage.getItem('original_id_bodega');
+    
+    // Limpiar todo el localStorage
+    localStorage.clear();
+    
+    // Restaurar los valores originales si existen
+    if (originalIdRol && originalIdBodega) {
+      localStorage.setItem('id_rol', originalIdRol);
+      localStorage.setItem('id_bodega', originalIdBodega);
+    }
+    
+    // Limpiar sessionStorage
+    sessionStorage.clear();
+    
+    // Cerrar sesión y redirigir al login
     this.authService.logout();
     this.router.navigate(['/login']);
   }
