@@ -105,6 +105,9 @@ export class VerIncidenciasComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Mostrar loader
+    this.isLoading = true;
+    
     const userIdString = localStorage.getItem('id_usuario');
     const id_usuario = userIdString ? parseInt(userIdString, 10) : 0;
     
@@ -143,14 +146,14 @@ export class VerIncidenciasComponent implements OnInit {
       }
     });
 
-    //manejo de fechas
+    // Configurar fechas
     const today = new Date();
     const today30 = new Date(today);
     const maxDate = today.toISOString().split('T')[0];
     const fechaInput = document.querySelector('input[name="fecha"]');
     const fechaInput2 = document.querySelector('input[name="fecha2"]');
     today30.setDate(today30.getDate() - 30);
-    const minDate = today30.toISOString().split('T')[0]; // Formato yyyy-mm-dd
+    const minDate = today30.toISOString().split('T')[0];
 
     // Establecer los valores iniciales de los filtros de fecha
     this.filtros.fechaHasta = maxDate;
@@ -166,7 +169,6 @@ export class VerIncidenciasComponent implements OnInit {
         if (fecha1Value) {
           fechaInput2.setAttribute('min', fecha1Value);
         } else {
-          // Si se borra la fecha, se restablecen los límites #arreglado el bug del borrar fecha
           fechaInput2.removeAttribute('min');
         }
       });
