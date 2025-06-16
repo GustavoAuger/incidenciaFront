@@ -50,7 +50,7 @@
             [(ngModel)]="selectedRoleId"
             (change)="onRoleChange(selectedRoleId)">
             <option [ngValue]="null" disabled>Seleccione un rol...</option>
-            <option *ngFor="let rol of roles" [ngValue]="rol.id">{{ rol.nombre | initCapFirst}}</option>
+            <option *ngFor="let rol of modalRoles" [ngValue]="rol.id">{{ rol.nombre | initCapFirst}}</option>
           </select>
         </div>
 
@@ -62,7 +62,7 @@
           <select 
             class="select select-bordered w-full" 
             [(ngModel)]="selectedBodegaId"
-            [disabled]="!showBodegaDropdown">
+            (change)="onBodegaChange(selectedBodegaId)">
             <option [ngValue]="null" disabled>Seleccione una bodega...</option>
             <option *ngFor="let bodega of tiendaBodegas" 
                     [ngValue]="bodega.id">
@@ -72,15 +72,17 @@
         </div>
 
         <div class="modal-action">
-          <button class="btn btn-ghost" (click)="closeModal()">Cancelar</button>
-          <button 
+          <form method="dialog" class="flex gap-2">
+            <button class="btn">Cancelar</button>
+            <button 
               class="btn text-white" 
-              [class.btn-disabled]="!selectedRoleId || (showBodegaDropdown && !selectedBodegaId)" 
-              [style.background-color]="(selectedRoleId && (!showBodegaDropdown || selectedBodegaId)) ? '#00bcd4' : '#9ca3af'"
-              [style.border-color]="(selectedRoleId && (!showBodegaDropdown || selectedBodegaId)) ? '#00bcd4' : '#9ca3af'"
+              [class.btn-disabled]="!isFormValid"
+              [style.background-color]="isFormValid ? '#00bcd4' : ''"
+              [style.border-color]="isFormValid ? '#00bcd4' : ''"
               (click)="saveRoleChange()">
               Guardar Cambios
-          </button>
+            </button>
+          </form>
         </div>
       </div>
     </dialog>

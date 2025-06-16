@@ -25,12 +25,14 @@ export class AppComponent implements OnInit, OnDestroy {
   username: string = '';
   userBodega: string = '';
   userRol: string = '';
-  roles: Rol[] = [];
+  roles: Rol[] = []; // Roles completos para el navbar
+  modalRoles: Rol[] = []; // Roles filtrados para el modal
   selectedRoleId: number | null = null;
   private routerSubscription: Subscription | undefined;
   showBodegaDropdown = false;
   selectedBodegaId: number | null = null;
   tiendaBodegas: any[] = [];
+  isFormValid: boolean = false;
 
   private _isAdmin: boolean = false;
 
@@ -53,7 +55,7 @@ export class AppComponent implements OnInit, OnDestroy {
       
     });
 
-    this.getRoles();
+    this.loadRolesForNavbar();
   }
 
   ngOnDestroy(): void {
@@ -181,22 +183,37 @@ export class AppComponent implements OnInit, OnDestroy {
 
   onRoleChange(roleId: number | null): void {
     this.selectedRoleId = roleId;
-    this.showBodegaDropdown = roleId === 4; // Show dropdown only for Tienda role (ID 4)
     
-    // Si se selecciona un rol que no es Tienda, limpiar la bodega seleccionada
+    // Si el rol es Tienda (ID 4), mostrar el dropdown de bodegas
+    this.showBodegaDropdown = roleId === 4;
+    
+    // Si ya no es Tienda, limpiar la bodega seleccionada
     if (roleId !== 4) {
       this.selectedBodegaId = null;
-    } else {
-      // Si se selecciona Tienda, intentar cargar la bodega guardada
-      const savedBodegaId = localStorage.getItem('id_bodega');
-      if (savedBodegaId) {
-        this.selectedBodegaId = Number(savedBodegaId);
-      }
     }
+    
+    // Validar el formulario
+    this.validateForm();
+  }
+
+  private validateForm(): void {
+    // Verificar que haya un rol seleccionado
+    const hasRoleSelected = this.selectedRoleId !== null;
+    
+    // Si es Tienda, verificar que haya una bodega seleccionada
+    const hasBodegaSelected = this.selectedRoleId !== 4 || this.selectedBodegaId !== null;
+    
+    // El formulario es válido si hay un rol seleccionado y (si es Tienda, también una bodega)
+    this.isFormValid = hasRoleSelected && hasBodegaSelected;
+  }
+
+  onBodegaChange(bodegaId: number | null): void {
+    this.selectedBodegaId = bodegaId;
+    this.validateForm();
   }
 
   saveRoleChange() {
-    if (this.selectedRoleId !== null) {
+    if (this.selectedRoleId !== null && this.isFormValid) {
       // Determinar la bodega según el rol
       let bodegaId = '';
       let bodegaNombre = '';
@@ -222,28 +239,39 @@ export class AppComponent implements OnInit, OnDestroy {
           alert('Por favor seleccione una bodega');
           return;
         }
-        bodegaId = this.selectedBodegaId.toString();
-        const selectedBodega = this.tiendaBodegas.find(b => b.id === bodegaId);
-        bodegaNombre = selectedBodega?.nombre || `Tienda ${bodegaId}`;
+        
+        // Convertir el ID de la bodega a número para la búsqueda
+        const bodegaIdNum = Number(this.selectedBodegaId);
+        const selectedBodega = this.tiendaBodegas.find(b => b.id === bodegaIdNum);
+        
+        if (selectedBodega) {
+          bodegaId = this.selectedBodegaId.toString();
+          bodegaNombre = selectedBodega.nombre || `Tienda ${selectedBodega.id_bodega}`;
+        } else {
+          // Si no se encuentra la bodega, usar valores por defecto
+          bodegaId = this.selectedBodegaId.toString();
+          bodegaNombre = `Tienda ${bodegaId}`;
+        }
       }
       
       // Guardar todo en localStorage
       localStorage.setItem('id_rol', this.selectedRoleId.toString());
       localStorage.setItem('id_bodega', bodegaId);
       localStorage.setItem('bodega_nombre', bodegaNombre);
-      localStorage.setItem('rol_nombre', rolNombre); // Guardar el nombre del rol
+      localStorage.setItem('rol_nombre', rolNombre);
       
-      // Actualizar las propiedades del componente
-      this.userBodega = bodegaNombre;
+      // Actualizar la UI
       this.userRol = rolNombre;
+      this.userBodega = bodegaNombre;
       
       // Cerrar el modal
-      this.closeModal();
+      const modal = document.getElementById('adminModal') as HTMLDialogElement;
+      if (modal) {
+        modal.close();
+      }
       
-      // Recargar la página para asegurar consistencia
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
+      // Recargar la página para aplicar los cambios
+      window.location.reload();
     }
   }
 
@@ -286,36 +314,66 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   openAdminModal() {
-    // Cargar el rol actual del localStorage
+    // Resetear el rol seleccionado
+    this.selectedRoleId = null;
+    this.selectedBodegaId = null;
+    this.isFormValid = false;
+    
+    // Cargar los roles para el modal (filtrados si es necesario)
+    this.getRolesForModal();
+    
+    // Mostrar el dropdown de bodegas si el rol actual es Tienda
     const savedRolId = localStorage.getItem('id_rol');
     if (savedRolId) {
-      this.selectedRoleId = Number(savedRolId);
-      // Si el rol es Tienda (ID 4), mostrar el dropdown de bodegas
-      this.showBodegaDropdown = this.selectedRoleId === 4;
+      this.showBodegaDropdown = Number(savedRolId) === 4;
       
       // Si hay una bodega guardada, seleccionarla
-      if (this.selectedRoleId === 4) {
+      if (Number(savedRolId) === 4) {
         const savedBodegaId = localStorage.getItem('id_bodega');
         if (savedBodegaId) {
           this.selectedBodegaId = Number(savedBodegaId);
         }
       }
     } else {
-      this.selectedRoleId = null;
       this.showBodegaDropdown = false;
     }
     
+    // Mostrar el modal
     const modal = document.getElementById('adminModal') as HTMLDialogElement;
     if (modal) {
       modal.showModal();
     }
   }
 
-  getRoles(): void {
+  private loadRolesForNavbar(): void {
     this.userService.getRoles().subscribe({
       next: (roles) => {
+        // Guardar todos los roles para el navbar
         this.roles = roles;
-        // Set the selected role from localStorage
+        
+        // Si el usuario está autenticado, cargar su información
+        if (this.isAuthenticated) {
+          this.loadUserInfo();
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar los roles:', error);
+      }
+    });
+  }
+
+  getRolesForModal(): void {
+    this.userService.getRoles().subscribe({
+      next: (roles) => {
+        // Filtrar el rol de administrador solo para el modal
+        const currentRoleId = localStorage.getItem('id_rol');
+        if (currentRoleId === '1') { // Si es administrador
+          this.modalRoles = roles.filter(rol => rol.id !== 1); // Excluir el rol de administrador
+        } else {
+          this.modalRoles = roles; // Mostrar todos los roles si no es administrador
+        }
+        
+        // Actualizar el rol seleccionado
         const storedRoleId = localStorage.getItem('id_rol');
         if (storedRoleId) {
           this.selectedRoleId = Number(storedRoleId);
