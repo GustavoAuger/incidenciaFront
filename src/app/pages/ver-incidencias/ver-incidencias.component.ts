@@ -445,6 +445,11 @@ getTipoIncidencia() {
     });
   }
 
+  // Método para navegar a una ruta específica
+  navigateTo(route: string): void {
+    this.router.navigate([route]);
+  }
+
   // Método para obtener el nombre del usuario por su ID
   getNombreUsuario(idUsuario: number | undefined): string {
     if (!idUsuario) return 'N/A';
