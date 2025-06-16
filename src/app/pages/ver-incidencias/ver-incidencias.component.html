@@ -54,7 +54,7 @@
               (blur)="isOrigenOpen = false">
                   <option value="">Seleccionar...</option>
                   <option *ngFor="let bodega of bodegasOrigen" [value]="bodega.id_bodega">
-                    {{ bodega.nombre | initCapFirst}}
+                    {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
                   </option>
               </select>
             </div>
@@ -68,7 +68,7 @@
                 (blur)="isDestinoOpen = false">
                     <option value="">Seleccionar...</option>
                     <option *ngFor="let bodega of bodegasDestino" [value]="bodega.id_bodega">
-                      {{ bodega.nombre | initCapFirst}}
+                      {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
                     </option>
                 </select>
             </div>
