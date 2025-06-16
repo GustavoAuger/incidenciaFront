@@ -58,32 +58,37 @@
                 <input type="text" class="text-input text-xs p-1 h-8" [(ngModel)]="filtros.ots" (ngModelChange)="aplicarFiltros()">
             </div>
             <div class="filter-group">
-                <label>Transporte</label>
-                <select class="select-input text-xs p-1 h-8"
-                [ngClass]="{'text-gray-400': !filtros.transporte && !isTransporteOpen, 'text-black': filtros.transporte || isTransporteOpen}"
-                [(ngModel)]="filtros.transporte" 
-                (ngModelChange)="aplicarFiltros()" 
-                (click)="onSelectOpen('transporte')">
-                    <option value="">Seleccionar...</option>
-                    <option *ngFor="let transporte of transportes" [value]="transporte">{{transporte | initCapFirst}}</option>
+                <label>Estado</label>
+                <select 
+                  class="select-input text-xs p-1 h-8 w-full"
+                  [ngClass]="{'text-gray-400': !filtros.estado && !isEstadoOpen, 'text-black': filtros.estado || isEstadoOpen}"
+                  [(ngModel)]="filtros.estado" 
+                  (change)="aplicarFiltros()"
+                  (click)="onSelectOpen('estado')"
+                  name="estado"
+                >
+                  <option value="">Seleccionar...</option>
+                  <option *ngFor="let estado of estados" [ngValue]="estado.tipo_estado" [class.text-black]="filtros.estado === estado.tipo_estado">
+                    {{ estado.tipo_estado | titlecase }}
+                  </option>
                 </select>
             </div>
             <div class="filter-group">
-                <label>Estado</label>
-                <select class="select-input text-xs p-1 h-8" 
-                [ngClass]="{'text-gray-400': !filtros.estado && !isEstadoOpen, 'text-black': filtros.estado || isEstadoOpen}"
-                [(ngModel)]="filtros.estado" (ngModelChange)="aplicarFiltros()" (click)="onSelectOpen('estado')">
-                    <option value="">Seleccionar...</option>
-                    <option *ngFor="let estado of estados" [value]="estado">{{estado}}</option>
+                <label>Transportista</label>
+                <select 
+                  class="select-input text-xs p-1 h-8 w-full"
+                  [ngClass]="{'text-gray-400': !filtros.transporte && !isTransporteOpen, 'text-black': filtros.transporte || isTransporteOpen}"
+                  [(ngModel)]="filtros.transporte" 
+                  (change)="aplicarFiltros()"
+                  (click)="onSelectOpen('transporte')"
+                  name="transporte"
+                >
+                  <option value="">Seleccionar...</option>
+                  <option *ngFor="let transporte of transportistas" [ngValue]="transporte.nombre" [class.text-black]="filtros.transporte === transporte.nombre">
+                    {{ transporte.nombre | titlecase }}
+                  </option>
                 </select>
             </div>
-            <!--
-            <button class="search-button" (click)="aplicarFiltros()">
-                <span class="material-symbols-outlined">
-                    search
-                </span>
-            </button>
-            -->
         </div>
 
         <div class="export-buttons">
@@ -186,7 +191,7 @@
           </th>
           <th (click)="sortTable('transportista')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
             <div class="flex items-center justify-center">
-              <span>Transporte</span>
+              <span>Transportista</span>
               <i class="fas {{ getSortIcon('transportista')}} ml-1"></i>
             </div>
           </th>

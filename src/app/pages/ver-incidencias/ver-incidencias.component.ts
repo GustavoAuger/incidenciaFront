@@ -10,6 +10,8 @@ import { Tipo_incidencia} from '../../interfaces/tipo_incidencia';
 import { Filtros } from '../../interfaces/filtros';
 import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
 import * as XLSX from 'xlsx';
+import { Transportista } from '../../interfaces/transportista';
+import { EstadoIncidencia } from '../../interfaces/estado-incidencia';
 
 @Component({
   selector: 'app-ver-incidencias',
@@ -70,22 +72,11 @@ export class VerIncidenciasComponent implements OnInit {
   // Tipos de incidencia
   tiposIncidencia: Tipo_incidencia[] = [ ];
 
-  // Estados (POR AHORA ESTO SE DEBE TRAER DE LA BD)
-  estados = [
-    'Nuevo',
-    'En Revisión',
-    'Aceptada',
-    'Rechazada'
-  ];
+  // Estados (ahora se obtienen del servicio)
+  estados: EstadoIncidencia[] = [];
 
-  // Transportes (POR AHORA ESTO SE DEBE TRAER DE LA BD)
-  transportes = [
-    'FEDEX',
-    'BlueExpress',
-    'HEAD',
-    'Starken',
-    'Otro'
-  ];
+  // Transportes (ahora se obtienen del servicio)
+  transportistas: Transportista[] = [];
 
   // Objeto para almacenar los filtros
   filtros: Filtros = {
@@ -128,6 +119,27 @@ export class VerIncidenciasComponent implements OnInit {
         console.error('Error al cargar usuarios', error);
         // Intentar cargar incidencias de todos modos
         this.cargarIncidencias(id_usuario);
+      }
+    });
+
+    // Cargar estados de incidencias
+    this._incidenciaService.getEstadoIncidencias().subscribe({
+      next: (estados) => {
+        console.log('Estados recibidos:', estados);
+        this.estados = estados;
+      },
+      error: (error) => {
+        console.error('Error al cargar estados de incidencias', error);
+      }
+    });
+
+    // Cargar transportistas
+    this._incidenciaService.getTransportistas().subscribe({
+      next: (transportistas) => {
+        this.transportistas = transportistas;
+      },
+      error: (error) => {
+        console.error('Error al cargar transportistas', error);
       }
     });
 
@@ -204,6 +216,8 @@ getTipoIncidencia() {
         // Ordenar incidencias por ID de forma descendente
         this.incidencias = incidencias.sort((a, b) => (b.id || 0) - (a.id || 0));
         this.incidenciasFiltradas = [...this.incidencias];
+
+        console.log(JSON.stringify(this.incidencias));
         
         // Aplicar filtros después de cargar las incidencias
         this.aplicarFiltros();
@@ -267,37 +281,66 @@ getTipoIncidencia() {
   // Metodo para aplicar los filtros
   aplicarFiltros() {
     this.incidenciasFiltradas = this.incidencias.filter(incidencia => {
+      // Filtro por fechas
       const cumpleFechaDesde = !this.filtros.fechaDesde || 
         (incidencia.fecha_recepcion && new Date(incidencia.fecha_recepcion) >= new Date(this.filtros.fechaDesde));
+      
       const cumpleFechaHasta = !this.filtros.fechaHasta || 
         (incidencia.fecha_recepcion && new Date(incidencia.fecha_recepcion) <= new Date(this.filtros.fechaHasta));
 
+      // Filtro por número de incidencia
       const cumpleNumeroIncidencia = !this.filtros.numeroIncidencia || 
         (incidencia.id?.toString().toLowerCase() || '').includes(this.filtros.numeroIncidencia.toLowerCase()) ||
         (incidencia.id?.toString().toLowerCase() || '').includes(this.filtros.numeroIncidencia.replace('inc', '').toLowerCase()) ||
         ('inc' + (incidencia.id?.toString() || '').toLowerCase()).includes(this.filtros.numeroIncidencia.toLowerCase());
       
+      // Filtro por tipo de incidencia
       const cumpleTipoIncidencia = !this.filtros.tipoIncidencia || 
         incidencia.id_tipo_incidencia?.toString() === this.filtros.tipoIncidencia;
+      
+      // Filtro por origen
       const cumpleOrigen = !this.filtros.origen || 
         incidencia.origen_id_local === this.filtros.origen;
+      
+      // Filtro por destino
       const cumpleDestino = !this.filtros.destino || 
-        incidencia.destino! === this.filtros.destino;
+        incidencia.destino === this.filtros.destino;
+      
+      // Filtro por OTS
       const cumpleOTS = !this.filtros.ots || 
         (incidencia.ots?.toLowerCase() || '').includes(this.filtros.ots.toLowerCase());
-      const cumpleTransporte = !this.filtros.transporte || 
-        incidencia.transportista === this.filtros.transporte;
-      const cumpleEstado = !this.filtros.estado || 
-        (incidencia.tipo_estado.toLowerCase() || '').includes(this.filtros.estado.toLowerCase());
       
-      return cumpleFechaDesde && cumpleFechaHasta && cumpleNumeroIncidencia && 
-             cumpleTipoIncidencia && cumpleOrigen && cumpleDestino && cumpleOTS && 
-             cumpleTransporte && cumpleEstado;
+      // Filtro por transportista (comparando el nombre)
+      const cumpleTransporte = !this.filtros.transporte || 
+        (incidencia.transportista?.toLowerCase() === this.filtros.transporte.toLowerCase());
+      
+      // Logs de depuración (puedes eliminarlos después de verificar que funcione)
+      if (this.filtros.transporte) {
+        console.log('Filtrando transportista - Nombre seleccionado:', this.filtros.transporte);
+        console.log('Transportista en incidencia:', incidencia.transportista);
+        console.log('¿Coincide?', incidencia.transportista?.toLowerCase() === this.filtros.transporte.toLowerCase());
+      }
+      
+      // Filtro por estado (comparando el tipo_estado)
+      const cumpleEstado = !this.filtros.estado || 
+        (incidencia.tipo_estado?.toLowerCase() === this.filtros.estado.toLowerCase());
+      
+      // Aplicar todos los filtros
+      return cumpleFechaDesde && 
+             cumpleFechaHasta && 
+             cumpleNumeroIncidencia && 
+             cumpleTipoIncidencia && 
+             cumpleOrigen && 
+             cumpleDestino && 
+             cumpleOTS && 
+             cumpleTransporte && 
+             cumpleEstado;
     });
 
     // Aplicar el ordenamiento actual después de filtrar
     this.sortTable(this.sortColumn);
     
+    // Actualizar la paginación
     this.updatePagination();
   }
 
