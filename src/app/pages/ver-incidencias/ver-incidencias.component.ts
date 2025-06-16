@@ -217,9 +217,18 @@ getTipoIncidencia() {
       (incidencias) => {
         // Ordenar incidencias por ID de forma descendente
         this.incidencias = incidencias.sort((a, b) => (b.id || 0) - (a.id || 0));
-        this.incidenciasFiltradas = [...this.incidencias];
+        
+        if (localStorage.getItem('id_rol') == '2') {
+          this.incidencias = this.incidencias.filter((inc) => inc.destino_id_bodega == 'BDE-001');
+        } else if (localStorage.getItem('id_rol') == '4') {
+          const id_bodega = 'LO-' + (localStorage.getItem('id_bodega')!.padStart(3, '0'));
+          this.incidencias = this.incidencias.filter((inc) => 
+            inc.destino_id_bodega === id_bodega || 
+            inc.origen_id_local === id_bodega
+          );
+        }        
 
-        console.log(JSON.stringify(this.incidencias));
+        this.incidenciasFiltradas = [...this.incidencias];
         
         // Aplicar filtros después de cargar las incidencias
         this.aplicarFiltros();
