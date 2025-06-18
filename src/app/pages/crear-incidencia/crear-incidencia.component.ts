@@ -122,7 +122,7 @@ export class CrearIncidenciaComponent {
     }
   }
   onSubmit() {
-   
+    
     if (this.selectedImages.length > 0) {
       // Manejo de enviío de imagenes
       const formData = new FormData();
@@ -131,9 +131,9 @@ export class CrearIncidenciaComponent {
       });
 
     }
+    this.watchTipoIncidencia(); // llamos la funcion para asignar bodega 21 si es tipo incidencia 1, parte de soulucion de bug
     // Encontrar los nombres correspondientes
-    const bodegaSeleccionada = this.lista_bodegas.find(b => b.id === this.incidencia.id_bodega);
-
+    const bodegaSeleccionada = this.lista_bodegas.find(b => b.id == this.incidencia.id_bodega); // borre === para solucionar bug bodega central comparacion number/string
     const bodDestino = this.incidencia.destino_id_bodega
     console.log(bodDestino);  
     const bodDestinoNum = parseInt(bodDestino, 10);  // base 10
