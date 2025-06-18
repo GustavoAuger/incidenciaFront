@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, Optional } from '@angular/core';
 import { Router } from '@angular/router';
 import { User } from '../../interfaces/user';
 import { CommonModule } from '@angular/common';
+import { AppComponent } from '../../app.component';
 
 @Component({
   selector: 'app-home',
@@ -20,7 +21,10 @@ export class HomeComponent implements OnInit {
     id: 0,
   }
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    @Optional() @Inject(AppComponent) private appComponent: AppComponent
+  ) {}
 
   ngOnInit(): void {
     // Mostrar loader
@@ -70,6 +74,24 @@ export class HomeComponent implements OnInit {
     this.router.navigate([route]);
   }
 
+  // Método para manejar el clic en Crear Incidencia
+  onCreateIncidenciaClick(): void {
+    const idRol = parseInt(localStorage.getItem('id_rol') || '0', 10);
+    
+    if (idRol === 1) {
+      // Si es administrador, mostrar el modal de cambio de rol
+      if (this.appComponent) {
+        this.appComponent.openAdminModal();
+      } else {
+        console.error('No se pudo acceder al componente principal');
+        this.navigateTo('/crear-incidencia');
+      }
+    } else {
+      // Si no es administrador, navegar normalmente
+      this.navigateTo('/crear-incidencia');
+    }
+  }
+
   // Métodos auxiliares para verificar roles
   isAdmin(): boolean {
     return this.user.id_rol === 1;
@@ -88,12 +110,10 @@ export class HomeComponent implements OnInit {
   }
 
   // Métodos actualizados para verificar permisos de acceso
-  // Agregar este nuevo método de control de acceso
   canAccessIncidenciasSinResolver(): boolean {
     return this.isAdmin() || this.isGestor() || this.isTienda();
   }
   
-  // El resto de los métodos permanecen igual
   canAccessCrearIncidencia(): boolean {
     return this.isAdmin() || this.isEmisor() || this.isTienda();
   }
@@ -103,7 +123,7 @@ export class HomeComponent implements OnInit {
   }
 
   canAccessIncidenciasReclamo(): boolean {
-    return this.isAdmin() || this.isGestor();
+    return this.isAdmin() || this.isGestor() || this.isTienda();
   }
 
   canAccessAdministrarUsuarios(): boolean {

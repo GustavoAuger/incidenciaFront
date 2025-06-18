@@ -28,7 +28,7 @@ export class IncidenciaService {
   }
 
   getEstadoIncidencias(): Observable<EstadoIncidencia[]>{
-    return this.http.get<EstadoIncidencia[]>(this.apiUrl+'/getEstadoIncidencias');
+    return this.http.get<EstadoIncidencia[]>(this.apiUrl+'/getEstadoincidencias');
   }
 
   getTransportistas(): Observable<Transportista[]>{

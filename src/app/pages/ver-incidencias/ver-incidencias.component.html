@@ -1,15 +1,31 @@
-<div class="resumen-incidencias">
+<!-- Pantalla de carga -->
+<div *ngIf="isLoading" class="fixed inset-0 bg-[#f5f5f5] bg-opacity-90 flex items-center justify-center z-50">
+    <div class="text-center">
+        <div class="loading loading-spinner loading-lg" style="color: #00bcd4;"></div>
+        <p class="mt-2 text-gray-600">Cargando ...</p>
+    </div>
+</div>
+
+<!-- Contenido principal -->
+<div [class.opacity-0]="isLoading" [class.invisible]="isLoading">  
+  <div class="resumen-incidencias">
+    <!-- Título -->
+    <div class="flex justify-between items-center mb-4 mt-6">
+      <h3 class="text-lg font-semibold">Resumen de Incidencias</h3>
+    </div>
     <div class="filters-container">
         <div class="date-filters">
             <div class="filter-group">
+                <label>Fecha Recepción</label>
                 <label>Desde</label>
-                <input type="date" class="date-input" value=""  #fechaInput
+                <input type="date" class="date-input" value="{minDate}"  #fechaInput
                 [ngClass]="{'text-gray-400': !filtros.fechaDesde && !isFechaDesdeOpen, 'text-black': filtros.fechaDesde || isFechaDesdeOpen}"
                 name="fecha" [(ngModel)]="filtros.fechaDesde" (ngModelChange)="aplicarFiltros()">
             </div>
             <div class="filter-group">
+                <label>&nbsp;</label>
                 <label>Hasta</label>
-                <input type="date" class="date-input"  value="" #fechaInput2
+                <input type="date" class="date-input text-xs p-1 h-8"  value="" #fechaInput2
                 [ngClass]="{'text-gray-400': !filtros.fechaHasta && !isFechaHastaOpen, 'text-black': filtros.fechaHasta || isFechaHastaOpen}"
                 name="fecha2" [(ngModel)]="filtros.fechaHasta" (ngModelChange)="aplicarFiltros()">
             </div>
@@ -18,70 +34,84 @@
         <div class="other-filters">
             <div class="filter-group">
                 <label>N° Incidencia</label>
-                <input type="text" class="text-input" [(ngModel)]="filtros.numeroIncidencia" (ngModelChange)="aplicarFiltros()">
+                <input type="text" class="text-input text-xs p-1 h-8" [(ngModel)]="filtros.numeroIncidencia" (ngModelChange)="aplicarFiltros()">
             </div>
             <div class="filter-group">
                 <label>Tipo Incidencia</label>
-                <select class="select-input" 
+                <select class="select-input text-xs p-1 h-8" 
                 [ngClass]="{'text-gray-400': !filtros.tipoIncidencia && !isTipoIncidenciaOpen, 'text-black': filtros.tipoIncidencia || isTipoIncidenciaOpen}"
-                [(ngModel)]="filtros.tipoIncidencia" (ngModelChange)="aplicarFiltros()" (click)="onSelectOpen('tipoIncidencia')">
+                [(ngModel)]="filtros.tipoIncidencia" 
+                (ngModelChange)="aplicarFiltros(); isTipoIncidenciaOpen = false"
+                (click)="isTipoIncidenciaOpen = !isTipoIncidenciaOpen"
+                (blur)="isTipoIncidenciaOpen = false">
                     <option value="">Seleccionar...</option>
                     <option *ngFor="let tipo of tiposIncidencia" [value]="tipo.id">{{tipo.nombre}}</option>
                 </select>
             </div>
             <div class="filter-group">
               <label>Bodega Origen</label>
-              <select class="select-input"
+              <select class="select-input text-xs p-1 h-8"
               [ngClass]="{'text-gray-400': !filtros.origen && !isOrigenOpen, 'text-black': filtros.origen || isOrigenOpen}"
               [(ngModel)]="filtros.origen" 
-              (ngModelChange)="aplicarFiltros()" 
-              (click)="onSelectOpen('origen')">
-        <option value="">Seleccionar...</option>
-                  <option *ngFor="let bodega of bodegas" [value]="bodega.id_bodega">{{bodega.id_bodega}} - {{bodega.nombre | initCapFirst}}</option>
-              </select> 
+              (ngModelChange)="aplicarFiltros(); isOrigenOpen = false"
+              (click)="isOrigenOpen = !isOrigenOpen"
+              (blur)="isOrigenOpen = false">
+                  <option value="">Seleccionar...</option>
+                  <option *ngFor="let bodega of bodegasOrigen" [value]="bodega.id_bodega">
+                    {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
+                  </option>
+              </select>
             </div>
             <div class="filter-group">
                 <label>Bodega Destino</label>
-                <select class="select-input"
+                <select class="select-input text-xs p-1 h-8"
                 [ngClass]="{'text-gray-400': !filtros.destino && !isDestinoOpen, 'text-black': filtros.destino || isDestinoOpen}"
                 [(ngModel)]="filtros.destino" 
-                (ngModelChange)="aplicarFiltros()" 
-                (click)="onSelectOpen('destino')">
-          <option value="">Seleccionar...</option>
-                    <option *ngFor="let bodega of bodegas" [value]="bodega.nombre">{{bodega.id_bodega}} - {{bodega.nombre | initCapFirst}}</option>
+                (ngModelChange)="aplicarFiltros(); isDestinoOpen = false"
+                (click)="isDestinoOpen = !isDestinoOpen"
+                (blur)="isDestinoOpen = false">
+                    <option value="">Seleccionar...</option>
+                    <option *ngFor="let bodega of bodegasDestino" [value]="bodega.id_bodega">
+                      {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
+                    </option>
                 </select>
             </div>
             <div class="filter-group">
                 <label>OTS</label>
-                <input type="text" class="text-input" [(ngModel)]="filtros.ots" (ngModelChange)="aplicarFiltros()">
-            </div>
-            <div class="filter-group">
-                <label>Transporte</label>
-                <select class="select-input"
-                [ngClass]="{'text-gray-400': !filtros.transporte && !isTransporteOpen, 'text-black': filtros.transporte || isTransporteOpen}"
-                [(ngModel)]="filtros.transporte" 
-                (ngModelChange)="aplicarFiltros()" 
-                (click)="onSelectOpen('transporte')">
-                    <option value="">Seleccionar...</option>
-                    <option *ngFor="let transporte of transportes" [value]="transporte">{{transporte | initCapFirst}}</option>
-                </select>
+                <input type="text" class="text-input text-xs p-1 h-8" [(ngModel)]="filtros.ots" (ngModelChange)="aplicarFiltros()">
             </div>
             <div class="filter-group">
                 <label>Estado</label>
-                <select class="select-input" 
-                [ngClass]="{'text-gray-400': !filtros.estado && !isEstadoOpen, 'text-black': filtros.estado || isEstadoOpen}"
-                [(ngModel)]="filtros.estado" (ngModelChange)="aplicarFiltros()" (click)="onSelectOpen('estado')">
-                    <option value="">Seleccionar...</option>
-                    <option *ngFor="let estado of estados" [value]="estado">{{estado}}</option>
+                <select 
+                  class="select-input text-xs p-1 h-8 w-full"
+                  [ngClass]="{'text-gray-400': !filtros.estado && !isEstadoOpen, 'text-black': filtros.estado || isEstadoOpen}"
+                  [(ngModel)]="filtros.estado" 
+                  (change)="aplicarFiltros()"
+                  (click)="onSelectOpen('estado')"
+                  name="estado"
+                >
+                  <option value="">Seleccionar...</option>
+                  <option *ngFor="let estado of estados" [ngValue]="estado.tipo_estado" [class.text-black]="filtros.estado === estado.tipo_estado">
+                    {{ estado.tipo_estado | titlecase }}
+                  </option>
                 </select>
             </div>
-            <!--
-            <button class="search-button" (click)="aplicarFiltros()">
-                <span class="material-symbols-outlined">
-                    search
-                </span>
-            </button>
-            -->
+            <div class="filter-group">
+                <label>Transportista</label>
+                <select 
+                  class="select-input text-xs p-1 h-8 w-full"
+                  [ngClass]="{'text-gray-400': !filtros.transporte && !isTransporteOpen, 'text-black': filtros.transporte || isTransporteOpen}"
+                  [(ngModel)]="filtros.transporte" 
+                  (change)="aplicarFiltros()"
+                  (click)="onSelectOpen('transporte')"
+                  name="transporte"
+                >
+                  <option value="">Seleccionar...</option>
+                  <option *ngFor="let transporte of transportistas" [ngValue]="transporte.nombre" [class.text-black]="filtros.transporte === transporte.nombre">
+                    {{ transporte.nombre | titlecase }}
+                  </option>
+                </select>
+            </div>
         </div>
 
         <div class="export-buttons">
@@ -101,49 +131,191 @@
     </div>
 
    <!-- Incidencia List -->
-<div *ngIf="!isLoading" class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
-    <table class="table">
-      <!-- head -->
-      <thead>
+<div *ngIf="!isLoading" class="overflow-x-auto w-full">
+    <table class="min-w-full divide-y divide-gray-200 table-fixed">
+      <colgroup>
+        <col style="width: 40px;"> <!-- # -->
+        <col style="width: 100px;"> <!-- N° Incidencia -->
+        <col style="width: 100px;"> <!-- Fecha Emisión -->
+        <col style="width: 100px;"> <!-- Fecha Recepción -->
+        <col style="width: 120px;"> <!-- Usuario -->
+        <col style="width: 100px;"> <!-- Bodega Origen -->
+        <col style="width: 100px;"> <!-- Bodega Destino -->
+        <col style="width: 120px;"> <!-- Nombre Destino -->
+        <col style="width: 80px;">  <!-- Unidades -->
+        <col style="width: 100px;"> <!-- Valorizado -->
+        <col style="width: 100px;"> <!-- OTS -->
+        <col style="width: 100px;"> <!-- Transporte -->
+        <col style="width: 100px;"> <!-- Estado -->
+        <col style="width: 80px;">  <!-- Acción -->
+      </colgroup>
+      <thead class="bg-gray-100">
         <tr>
-          <th></th>
-          <th>N° Incidencia</th>
-          <th>Fecha Emisión</th>
-          <th>Fecha Recepción</th>
-          <th>Bodega Origen</th>
-          <th>Bodega Destino</th>
-          <th>Nombre Destino</th>
-          <th>Unidades</th>
-          <th>Valorizado</th>
-          <th>OTS</th>
-          <th>Transporte</th>
-          <th>Estado</th>
-          <th>Acción</th>
+          <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">#</th>
+          <th (click)="sortTable('id')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>N° Incidencia</span>
+              <i class="fas {{ getSortIcon('id') }} ml-1"></i>
+            </div>
+          </th>
+          <th (click)="sortTable('fecha_emision')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Fecha Emisión</span>
+              <i class="fas {{ getSortIcon('fecha_emision') }} ml-1"></i>
+            </div>
+          </th>
+          <th (click)="sortTable('fecha_recepcion')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Fecha Recepción</span>
+              <i class="fas {{ getSortIcon('fecha_recepcion') }} ml-1"></i>
+            </div>
+          </th>
+          <th (click)="sortTable('usuario')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Usuario</span>
+              <i class="fas {{ getSortIcon('usuario') }} ml-1"></i>
+            </div>
+          </th>
+          <th (click)="sortTable('origen_id_local')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Bodega Origen</span>
+              <i class="fas {{ getSortIcon('origen_id_local') }} ml-1"></i>
+            </div>
+          </th>
+          <th (click)="sortTable('destino_id_bodega')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Bodega Destino</span>
+              <i class="fas {{ getSortIcon('destino_id_bodega') }} ml-1"></i>
+            </div>
+          </th>
+          <th (click)="sortTable('destino')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Nombre Destino</span>
+              <i class="fas {{ getSortIcon('destino') }} ml-1"></i>
+            </div>
+          </th>
+          <th (click)="sortTable('total_item')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Unidades</span>
+              <i class="fas {{ getSortIcon('total_item') }} ml-1"></i>
+            </div>
+          </th>
+          <th (click)="sortTable('valorizado')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Valorizado</span>
+              <i class="fas {{ getSortIcon('valorizado') }} ml-1"></i>
+            </div>
+          </th>
+          <th (click)="sortTable('ots')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>OTS</span>
+              <i class="fas {{ getSortIcon('ots') }} ml-1"></i>
+            </div>
+          </th>
+          <th (click)="sortTable('transportista')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Transportista</span>
+              <i class="fas {{ getSortIcon('transportista')}} ml-1"></i>
+            </div>
+          </th>
+          <th (click)="sortTable('tipo_estado')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+            <div class="flex items-center justify-center">
+              <span>Estado</span>
+              <i class="fas {{ getSortIcon('tipo_estado')}} ml-1"></i>
+            </div>
+          </th>
+          <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">Acción</th>
         </tr>
       </thead>
-      <tbody>
-        <tr *ngFor="let incidencia of paginatedIncidencias; let i = index">
-          <th>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</th>
-          <td>{{ "INC"+incidencia.id }}</td>
-          <td>{{ incidencia.fecha_emision | dateFormat}}</td>
-          <td>{{ incidencia.fecha_recepcion | dateFormat}}</td>
-          <td>{{ incidencia.origen_id_local }}</td>
-          <td>{{ incidencia.destino_id_bodega }}</td>
-          <td>{{ incidencia.destino! | initCapFirst}}</td>
-          <td>{{ incidencia.total_item }}</td>
-          <td>{{ incidencia.valorizado }}</td>
-          <td>{{ incidencia.ots }}</td>
-          <td>{{ incidencia.transportista }}</td>
-          <td>{{ incidencia.tipo_estado | initCapFirst}}</td>
-          <td>
-            <button (click)="verDetalle(incidencia)" class="btn btn-ghost btn-xs">
-                <span class="material-symbols-outlined text-blue-500">visibility</span>
-            </button>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr *ngFor="let incidencia of paginatedIncidencias; let i = index" class="hover:bg-gray-50">
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ (currentPage - 1) * itemsPerPage + i + 1 }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.id ? 'INC' + incidencia.id.toString() : '' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.fecha_emision | date:'dd/MM/yyyy' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.fecha_recepcion | date:'dd/MM/yyyy' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ getNombreUsuario(incidencia.id_usuario) || 'N/A' | initCapFirst }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.origen_id_local || 'N/A' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.destino_id_bodega || 'N/A' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.destino || 'N/A' | initCapFirst }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.total_item || '0' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ (incidencia.valorizado | currency:'CLP':'symbol-narrow':'1.0-0') || '$0' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.ots || 'N/A' }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              {{ incidencia.transportista || 'N/A' | initCapFirst }}
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              <span [ngClass]="{
+                'px-2 py-1 rounded-full text-xs': true,
+                'bg-yellow-100 text-yellow-800': incidencia.tipo_estado === 'Pendiente',
+                'bg-blue-100 text-blue-800': incidencia.tipo_estado === 'En Revisión',
+                'bg-green-100 text-green-800': incidencia.tipo_estado === 'Aceptada',
+                'bg-red-100 text-red-800': incidencia.tipo_estado === 'Rechazada'
+              }">
+                {{ incidencia.tipo_estado | initCapFirst }}
+              </span>
+            </div>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+            <div class="flex items-center justify-center h-full">
+              <div class="flex justify-center space-x-1">
+                <button (click)="verDetalle(incidencia)" class="btn btn-ghost btn-xs hover:bg-transparent">
+                  <i class="fas fa-eye" style="color: #00bcd4;"></i>
+                </button>
+              </div>
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
-    
+  </div>
+
     <!-- Controles de paginación -->
     <div class="flex justify-center p-4 bg-base-100">
       <div class="join">
@@ -168,5 +340,12 @@
         </button>
       </div>
     </div>
-  </div>
+    
+    <!-- Botón Volver -->
+    <div class="px-8 py-6 bg-[#f5f5f5] -mx-8 mt-4">
+        <button class="btn btn-sm flex items-center space-x-2 bg-gray-400 hover:bg-gray-500 text-white" (click)="navigateTo('/home')">
+            <i class="fas fa-arrow-left"></i>
+            <span>Volver</span>
+        </button>
+    </div>
 </div>

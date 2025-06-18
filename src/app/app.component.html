@@ -14,7 +14,7 @@
             <div class="text-right">
                 <p class="text-lg font-semibold">{{ username }}</p>
                 <div class="flex items-center gap-2 text-xs text-gray-500 tracking-wide">
-                    <button *ngIf="isAdmin()" class="btn btn-circle btn-xs p-1 bg-gray-100 hover:bg-gray-200 transition-all duration-200 shadow-sm hover:shadow-md active:shadow-sm active:translate-y-0.5">
+                    <button *ngIf="isAdmin" (click)="openAdminModal()" class="btn btn-circle btn-xs p-1 bg-gray-100 hover:bg-gray-200 transition-all duration-200 shadow-sm hover:shadow-md active:shadow-sm active:translate-y-0.5">
                         <i class="fas fa-user-secret text-base"></i>
                     </button>
                     <span class="uppercase">{{ userRol}}</span>
@@ -35,4 +35,55 @@
             <p>Copyright 2025 - Todos los derechos reservados</p>
         </aside>
     </footer>
+
+    <!-- Admin Modal -->
+    <dialog id="adminModal" class="modal">
+      <div class="modal-box w-11/12 max-w-2xl">
+        <h3 class="font-bold text-lg mb-4">Cambiar Rol</h3>
+        
+        <div class="form-control w-full max-w-xs mb-4">
+          <label class="label">
+            <span class="label-text">Rol</span>
+          </label>
+          <select 
+            class="select select-bordered w-full" 
+            [(ngModel)]="selectedRoleId"
+            (change)="onRoleChange(selectedRoleId)">
+            <option [ngValue]="null" disabled>Seleccione un rol...</option>
+            <option *ngFor="let rol of modalRoles" [ngValue]="rol.id">{{ rol.nombre | initCapFirst}}</option>
+          </select>
+        </div>
+
+        <!-- Bodega Dropdown (only shown for Tienda role) -->
+        <div class="form-control w-full max-w-xs mt-4" *ngIf="showBodegaDropdown">
+          <label class="label">
+            <span class="label-text">Bodega</span>
+          </label>
+          <select 
+            class="select select-bordered w-full" 
+            [(ngModel)]="selectedBodegaId"
+            (change)="onBodegaChange(selectedBodegaId)">
+            <option [ngValue]="null" disabled>Seleccione una bodega...</option>
+            <option *ngFor="let bodega of tiendaBodegas" 
+                    [ngValue]="bodega.id">
+              {{ (bodega.id_bodega + ' - ' + (bodega.nombre | initCapFirst)) || 'Bodega ' + bodega.id_bodega }}
+            </option>
+          </select>
+        </div>
+
+        <div class="modal-action">
+          <form method="dialog" class="flex gap-2">
+            <button class="btn">Cancelar</button>
+            <button 
+              class="btn text-white" 
+              [class.btn-disabled]="!isFormValid"
+              [style.background-color]="isFormValid ? '#00bcd4' : ''"
+              [style.border-color]="isFormValid ? '#00bcd4' : ''"
+              (click)="saveRoleChange()">
+              Guardar Cambios
+            </button>
+          </form>
+        </div>
+      </div>
+    </dialog>
 </div>

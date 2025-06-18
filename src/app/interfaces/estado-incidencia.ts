@@ -1,4 +1,4 @@
 export interface EstadoIncidencia {
     id: number;
-    nombre: string;
+    tipo_estado: string;
 }
