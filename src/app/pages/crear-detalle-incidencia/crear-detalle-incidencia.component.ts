@@ -331,7 +331,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     this.incidenciaService.createIncidenciaCompleta(datosParaEnviar).subscribe({
       next: (response) => {
         if (response) {
-          alert('Incidencia '+response+' creada con éxito');
+          alert(response); // envpia el mensaje del backend de exito de creación + correo enviado/no enviado
           this.navigateTo('/home');
         } else {
           alert('Error al crear la incidencia');
