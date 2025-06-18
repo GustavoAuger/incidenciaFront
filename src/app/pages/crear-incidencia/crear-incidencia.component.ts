@@ -160,7 +160,7 @@ export class CrearIncidenciaComponent {
           ots: this.incidencia.ots,
           fechaRecepcion: this.incidencia.fecha,
           bodDestino: bodegaUsuario? bodegaUsuario.id_bodega : '',        
-          tipo_estado: "Nuevo"
+          tipo_estado: "nuevo"
         }
       }
     };
