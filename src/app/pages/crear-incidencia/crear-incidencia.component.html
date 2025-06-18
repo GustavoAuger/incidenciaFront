@@ -10,6 +10,7 @@
         <select 
           [(ngModel)]="incidencia.id_tipo_incidencia" 
           name="tipo_incidencia"
+          (ngModelChange)="watchTipoIncidencia()"
           #origen="ngModel"
           class="select select-bordered w-full"
           [class.select-error]="transportista.invalid && (transportista.dirty || transportista.touched)"
@@ -39,7 +40,7 @@
           <option disabled selected value="">Seleccione una bodega</option>
           <ng-container *ngFor="let bodega of lista_bodegas">
             <option 
-              *ngIf="bodega.id != 22 && bodega.id != 23"
+              *ngIf="bodega.id != 22 && bodega.id != 23 && bodega.id != +incidencia.destino_id_bodega"
               [value]="bodega.id"
               [selected]="incidencia.id_tipo_incidencia == 1 && bodega.id == 21">
               {{bodega.nombre | initCapFirst}}

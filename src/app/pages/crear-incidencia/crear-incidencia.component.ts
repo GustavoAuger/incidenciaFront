@@ -21,8 +21,10 @@ import { Tipo_incidencia } from '../../interfaces/tipo_incidencia';
 export class CrearIncidenciaComponent {
   // Listas para los dropdowns
   lista_bodegas: Bodega[] = [];
+  lista_bodegas_original: Bodega[] = [];
   lista_transportistas: Transportista[] = [];
   lista_tipo_incidencia: Tipo_incidencia[] = [];
+  
 
   // Modelo para el formulario de incidencia
   incidencia: Incidencia = {
@@ -76,15 +78,16 @@ export class CrearIncidenciaComponent {
     this.getTransportistas();
     this.getBodegas();
     this.getTipoIncidencias();
-        // Observar cambios en id_tipo_incidencia
-    this.watchTipoIncidencia();
-
-    
+    // Guardar una copia intacta
+   
   }
-    watchTipoIncidencia() {
-      // Cuando cambie el tipo de incidencia a 1, establecer bodega 21
-      if (this.incidencia.id_tipo_incidencia == 1) {
+    watchTipoIncidencia() {       // Observar cambios en id_tipo_incidencia se ejecuta cuando cambia el select "ngModelChange"
+      this.lista_bodegas = [...this.lista_bodegas_original];  // Siempre comienza de la original
+      if (this.incidencia.id_tipo_incidencia == 1) {    // Cuando cambie el tipo de incidencia a 1, establecer bodega 21
         this.incidencia.id_bodega = 21;
+      }
+      else {      // quita bodega central si es transferencia entre local o es devolución
+        this.lista_bodegas = this.lista_bodegas.filter(bodega => bodega.id != 21); 
       }
     }
     removeImage(index: number) {
@@ -149,6 +152,7 @@ export class CrearIncidenciaComponent {
     if (this.incidencia.id_tipo_incidencia == 1) {
       this.incidencia.id_bodega = 21;
     }
+    
     // Navegar al siguiente componente con los datos
     const navigationExtras = {
       state: {
@@ -190,6 +194,7 @@ export class CrearIncidenciaComponent {
     this._userService.getBodegas().subscribe({
       next: (bodegas: Bodega[]) => {
         this.lista_bodegas = bodegas;
+        this.lista_bodegas_original = [...this.lista_bodegas]; // Guardar una copia intacta
       },
       error: (error: Error) => {
         console.error('Error fetching bodegas', error);
