@@ -30,7 +30,7 @@
       </div>
 
       <!-- Formulario con mejor espaciado y alineación -->
-      <div class="p-8 bg-gray-50">
+      <div class="p-8 bg-gray-50" *ngIf="incidencia.tipo_estado === 'nuevo' && originalIdBodega === incidencia.destino_id_bodega || !modoVisualizacion">
         <form #detalleForm="ngForm">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="form-control"> 
@@ -107,7 +107,7 @@
              <th class="text-center">N° Bulto</th>
              <th class="text-center">Peso Origen</th>
              <th class="text-center">Peso Recepción</th>
-             <th class="text-center">Acciones</th>
+             <th class="text-center" *ngIf="incidencia.tipo_estado === 'nuevo' && originalIdBodega === incidencia.destino_id_bodega || !modoVisualizacion">Acciones</th>
            </tr>
           </thead>
           <tbody>
@@ -121,7 +121,7 @@
                <td class="text-center">{{detalle.numBulto}}</td>
                <td class="text-center">{{detalle.pesoOrigen}}</td>
                <td class="text-center">{{detalle.pesoRecepcion}}</td>
-               <td class="text-center">
+               <td class="text-center" *ngIf="incidencia.tipo_estado === 'nuevo'&& originalIdBodega === incidencia.destino_id_bodega || !modoVisualizacion" >
                 <button 
                 class="btn btnb btn-sm"
                 [ngClass]="{
@@ -169,7 +169,7 @@
         VOLVER
       </button>  
       <button type="button" 
-              *ngIf="modoVisualizacion && incidencia.tipo_estado === 'nuevo'"
+              *ngIf="modoVisualizacion && incidencia.tipo_estado === 'nuevo' && originalIdBodega === incidencia.destino_id_bodega || !modoVisualizacion"
               class="px-6 py-3 bg-[#00AFD7] btna text-black rounded-lg hover:bg-[#00AFD7]/90 transition-colors duration-200 font-semibold" 
               (click)="actualizarIncidencia()">
         ACTUALIZAR DETALLE

@@ -20,6 +20,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   detalles: DetalleIncidencia[] = [];
   searchTerm: string = '';
   guias: Guia[] = [];
+  originalIdBodega: string = '';
   
   incidencia: any = {
     bodOrigen: '',
@@ -32,6 +33,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     tipo_estado:'',
     total_item:0,
     valorizado:0,
+    destino_id_bodega: 0,
+    d_id_bodega: 0
   };
 
   detalleIncidencia: any = {
@@ -55,12 +58,13 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     private router: Router,
     private incidenciaService: IncidenciaService,
     private route: ActivatedRoute,
-    private initcapFirstPipe: InitCapFirstPipe
+
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       const incidenciaData = navigation.extras.state['incidencia'];
       this.incidencia = {
+        destino_id_bodega: incidenciaData.id_bodega || 0,
         bodOrigen: incidenciaData?.bodOrigen || '',
         bodOrigenNombre: incidenciaData?.bodOrigenNombre || '',
         transportista: incidenciaData?.transportista || '',
@@ -74,6 +78,13 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.originalIdBodega = localStorage.getItem('id_bodega') ?? '';
+    console.log(this.originalIdBodega);
+    console.log(this.incidencia.destino_id_bodega);
+    console.log(this.incidencia.bodDestino);
+    console.log(typeof this.originalIdBodega, typeof this.incidencia.destino_id_bodega);
+
+
     this.route.queryParams.subscribe(params => {
       this.modoVisualizacion = params['modo'] === 'visualizacion';
       const idIncidencia = params['id'];
@@ -103,10 +114,28 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
             console.log('Detalles cargados:', this.detalles);
             if (this.detalles.length > 0) {
               this.incidencia.id = this.detalles[0].idIncidencia;
-              console.log('idIncidencia:', this.incidencia.id);
+
+              // Obtener todos los productos una vez
+              this.incidenciaService.getProductos().subscribe({
+                next: (productos) => {
+                  // Asignar la descripción a cada detalle cargado
+                  this.detalles.forEach(detalle => {
+                    const productoEncontrado = productos.find((producto: any) =>
+                      String(producto.sku).trim() === String(detalle.sku).trim()
+                    );
+                    if (productoEncontrado) {
+                      detalle.descripcion = productoEncontrado.descripcion;
+                    }
+                  });
+                },
+                error: (error) => {
+                  console.error('Error al obtener productos para detalles:', error);
+                }
+              });
             }
+            console.log('idIncidencia:', this.incidencia.id);
           }
-  
+
         });
       // sino estamos en modo nueva incidencia, cargar los datos de la incidencia parcial de la vista anterior
       } else {
@@ -135,6 +164,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     // Verifica si hay datos ingresados en el formulario
     return !!(this.detalleIncidencia.tipoDiferencia ||
       this.detalleIncidencia.sku ||
+      this.detalleIncidencia.descripcion||
       this.detalleIncidencia.cantidad ||
       this.detalleIncidencia.numGuia ||
       this.detalleIncidencia.numBulto ||
@@ -323,7 +353,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
         destino_id_bodega: incidenciaParcial.destino_id_bodega || '',
         tipo_estado: incidenciaParcial.tipo_estado || '',
         total_item: tot_item,
-        valorizado: totalizado
+        valorizado: totalizado,
+        d_id_bodega: incidenciaParcial.d_id_bodega || 0
       }
       
     };
@@ -452,7 +483,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
 
         if (productoEncontrado) {
           this.limpiarErrores();
-          this.detalleIncidencia.descripcion = productoEncontrado.descripcion.initCapFirst();
+          this.detalleIncidencia.descripcion = productoEncontrado.descripcion;
           this.fieldsEnabled = true;
         } else {
           alert('No se encontró la descripción del producto');

@@ -17,6 +17,7 @@ export interface Incidencia {
     tipo_estado: string;
     valorizado: number;
     total_item: number;
+    d_id_bodega: number;
     
 }
 

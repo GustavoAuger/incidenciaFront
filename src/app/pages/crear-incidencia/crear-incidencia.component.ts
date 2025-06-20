@@ -42,7 +42,8 @@ export class CrearIncidenciaComponent {
     tipo_estado: '',
     id_tipo_incidencia: 0,
     total_item: 0,
-    valorizado: 0
+    valorizado: 0,
+    d_id_bodega: 0
   };
 
   constructor(
@@ -157,6 +158,7 @@ export class CrearIncidenciaComponent {
     const navigationExtras = {
       state: {
         incidencia: {
+          id_bodega: this.incidencia.d_id_bodega,
           bodOrigen: this.incidencia.id_bodega,
           bodOrigenNombre: bodegaSeleccionada ? bodegaSeleccionada.nombre : '',
           transportista: this.incidencia.id_transportista,
