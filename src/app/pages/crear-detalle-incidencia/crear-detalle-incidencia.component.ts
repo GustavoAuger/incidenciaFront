@@ -54,7 +54,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   constructor(
     private router: Router,
     private incidenciaService: IncidenciaService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private initcapFirstPipe: InitCapFirstPipe
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
@@ -451,7 +452,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
 
         if (productoEncontrado) {
           this.limpiarErrores();
-          this.detalleIncidencia.descripcion = productoEncontrado.descripcion;
+          this.detalleIncidencia.descripcion = productoEncontrado.descripcion.initCapFirst();
           this.fieldsEnabled = true;
         } else {
           alert('No se encontró la descripción del producto');
