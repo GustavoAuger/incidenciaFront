@@ -113,9 +113,9 @@
           <tbody>
              <tr *ngFor="let detalle of detalles; let i = index" class="hover:bg-gray-100">
                <td class="text-center">{{i + 1}}</td>
-               <td class="text-center">{{detalle.tipoDiferencia}}</td>
+               <td class="text-center">{{detalle.tipoDiferencia | initCapFirst}}</td>
                <td class="text-center">{{detalle.sku}}</td>
-               <td class="text-center">{{detalle.descripcion}}</td>
+               <td class="text-center">{{detalle.descripcion | initCapFirst}}</td>
                <td class="text-center">{{detalle.cantidad}}</td>
                <td class="text-center">{{detalle.numGuia}}</td>
                <td class="text-center">{{detalle.numBulto}}</td>
