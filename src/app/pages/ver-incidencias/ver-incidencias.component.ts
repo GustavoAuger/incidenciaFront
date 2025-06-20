@@ -456,9 +456,9 @@ getTipoIncidencia() {
 
   // Método para obtener el nombre del usuario por su ID
   getNombreUsuario(idUsuario: number | undefined): string {
-    if (!idUsuario) return 'N/A';
+    if (!idUsuario) return '';
     const usuario = this.usuarios.find(u => u.id === idUsuario);
-    return usuario ? usuario.nombre : 'N/A';
+    return usuario ? usuario.nombre : '';
   }
 
   // Método para ordenar la tabla
