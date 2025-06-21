@@ -9,9 +9,7 @@ import { Bodega } from '../../interfaces/bodega';
 import { Tipo_incidencia} from '../../interfaces/tipo_incidencia';
 import { Filtros } from '../../interfaces/filtros';
 import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
-import * as XLSX from 'xlsx';
 import { Transportista } from '../../interfaces/transportista';
-import { EstadoIncidencia } from '../../interfaces/estado-incidencia';
 
 @Component({
   selector: 'app-ver-incidencias',
@@ -34,7 +32,6 @@ export class ReclamoTransportistaComponent implements OnInit {
   isFechaDesdeOpen = false;
   isFechaHastaOpen = false;
   isTipoIncidenciaOpen = false;
-  isEstadoOpen = false;
 
   // Propiedades para ordenamiento
   sortColumn: string = 'id';
@@ -44,8 +41,8 @@ export class ReclamoTransportistaComponent implements OnInit {
   activeTab: 'pendientes' | 'resueltos' = 'pendientes';
   
   // Modificar las propiedades de incidencias para manejar ambos estados
-  incidenciasPendientes: Incidencia[] = [];
-  incidenciasResueltas: Incidencia[] = [];
+  incidenciasReclamadas: Incidencia[] = [];
+  ingresarReclamo: Incidencia[] = [];
 
   // Función para controlar la apertura de los selects
   onSelectOpen(select: string) {
@@ -68,21 +65,14 @@ export class ReclamoTransportistaComponent implements OnInit {
       case 'transporte':
         this.isTransporteOpen = !this.isTransporteOpen;
         break;
-      case 'estado':
-        this.isEstadoOpen =!this.isEstadoOpen;
-        break;
     }
   }
   // Datos de bodegas
   bodegas: Bodega[] = [ ];
-  bodegasOrigen: Bodega[] = [];
   bodegasDestino: Bodega[] = [];
 
   // Tipos de incidencia
   tiposIncidencia: Tipo_incidencia[] = [ ];
-
-  // Estados (ahora se obtienen del servicio)
-  estados: EstadoIncidencia[] = [];
 
   // Transportes (ahora se obtienen del servicio)
   transportistas: Transportista[] = [];
@@ -131,17 +121,6 @@ export class ReclamoTransportistaComponent implements OnInit {
         console.error('Error al cargar usuarios', error);
         // Intentar cargar incidencias de todos modos
         this.cargarIncidencias(id_usuario);
-      }
-    });
-
-    // Cargar estados de incidencias
-    this._incidenciaService.getEstadoIncidencias().subscribe({
-      next: (estados) => {
-        console.log('Estados recibidos:', estados);
-        this.estados = estados;
-      },
-      error: (error) => {
-        console.error('Error al cargar estados de incidencias', error);
       }
     });
 
@@ -201,11 +180,6 @@ export class ReclamoTransportistaComponent implements OnInit {
         next: (bodegas: Bodega[]) => {
             this.bodegas = bodegas;
             
-            // Filtrar bodegas para el dropdown de origen (excluir BDE-001 y LO-000)
-            this.bodegasOrigen = bodegas.filter(bodega => 
-              bodega.id_bodega !== 'BDE-001' && bodega.id_bodega !== 'LO-000'
-            );
-            
             // Filtrar bodegas para el dropdown de destino (excluir BC-001 y LO-000)
             this.bodegasDestino = bodegas.filter(bodega => 
               bodega.id_bodega !== 'BC-001' && bodega.id_bodega !== 'LO-000'
@@ -241,10 +215,7 @@ getTipoIncidencia() {
     this.isLoading = true;
     this._incidenciaService.getIncidencias(id_usuario).subscribe(
       (incidencias) => {
-        // Ordenar incidencias por ID de forma descendente
         const todasLasIncidencias = [...incidencias].sort((a, b) => (b.id || 0) - (a.id || 0));
-        
-        // Filtrar según el rol del usuario
         let incidenciasFiltradas = [...todasLasIncidencias];
         
         if (localStorage.getItem('id_rol') == '2') {
@@ -256,25 +227,16 @@ getTipoIncidencia() {
             inc.origen_id_local === id_bodega
           );
         }
-
-        // Separar en pendientes y resueltas
-        this.incidenciasPendientes = incidenciasFiltradas.filter(inc => 
-          !inc.tipo_estado || 
-          inc.tipo_estado.toLowerCase() === 'pendiente' || 
-          inc.tipo_estado.toLowerCase() === 'en revisión' ||
-          inc.tipo_estado.toLowerCase() === 'en revision'
+        
+        this.incidenciasReclamadas = incidenciasFiltradas.filter(inc => 
+          inc.id_estado === 4
         );
         
-        this.incidenciasResueltas = incidenciasFiltradas.filter(inc => 
-          inc.tipo_estado && 
-          inc.tipo_estado.toLowerCase() !== 'pendiente' && 
-          inc.tipo_estado.toLowerCase() !== 'en revisión' &&
-          inc.tipo_estado.toLowerCase() !== 'en revision'
+        this.ingresarReclamo = incidenciasFiltradas.filter(inc => 
+          inc.id_estado === 4
         );
         
-        // Aplicar filtros según la pestaña activa
         this.aplicarFiltros();
-        
         this.isLoading = false;
       },
       (error) => {
@@ -336,8 +298,8 @@ getTipoIncidencia() {
   aplicarFiltros() {
     // Seleccionar el conjunto de datos según la pestaña activa
     const dataSource = this.activeTab === 'pendientes' 
-      ? [...this.incidenciasPendientes] 
-      : [...this.incidenciasResueltas];
+      ? [...this.incidenciasReclamadas] 
+      : [...this.ingresarReclamo];
     
     this.incidenciasFiltradas = dataSource.filter(incidencia => {
       // Filtro por fechas
@@ -357,10 +319,6 @@ getTipoIncidencia() {
       const cumpleTipoIncidencia = !this.filtros.tipoIncidencia || 
         incidencia.id_tipo_incidencia?.toString() === this.filtros.tipoIncidencia;
       
-      // Filtro por origen
-      const cumpleOrigen = !this.filtros.origen || 
-        incidencia.origen_id_local === this.filtros.origen;
-      
       // Filtro por destino
       const cumpleDestino = !this.filtros.destino || 
         incidencia.destino === this.filtros.destino;
@@ -373,27 +331,14 @@ getTipoIncidencia() {
       const cumpleTransporte = !this.filtros.transporte || 
         (incidencia.transportista?.toLowerCase() === this.filtros.transporte.toLowerCase());
       
-      // Logs de depuración (puedes eliminarlos después de verificar que funcione)
-      if (this.filtros.transporte) {
-        console.log('Filtrando transportista - Nombre seleccionado:', this.filtros.transporte);
-        console.log('Transportista en incidencia:', incidencia.transportista);
-        console.log('¿Coincide?', incidencia.transportista?.toLowerCase() === this.filtros.transporte.toLowerCase());
-      }
-      
-      // Filtro por estado (comparando el tipo_estado)
-      const cumpleEstado = !this.filtros.estado || 
-        (incidencia.tipo_estado?.toLowerCase() === this.filtros.estado.toLowerCase());
-      
       // Aplicar todos los filtros
       return cumpleFechaDesde && 
              cumpleFechaHasta && 
              cumpleNumeroIncidencia && 
              cumpleTipoIncidencia && 
-             cumpleOrigen && 
              cumpleDestino && 
              cumpleOTS && 
-             cumpleTransporte && 
-             cumpleEstado;
+             cumpleTransporte;
     });
 
     // Ordenar por ID descendente después de filtrar
@@ -409,7 +354,7 @@ getTipoIncidencia() {
       fechaHasta: '',
       numeroIncidencia: '',
       tipoIncidencia: '',
-      origen:'',
+      origen: '',
       destino: '',
       ots: '',
       transporte: '',
@@ -418,93 +363,17 @@ getTipoIncidencia() {
     this.incidenciasFiltradas = [...this.incidencias];
     this.updatePagination();
   }
-// Método para exportar a Excel todas las incidencias
-  exportToExcel(): void {
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.incidenciasFiltradas);
-    const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
-    XLSX.writeFile(workbook, 'Incidencias.xlsx');
-  }
-
-  exportToExcel2(): void {
-    const incidenciasExpandidas: any[] = [];
-    let incidenciasProcesadas = 0;
-    
-    this.incidenciasFiltradas.forEach(incidencia => {
-      if (incidencia.id === undefined) {
-        // Si no hay ID, agregamos la incidencia sin detalles
-        incidenciasExpandidas.push(incidencia);
-        incidenciasProcesadas++;
-        
-        if (incidenciasProcesadas === this.incidenciasFiltradas.length) {
-          const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(incidenciasExpandidas);
-          const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
-          XLSX.writeFile(workbook, 'Incidencias_con_detalles.xlsx');
-        }
-        return;
-      }
-
-      this._incidenciaService.getDetallesIncidencia(incidencia.id).subscribe({
-        next: (detalles) => {
-          if (detalles.length === 0) {
-            incidenciasExpandidas.push(incidencia);
-          } else {
-            detalles.forEach(detalle => {
-              incidenciasExpandidas.push({
-                ...incidencia,
-                sku: detalle.sku,
-                cantidad: detalle.cantidad,
-                guia: detalle.numGuia,
-                tipo_diferencia: detalle.tipoDiferencia,
-                nro_bulto: detalle.numBulto,
-                peso_origen: detalle.pesoOrigen,
-                peso_recepcion: detalle.pesoRecepcion
-              });
-            });
-          }
-          
-          incidenciasProcesadas++;
-          
-          if (incidenciasProcesadas === this.incidenciasFiltradas.length) {
-            const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(incidenciasExpandidas);
-            const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
-            XLSX.writeFile(workbook, 'Incidencias_con_detalles.xlsx');
-          }
-        },
-        error: (error) => {
-          console.error('Error al obtener detalles:', error);
-          // En caso de error, agregamos la incidencia sin detalles
-          incidenciasExpandidas.push(incidencia);
-          incidenciasProcesadas++;
-          
-          if (incidenciasProcesadas === this.incidenciasFiltradas.length) {
-            const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(incidenciasExpandidas);
-            const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
-            XLSX.writeFile(workbook, 'Incidencias_con_detalles.xlsx');
-          }
-        }
-      });
-    });
-  }
 
   // Método para navegar a una ruta específica
   navigateTo(route: string): void {
     this.router.navigate([route]);
   }
 
-  // Método para obtener el nombre del usuario por su ID
-  getNombreUsuario(idUsuario: number | undefined): string {
-    if (!idUsuario) return '';
-    const usuario = this.usuarios.find(u => u.id === idUsuario);
-    return usuario ? usuario.nombre : '';
-  }
-
   // Método para ordenar la tabla
   sortTable(column: string): void {
     if (this.sortColumn === column) {
-      // Si ya está ordenado por esta columna, invertir la dirección
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
-      // Si es una columna nueva, ordenar en orden ascendente por defecto
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
@@ -513,16 +382,12 @@ getTipoIncidencia() {
       let valueA: any;
       let valueB: any;
 
-      // Manejar el caso especial para el número de incidencia
-      if (column === 'id') {
-        valueA = a.id || 0;
-        valueB = b.id || 0;
-      } else if (column === 'usuario') {
-        // Ordenar por nombre de usuario
-        valueA = this.getNombreUsuario(a.id_usuario).toLowerCase();
-        valueB = this.getNombreUsuario(b.id_usuario).toLowerCase();
-      } else if (column === 'fecha_emision' || column === 'fecha_recepcion') {
-        // Para fechas, convertir a timestamp para comparar
+      if (column === 'numero_reclamo') {
+        // Ordenar por número de reclamo generado
+        valueA = this.getNumeroReclamo(a);
+        valueB = this.getNumeroReclamo(b);
+      } else if (column === 'fecha_recepcion') {
+        // Para fechas de recepción, convertir a timestamp para comparar
         valueA = a[column] ? new Date(a[column] as string).getTime() : 0;
         valueB = b[column] ? new Date(b[column] as string).getTime() : 0;
       } else {
@@ -531,7 +396,11 @@ getTipoIncidencia() {
         valueB = b[column as keyof Incidencia] || '';
       }
 
-      // Comparar los valores
+      // Manejar valores nulos o indefinidos
+      if (valueA == null) return this.sortDirection === 'asc' ? -1 : 1;
+      if (valueB == null) return this.sortDirection === 'asc' ? 1 : -1;
+
+      // Comparar valores
       if (valueA < valueB) {
         return this.sortDirection === 'asc' ? -1 : 1;
       }
@@ -546,5 +415,49 @@ getTipoIncidencia() {
   getSortIcon(column: string): string {
     if (this.sortColumn !== column) return 'fa-sort';
     return this.sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
+  }
+
+  // Método para obtener el número de reclamo
+  getNumeroReclamo(incidencia: Incidencia): string {
+    // Lógica temporal con valor fijo - reemplazar con lógica real cuando esté disponible
+    // Formato: R-{id_incidencia}
+    const idIncidencia = incidencia.id?.toString().padStart(4, '0') || '0000';
+    
+    return `R-${idIncidencia}`;
+  }
+
+  // Método para obtener el número de FDR (temporal)
+  getFDR(incidencia: Incidencia): string {
+    // Lógica temporal para generar un número de FDR
+    // Formato: FDR-{id_incidencia}
+    if (!incidencia.id) return '-';
+    
+    const idIncidencia = incidencia.id.toString().padStart(4, '0');
+    
+    return `FDR-${idIncidencia}`;
+  }
+
+  // Método para obtener la fecha del reclamo
+  getFechaReclamo(incidencia: Incidencia): Date {
+    // Usar la fecha de recepción como fecha de reclamo por defecto
+    // Esto es temporal y debería reemplazarse con la lógica real cuando esté disponible
+    return incidencia.fecha_recepcion ? new Date(incidencia.fecha_recepcion) : new Date();
+  }
+
+  // Método para obtener el monto pagado (simulado)
+  getMontoPagado(incidencia: Incidencia): number {
+    // Lógica simulada para el monto pagado
+    // En una implementación real, esto vendría de la base de datos
+    const randomMultiplier = (incidencia.id || 1) % 5; // Usamos el ID para generar un valor consistente
+    return (randomMultiplier + 1) * 10000; // Montos entre 10.000 y 50.000
+  }
+
+  // Método para obtener el estado del reclamo (simulado)
+  getEstadoReclamo(incidencia: Incidencia): string {
+    // Lógica simulada para el estado del reclamo
+    // En una implementación real, esto vendría de la base de datos
+    const estados = ['Pendiente', 'En Proceso', 'Aprobado', 'Rechazado', 'No Aplica'];
+    const estadoIndex = (incidencia.id || 0) % 5; // Usamos el ID para generar un valor consistente
+    return estados[estadoIndex];
   }
 }

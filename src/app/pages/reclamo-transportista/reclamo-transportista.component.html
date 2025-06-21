@@ -23,8 +23,8 @@
         >
           <i class="fas fa-clock mr-2"></i>
           Incidencias Reclamadas
-          <span *ngIf="incidenciasPendientes.length" class="ml-1 bg-indigo-100 text-indigo-800 text-xs px-2 py-0.5 rounded-full">
-            {{ incidenciasPendientes.length || 0 }}
+          <span *ngIf="incidenciasReclamadas.length" class="ml-1 bg-indigo-100 text-indigo-800 text-xs px-2 py-0.5 rounded-full">
+            {{ incidenciasReclamadas.length || 0 }}
           </span>
         </button>
         
@@ -36,8 +36,8 @@
         >
           <i class="fas fa-pencil-alt mr-2"></i>
           Ingresar Reclamo a Transportista
-          <span *ngIf="incidenciasResueltas.length" class="ml-1 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
-            {{ incidenciasResueltas.length || 0 }}
+          <span *ngIf="ingresarReclamo.length" class="ml-1 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
+            {{ ingresarReclamo.length || 0 }}
           </span>
         </button>
       </div>
@@ -82,52 +82,22 @@
                 </select>
             </div>
             <div class="filter-group">
-              <label>Bodega Origen</label>
+              <label>Bodega Destino</label>
               <select class="select-input text-xs p-1 h-8"
-              [ngClass]="{'text-gray-400': !filtros.origen && !isOrigenOpen, 'text-black': filtros.origen || isOrigenOpen}"
-              [(ngModel)]="filtros.origen" 
-              (ngModelChange)="aplicarFiltros(); isOrigenOpen = false"
-              (click)="isOrigenOpen = !isOrigenOpen"
-              (blur)="isOrigenOpen = false">
+              [ngClass]="{'text-gray-400': !filtros.destino && !isDestinoOpen, 'text-black': filtros.destino || isDestinoOpen}"
+              [(ngModel)]="filtros.destino" 
+              (ngModelChange)="aplicarFiltros(); isDestinoOpen = false"
+              (click)="isDestinoOpen = !isDestinoOpen"
+              (blur)="isDestinoOpen = false">
                   <option value="">Seleccionar...</option>
-                  <option *ngFor="let bodega of bodegasOrigen" [value]="bodega.id_bodega">
+                  <option *ngFor="let bodega of bodegasDestino" [value]="bodega.id_bodega">
                     {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
                   </option>
               </select>
             </div>
             <div class="filter-group">
-                <label>Bodega Destino</label>
-                <select class="select-input text-xs p-1 h-8"
-                [ngClass]="{'text-gray-400': !filtros.destino && !isDestinoOpen, 'text-black': filtros.destino || isDestinoOpen}"
-                [(ngModel)]="filtros.destino" 
-                (ngModelChange)="aplicarFiltros(); isDestinoOpen = false"
-                (click)="isDestinoOpen = !isDestinoOpen"
-                (blur)="isDestinoOpen = false">
-                    <option value="">Seleccionar...</option>
-                    <option *ngFor="let bodega of bodegasDestino" [value]="bodega.id_bodega">
-                      {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
-                    </option>
-                </select>
-            </div>
-            <div class="filter-group">
                 <label>OTS</label>
                 <input type="text" class="text-input text-xs p-1 h-8" [(ngModel)]="filtros.ots" (ngModelChange)="aplicarFiltros()">
-            </div>
-            <div class="filter-group">
-                <label>Estado</label>
-                <select 
-                  class="select-input text-xs p-1 h-8 w-full"
-                  [ngClass]="{'text-gray-400': !filtros.estado && !isEstadoOpen, 'text-black': filtros.estado || isEstadoOpen}"
-                  [(ngModel)]="filtros.estado" 
-                  (change)="aplicarFiltros()"
-                  (click)="onSelectOpen('estado')"
-                  name="estado"
-                >
-                  <option value="">Seleccionar...</option>
-                  <option *ngFor="let estado of estados" [ngValue]="estado.tipo_estado" [class.text-black]="filtros.estado === estado.tipo_estado">
-                    {{ estado.tipo_estado | titlecase }}
-                  </option>
-                </select>
             </div>
             <div class="filter-group">
                 <label>Transportista</label>
@@ -154,18 +124,6 @@
                 delete_sweep
               </span>
             </button>
-            <button class="export-btn" (click)="exportToExcel()"> 
-                EXPORTAR RESUMEN
-                <span class="material-symbols-outlined">
-                    download
-                </span>
-            </button>
-            <button class="export-btn" (click)="exportToExcel2()"> 
-                EXPORTAR DETALLE
-                <span class="material-symbols-outlined">
-                    download
-                </span>
-            </button>
         </div>
     </div>
 
@@ -174,51 +132,52 @@
         <table class="min-w-full divide-y divide-gray-200 table-fixed">
           <colgroup>
             <col style="width: 40px;"> <!-- # -->
+            <col style="width: 100px;"> <!-- N° Reclamo -->
             <col style="width: 100px;"> <!-- N° Incidencia -->
-            <col style="width: 100px;"> <!-- Fecha Emisión -->
+            <col style="width: 80px;">  <!-- FDR -->
+            <col style="width: 100px;"> <!-- Fecha Reclamo -->
             <col style="width: 100px;"> <!-- Fecha Recepción -->
-            <col style="width: 120px;"> <!-- Usuario -->
-            <col style="width: 100px;"> <!-- Bodega Origen -->
             <col style="width: 100px;"> <!-- Bodega Destino -->
             <col style="width: 120px;"> <!-- Nombre Destino -->
             <col style="width: 80px;">  <!-- Unidades -->
             <col style="width: 100px;"> <!-- Valorizado -->
             <col style="width: 100px;"> <!-- OTS -->
             <col style="width: 100px;"> <!-- Transporte -->
-            <col style="width: 100px;"> <!-- Estado -->
+            <col style="width: 100px;"> <!-- Monto Pagado -->
+            <col style="width: 120px;"> <!-- Estado Reclamo -->
             <col style="width: 80px;">  <!-- Acción -->
           </colgroup>
           <thead class="bg-gray-100">
             <tr>
               <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">#</th>
+              <th (click)="sortTable('numero_reclamo')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+                <div class="flex items-center justify-center">
+                  <span>N° Reclamo</span>
+                  <i class="fas {{ getSortIcon('numero_reclamo') }} ml-1"></i>
+                </div>
+              </th>
               <th (click)="sortTable('id')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
                 <div class="flex items-center justify-center">
                   <span>N° Incidencia</span>
-                  <i class="fas {{ getSortIcon('id') }} ml-1"></i>
+                  <i class="fas {{ getSortIcon('id')}} ml-1"></i>
                 </div>
               </th>
-              <th (click)="sortTable('fecha_emision')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+              <th (click)="sortTable('fdr')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
                 <div class="flex items-center justify-center">
-                  <span>Fecha Emisión</span>
-                  <i class="fas {{ getSortIcon('fecha_emision') }} ml-1"></i>
+                  <span>FDR</span>
+                  <i class="fas {{ getSortIcon('fdr') }} ml-1"></i>
+                </div>
+              </th>
+              <th (click)="sortTable('fecha_reclamo')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+                <div class="flex items-center justify-center">
+                  <span>Fecha Reclamo</span>
+                  <i class="fas {{ getSortIcon('fecha_reclamo') }} ml-1"></i>
                 </div>
               </th>
               <th (click)="sortTable('fecha_recepcion')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
                 <div class="flex items-center justify-center">
                   <span>Fecha Recepción</span>
                   <i class="fas {{ getSortIcon('fecha_recepcion') }} ml-1"></i>
-                </div>
-              </th>
-              <th (click)="sortTable('usuario')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
-                <div class="flex items-center justify-center">
-                  <span>Usuario</span>
-                  <i class="fas {{ getSortIcon('usuario') }} ml-1"></i>
-                </div>
-              </th>
-              <th (click)="sortTable('origen_id_local')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
-                <div class="flex items-center justify-center">
-                  <span>Bodega Origen</span>
-                  <i class="fas {{ getSortIcon('origen_id_local') }} ml-1"></i>
                 </div>
               </th>
               <th (click)="sortTable('destino_id_bodega')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
@@ -257,11 +216,11 @@
                   <i class="fas {{ getSortIcon('transportista')}} ml-1"></i>
                 </div>
               </th>
-              <th (click)="sortTable('tipo_estado')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
-                <div class="flex items-center justify-center">
-                  <span>Estado</span>
-                  <i class="fas {{ getSortIcon('tipo_estado')}} ml-1"></i>
-                </div>
+              <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">
+                Monto Pagado
+              </th>
+              <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">
+                Estado Reclamo
               </th>
               <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">Acción</th>
             </tr>
@@ -274,14 +233,18 @@
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+                {{ getNumeroReclamo(incidencia) }}
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
                   {{ incidencia.id ? 'INC' + incidencia.id.toString() : '' }}
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
-                <div class="flex items-center justify-center h-full">
-                  {{ incidencia.fecha_emision | date:'dd/MM/yyyy' }}
-                </div>
+                {{ getFDR(incidencia) }}
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+                {{ getFechaReclamo(incidencia) | date:'dd/MM/yyyy' }}
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
@@ -290,17 +253,7 @@
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  {{ getNombreUsuario(incidencia.id_usuario) || '' | initCapFirst }}
-                </div>
-              </td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
-                <div class="flex items-center justify-center h-full">
-                  {{ incidencia.origen_id_local || '' }}
-                </div>
-              </td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
-                <div class="flex items-center justify-center h-full">
-                  {{ incidencia.destino_id_bodega === 'N/A' ? '' : (incidencia.destino_id_bodega || '') }}
+                  {{ incidencia.destino_id_bodega || '-' }}
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
@@ -330,14 +283,20 @@
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
+                  {{ getMontoPagado(incidencia) | currency:'CLP':'symbol-narrow':'1.0-0' }}
+                </div>
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+                <div class="flex items-center justify-center h-full">
                   <span [ngClass]="{
                     'px-2 py-1 rounded-full text-xs': true,
-                    'bg-yellow-100 text-yellow-800': incidencia.tipo_estado === 'Pendiente',
-                    'bg-blue-100 text-blue-800': incidencia.tipo_estado === 'En Revisión',
-                    'bg-green-100 text-green-800': incidencia.tipo_estado === 'Aceptada',
-                    'bg-red-100 text-red-800': incidencia.tipo_estado === 'Rechazada'
+                    'bg-yellow-100 text-yellow-800': getEstadoReclamo(incidencia) === 'Pendiente',
+                    'bg-blue-100 text-blue-800': getEstadoReclamo(incidencia) === 'En Proceso',
+                    'bg-green-100 text-green-800': getEstadoReclamo(incidencia) === 'Aprobado',
+                    'bg-red-100 text-red-800': getEstadoReclamo(incidencia) === 'Rechazado',
+                    'bg-gray-100 text-gray-800': getEstadoReclamo(incidencia) === 'No Aplica'
                   }">
-                    {{ incidencia.tipo_estado | initCapFirst }}
+                    {{ getEstadoReclamo(incidencia) }}
                   </span>
                 </div>
               </td>
@@ -419,52 +378,22 @@
                 </select>
             </div>
             <div class="filter-group">
-              <label>Bodega Origen</label>
+              <label>Bodega Destino</label>
               <select class="select-input text-xs p-1 h-8"
-              [ngClass]="{'text-gray-400': !filtros.origen && !isOrigenOpen, 'text-black': filtros.origen || isOrigenOpen}"
-              [(ngModel)]="filtros.origen" 
-              (ngModelChange)="aplicarFiltros(); isOrigenOpen = false"
-              (click)="isOrigenOpen = !isOrigenOpen"
-              (blur)="isOrigenOpen = false">
+              [ngClass]="{'text-gray-400': !filtros.destino && !isDestinoOpen, 'text-black': filtros.destino || isDestinoOpen}"
+              [(ngModel)]="filtros.destino" 
+              (ngModelChange)="aplicarFiltros(); isDestinoOpen = false"
+              (click)="isDestinoOpen = !isDestinoOpen"
+              (blur)="isDestinoOpen = false">
                   <option value="">Seleccionar...</option>
-                  <option *ngFor="let bodega of bodegasOrigen" [value]="bodega.id_bodega">
+                  <option *ngFor="let bodega of bodegasDestino" [value]="bodega.id_bodega">
                     {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
                   </option>
               </select>
             </div>
             <div class="filter-group">
-                <label>Bodega Destino</label>
-                <select class="select-input text-xs p-1 h-8"
-                [ngClass]="{'text-gray-400': !filtros.destino && !isDestinoOpen, 'text-black': filtros.destino || isDestinoOpen}"
-                [(ngModel)]="filtros.destino" 
-                (ngModelChange)="aplicarFiltros(); isDestinoOpen = false"
-                (click)="isDestinoOpen = !isDestinoOpen"
-                (blur)="isDestinoOpen = false">
-                    <option value="">Seleccionar...</option>
-                    <option *ngFor="let bodega of bodegasDestino" [value]="bodega.id_bodega">
-                      {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
-                    </option>
-                </select>
-            </div>
-            <div class="filter-group">
                 <label>OTS</label>
                 <input type="text" class="text-input text-xs p-1 h-8" [(ngModel)]="filtros.ots" (ngModelChange)="aplicarFiltros()">
-            </div>
-            <div class="filter-group">
-                <label>Estado</label>
-                <select 
-                  class="select-input text-xs p-1 h-8 w-full"
-                  [ngClass]="{'text-gray-400': !filtros.estado && !isEstadoOpen, 'text-black': filtros.estado || isEstadoOpen}"
-                  [(ngModel)]="filtros.estado" 
-                  (change)="aplicarFiltros()"
-                  (click)="onSelectOpen('estado')"
-                  name="estado"
-                >
-                  <option value="">Seleccionar...</option>
-                  <option *ngFor="let estado of estados" [ngValue]="estado.tipo_estado" [class.text-black]="filtros.estado === estado.tipo_estado">
-                    {{ estado.tipo_estado | titlecase }}
-                  </option>
-                </select>
             </div>
             <div class="filter-group">
                 <label>Transportista</label>
@@ -491,18 +420,6 @@
                 delete_sweep
               </span>
             </button>
-            <button class="export-btn" (click)="exportToExcel()"> 
-                EXPORTAR RESUMEN
-                <span class="material-symbols-outlined">
-                    download
-                </span>
-            </button>
-            <button class="export-btn" (click)="exportToExcel2()"> 
-                EXPORTAR DETALLE
-                <span class="material-symbols-outlined">
-                    download
-                </span>
-            </button>
         </div>
       </div>
 
@@ -512,17 +429,17 @@
           <colgroup>
             <col style="width: 40px;"> <!-- # -->
             <col style="width: 100px;"> <!-- N° Incidencia -->
-            <col style="width: 100px;"> <!-- Fecha Emisión -->
+            <col style="width: 80px;">  <!-- FDR -->
+            <col style="width: 100px;"> <!-- Fecha Reclamo -->
             <col style="width: 100px;"> <!-- Fecha Recepción -->
-            <col style="width: 120px;"> <!-- Usuario -->
-            <col style="width: 100px;"> <!-- Bodega Origen -->
             <col style="width: 100px;"> <!-- Bodega Destino -->
             <col style="width: 120px;"> <!-- Nombre Destino -->
             <col style="width: 80px;">  <!-- Unidades -->
             <col style="width: 100px;"> <!-- Valorizado -->
             <col style="width: 100px;"> <!-- OTS -->
             <col style="width: 100px;"> <!-- Transporte -->
-            <col style="width: 100px;"> <!-- Estado -->
+            <col style="width: 100px;"> <!-- Monto Pagado -->
+            <col style="width: 120px;"> <!-- Estado Reclamo -->
             <col style="width: 80px;">  <!-- Acción -->
           </colgroup>
           <thead class="bg-gray-100">
@@ -534,28 +451,22 @@
                   <i class="fas {{ getSortIcon('id') }} ml-1"></i>
                 </div>
               </th>
-              <th (click)="sortTable('fecha_emision')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+              <th (click)="sortTable('fdr')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
                 <div class="flex items-center justify-center">
-                  <span>Fecha Emisión</span>
-                  <i class="fas {{ getSortIcon('fecha_emision') }} ml-1"></i>
+                  <span>FDR</span>
+                  <i class="fas {{ getSortIcon('fdr') }} ml-1"></i>
+                </div>
+              </th>
+              <th (click)="sortTable('fecha_reclamo')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+                <div class="flex items-center justify-center">
+                  <span>Fecha Reclamo</span>
+                  <i class="fas {{ getSortIcon('fecha_reclamo') }} ml-1"></i>
                 </div>
               </th>
               <th (click)="sortTable('fecha_recepcion')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
                 <div class="flex items-center justify-center">
                   <span>Fecha Recepción</span>
                   <i class="fas {{ getSortIcon('fecha_recepcion') }} ml-1"></i>
-                </div>
-              </th>
-              <th (click)="sortTable('usuario')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
-                <div class="flex items-center justify-center">
-                  <span>Usuario</span>
-                  <i class="fas {{ getSortIcon('usuario') }} ml-1"></i>
-                </div>
-              </th>
-              <th (click)="sortTable('origen_id_local')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
-                <div class="flex items-center justify-center">
-                  <span>Bodega Origen</span>
-                  <i class="fas {{ getSortIcon('origen_id_local') }} ml-1"></i>
                 </div>
               </th>
               <th (click)="sortTable('destino_id_bodega')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
@@ -594,11 +505,11 @@
                   <i class="fas {{ getSortIcon('transportista')}} ml-1"></i>
                 </div>
               </th>
-              <th (click)="sortTable('tipo_estado')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
-                <div class="flex items-center justify-center">
-                  <span>Estado</span>
-                  <i class="fas {{ getSortIcon('tipo_estado')}} ml-1"></i>
-                </div>
+              <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">
+                Monto Pagado
+              </th>
+              <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">
+                Estado Reclamo
               </th>
               <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">Acción</th>
             </tr>
@@ -616,9 +527,10 @@
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
-                <div class="flex items-center justify-center h-full">
-                  {{ incidencia.fecha_emision | date:'dd/MM/yyyy' }}
-                </div>
+                {{ getFDR(incidencia) }}
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+                {{ getFechaReclamo(incidencia) | date:'dd/MM/yyyy' }}
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
@@ -627,17 +539,7 @@
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  {{ getNombreUsuario(incidencia.id_usuario) || '' | initCapFirst }}
-                </div>
-              </td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
-                <div class="flex items-center justify-center h-full">
-                  {{ incidencia.origen_id_local || '' }}
-                </div>
-              </td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
-                <div class="flex items-center justify-center h-full">
-                  {{ incidencia.destino_id_bodega === 'N/A' ? '' : (incidencia.destino_id_bodega || '') }}
+                  {{ incidencia.destino_id_bodega || '-' }}
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
@@ -667,14 +569,20 @@
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
+                  {{ getMontoPagado(incidencia) | currency:'CLP':'symbol-narrow':'1.0-0' }}
+                </div>
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+                <div class="flex items-center justify-center h-full">
                   <span [ngClass]="{
                     'px-2 py-1 rounded-full text-xs': true,
-                    'bg-yellow-100 text-yellow-800': incidencia.tipo_estado === 'Pendiente',
-                    'bg-blue-100 text-blue-800': incidencia.tipo_estado === 'En Revisión',
-                    'bg-green-100 text-green-800': incidencia.tipo_estado === 'Aceptada',
-                    'bg-red-100 text-red-800': incidencia.tipo_estado === 'Rechazada'
+                    'bg-yellow-100 text-yellow-800': getEstadoReclamo(incidencia) === 'Pendiente',
+                    'bg-blue-100 text-blue-800': getEstadoReclamo(incidencia) === 'En Proceso',
+                    'bg-green-100 text-green-800': getEstadoReclamo(incidencia) === 'Aprobado',
+                    'bg-red-100 text-red-800': getEstadoReclamo(incidencia) === 'Rechazado',
+                    'bg-gray-100 text-gray-800': getEstadoReclamo(incidencia) === 'No Aplica'
                   }">
-                    {{ incidencia.tipo_estado | initCapFirst }}
+                    {{ getEstadoReclamo(incidencia) }}
                   </span>
                 </div>
               </td>
