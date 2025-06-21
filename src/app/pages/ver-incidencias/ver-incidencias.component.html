@@ -18,7 +18,7 @@
             <div class="filter-group">
                 <label>Fecha Recepción</label>
                 <label>Desde</label>
-                <input type="date" class="date-input" value="{minDate}"  #fechaInput
+                <input type="date" class="date-input text-xs p-1 h-8" value="{minDate}"  #fechaInput
                 [ngClass]="{'text-gray-400': !filtros.fechaDesde && !isFechaDesdeOpen, 'text-black': filtros.fechaDesde || isFechaDesdeOpen}"
                 name="fecha" [(ngModel)]="filtros.fechaDesde" (ngModelChange)="aplicarFiltros()">
             </div>
@@ -115,6 +115,12 @@
         </div>
 
         <div class="export-buttons">
+            <button class="export-btn" (click)="limpiarFiltros()"> 
+              LIMPIAR FILTROS
+              <span class="material-symbols-outlined">
+                delete_sweep
+              </span>
+            </button>
             <button class="export-btn" (click)="exportToExcel()"> 
                 EXPORTAR RESUMEN
                 <span class="material-symbols-outlined">
