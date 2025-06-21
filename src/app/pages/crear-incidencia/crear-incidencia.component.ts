@@ -48,9 +48,9 @@ export class CrearIncidenciaComponent {
   };
 
   constructor(
+    private router: Router,
     private _userService: UserService,
-    private _incidenciaService: IncidenciaService,
-    private router: Router
+    private _incidenciaService: IncidenciaService
   ) {
     // Obtener datos del localStorage al inicializar el componente
     const loginData = {
@@ -68,6 +68,10 @@ export class CrearIncidenciaComponent {
     // Asignar los datos a la incidencia
     this.incidencia.id_usuario = loginData.id;
     this.incidencia.destino_id_bodega = loginData.destino_id_bodega.toString();
+  }
+
+  navigateTo(route: string): void {
+    this.router.navigate([route]);
   }
 
   ngOnInit() {
@@ -297,4 +301,3 @@ export class CrearIncidenciaComponent {
     });
   }
 }
-
