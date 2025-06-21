@@ -199,9 +199,20 @@ export class ResolverIncidenciasComponent implements OnInit {
     this.currentPage = 1;
     
     this.incidenciasFiltradas = this.incidencias.filter(incidencia => {
+      // Filtro por número de incidencia (búsqueda parcial insensible a mayúsculas/minúsculas)
+      const searchTerm = (this.filtros.numeroIncidencia || '').toLowerCase().trim();
+      const idStr = incidencia.id?.toString() || '';
+      const formattedId = `inc${idStr}`; // Formato: 'inc78'
+      const formattedIdWithDash = `inc-${idStr}`; // Formato: 'inc-78'
+      
+      const cumpleNumeroIncidencia = !searchTerm || 
+        idStr.toLowerCase().includes(searchTerm) ||
+        formattedId.includes(searchTerm) ||
+        formattedIdWithDash.includes(searchTerm);
+      
+      // Aplicar los demás filtros
       return (
-        (!this.filtros.numeroIncidencia || 
-          incidencia.id?.toString().includes(this.filtros.numeroIncidencia)) &&
+        cumpleNumeroIncidencia &&
         (!this.filtros.tipoIncidencia || 
           incidencia.id_tipo_incidencia?.toString() === this.filtros.tipoIncidencia) &&
         (!this.filtros.destino || 
@@ -328,5 +339,23 @@ export class ResolverIncidenciasComponent implements OnInit {
   resolverIncidencia(incidencia: any) {
     console.log('Resolviendo incidencia:', incidencia);
     // Add your resolver logic here
+  }
+
+  limpiarFiltros(): void {
+    this.filtros = {
+      fechaDesde: '',
+      fechaHasta: '',
+      numeroIncidencia: '',
+      tipoIncidencia: '',
+      origen: '',
+      destino: '',
+      ots: '',
+      transporte: '',
+      estado: ''
+    };
+    
+    this.currentPage = 1;
+    this.incidenciasFiltradas = [...this.incidencias];
+    this.totalItems = this.incidenciasFiltradas.length;
   }
 }
