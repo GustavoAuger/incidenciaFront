@@ -1,35 +1,33 @@
 <div class="min-h-screen bg-gray-100 py-8">
   <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+    <!-- Título fuera del recuadro -->
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold">Detalle de Incidencia <span class="text-gray-500 font-normal">({{ incidencia.tipo_estado | initCapFirst }})</span></h2>
+    </div>
+    
+    <!-- Contenedor blanco -->
     <div class="bg-white rounded-xl shadow-xl overflow-hidden">
-      <!-- Encabezado -->
-      <div class="p-6 bg-gray-50 border-b border-gray-200">
-        <div class="flex items-center space-x-2">
-          <h2 class="text-2xl font-bold text-gray-900">Detalle de Incidencia</h2>
-          <h4 class="text-gray-400">({{ incidencia.tipo_estado | initCapFirst }})</h4>
-        </div>
-      </div>
-
-      <!-- Información de cabecera con mejor espaciado -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 p-8 bg-black">
-        <div class="bg-black rounded-lg p-5 shadow-lg border border-gray-800">
+      <!-- Información de cabecera -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 p-8 bg-orange-500">
+        <div class="bg-white rounded-lg p-5 shadow-lg">
           <p class="text-orange-500 font-bold text-sm mb-2 text-center">ORIGEN</p>
-          <p class="text-orange-400 text-lg text-center">{{incidencia.bodOrigenNombre}}</p>
+          <p class="text-black-700 text-lg text-center">{{incidencia.bodOrigenNombre}}</p>
         </div>
-        <div class="bg-black rounded-lg p-5 shadow-lg border border-gray-800">
+        <div class="bg-white rounded-lg p-5 shadow-lg">
           <p class="text-orange-500 font-bold text-sm mb-2 text-center">TRANSPORTE</p>
-          <p class="text-orange-400 text-lg text-center">{{incidencia.transportistaNombre}}</p>
+          <p class="text-black-700 text-lg text-center">{{incidencia.transportistaNombre}}</p>
         </div>
-        <div class="bg-black rounded-lg p-5 shadow-lg border border-gray-800">
+        <div class="bg-white rounded-lg p-5 shadow-lg">
           <p class="text-orange-500 font-bold text-sm mb-2 text-center">OTS</p>
-          <p class="text-orange-400 text-lg text-center">{{incidencia.ots || ''}}</p>
+          <p class="text-black-700 text-lg text-center">{{incidencia.ots || '-'}}</p>
         </div>
-        <div class="bg-black rounded-lg p-5 shadow-lg border border-gray-800">
+        <div class="bg-white rounded-lg p-5 shadow-lg">
           <p class="text-orange-500 font-bold text-sm mb-2 text-center">FECHA RECEPCIÓN</p>
-          <p class="text-orange-400 text-lg text-center">{{incidencia.fechaRecepcion ? (incidencia.fechaRecepcion | date:'dd/MM/yyyy') : ''}}</p>
+          <p class="text-black-700 text-lg text-center">{{incidencia.fechaRecepcion ? (incidencia.fechaRecepcion | date:'dd/MM/yyyy') : ''}}</p>
         </div>
       </div>
 
-      <!-- Formulario con mejor espaciado y alineación -->
+      <!-- Formulario -->
       <div class="p-8 bg-gray-50" *ngIf="incidencia.tipo_estado === 'nuevo' && originalIdBodega === incidencia.destino_id_bodega || !modoVisualizacion">
         <form #detalleForm="ngForm">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
