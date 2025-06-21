@@ -24,7 +24,6 @@ export class ResolverIncidenciasComponent implements OnInit {
   incidenciasFiltradas: Incidencia[] = [];
   usuarios: any[] = [];
   isLoading: boolean = true;
-  isOrigenOpen = false;
   isDestinoOpen = false;
   isTransporteOpen = false;
   isTipoIncidenciaOpen = false;
@@ -34,7 +33,6 @@ export class ResolverIncidenciasComponent implements OnInit {
   sortDirection: 'asc' | 'desc' = 'desc';
 
   bodegas: Bodega[] = [];
-  bodegasOrigen: Bodega[] = [];
   bodegasDestino: Bodega[] = [];
   tiposIncidencia: Tipo_incidencia[] = [];
   estados: EstadoIncidencia[] = [];
@@ -98,24 +96,24 @@ export class ResolverIncidenciasComponent implements OnInit {
       }
     });
 
-    this.getBodegas();
+    this.cargarBodegas();
     this.getTipoIncidencia();
   }
 
-  getBodegas() {
+  cargarBodegas() {
     this._userService.getBodegas().subscribe({
       next: (bodegas: Bodega[]) => {
         this.bodegas = bodegas;
-        this.bodegasOrigen = bodegas.filter(bodega => 
-          bodega.id_bodega !== 'BDE-001' && bodega.id_bodega !== 'LO-000'
-        );
+        
+        // Filtrar bodegas para el dropdown de destino (excluir BC-001 y LO-000)
         this.bodegasDestino = bodegas.filter(bodega => 
-          bodega.id_bodega !== 'BDE-001'
+          bodega.id_bodega !== 'BC-001' && bodega.id_bodega !== 'LO-000'
         );
+        
         this.aplicarFiltros();
       },
       error: (error) => {
-        console.error('Error al obtener las bodegas:', error);
+        console.error('Error al cargar bodegas', error);
       }
     });
   }
@@ -201,28 +199,18 @@ export class ResolverIncidenciasComponent implements OnInit {
     this.currentPage = 1;
     
     this.incidenciasFiltradas = this.incidencias.filter(incidencia => {
-      // Verificar si incidencia.id existe antes de usarlo
-      if (this.filtros.numeroIncidencia && 
-          (!incidencia.id || !incidencia.id.toString().includes(this.filtros.numeroIncidencia))) {
-        return false;
-      }
-      
-      if (this.filtros.tipoIncidencia && 
-          (!incidencia.id_tipo_incidencia || incidencia.id_tipo_incidencia.toString() !== this.filtros.tipoIncidencia)) {
-        return false;
-      }
-      
-      if (this.filtros.origen && 
-          incidencia.origen_id_local !== this.filtros.origen) {
-        return false;
-      }
-      
-      if (this.filtros.destino && 
-          incidencia.destino_id_bodega !== this.filtros.destino) {
-        return false;
-      }
-      
-      return true;
+      return (
+        (!this.filtros.numeroIncidencia || 
+          incidencia.id?.toString().includes(this.filtros.numeroIncidencia)) &&
+        (!this.filtros.tipoIncidencia || 
+          incidencia.id_tipo_incidencia?.toString() === this.filtros.tipoIncidencia) &&
+        (!this.filtros.destino || 
+          incidencia.destino_id_bodega?.toString() === this.filtros.destino) &&
+        (!this.filtros.transporte || 
+          incidencia.id_transportista?.toString() === this.filtros.transporte) &&
+        (!this.filtros.estado || 
+          incidencia.id_estado?.toString() === this.filtros.estado)
+      );
     });
     
     this.totalItems = this.incidenciasFiltradas.length;
@@ -325,9 +313,6 @@ export class ResolverIncidenciasComponent implements OnInit {
       case 'tipoIncidencia':
         this.isTipoIncidenciaOpen = !this.isTipoIncidenciaOpen;
         break;  
-      case 'origen':
-        this.isOrigenOpen = !this.isOrigenOpen;
-        break;
       case 'destino':
         this.isDestinoOpen = !this.isDestinoOpen;
         break;

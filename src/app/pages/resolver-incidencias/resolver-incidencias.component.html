@@ -32,20 +32,6 @@
                 </select>
             </div>
             <div class="filter-group">
-              <label>Bodega Origen</label>
-              <select class="select-input text-xs p-1 h-8"
-              [ngClass]="{'text-gray-400': !filtros.origen && !isOrigenOpen, 'text-black': filtros.origen || isOrigenOpen}"
-              [(ngModel)]="filtros.origen" 
-              (ngModelChange)="aplicarFiltros(); isOrigenOpen = false"
-              (click)="isOrigenOpen = !isOrigenOpen"
-              (blur)="isOrigenOpen = false">
-                  <option value="">Seleccionar...</option>
-                  <option *ngFor="let bodega of bodegasOrigen" [value]="bodega.id_bodega">
-                    {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
-                  </option>
-              </select>
-            </div>
-            <div class="filter-group">
                 <label>Bodega Destino</label>
                 <select class="select-input text-xs p-1 h-8"
                 [ngClass]="{'text-gray-400': !filtros.destino && !isDestinoOpen, 'text-black': filtros.destino || isDestinoOpen}"
@@ -75,7 +61,6 @@
         <col style="width: 100px;"> <!-- Fecha Emisión -->
         <col style="width: 100px;"> <!-- Fecha Recepción -->
         <col style="width: 120px;"> <!-- Usuario -->
-        <col style="width: 100px;"> <!-- Bodega Origen -->
         <col style="width: 100px;"> <!-- Bodega Destino -->
         <col style="width: 120px;"> <!-- Nombre Destino -->
         <col style="width: 80px;">  <!-- Unidades -->
@@ -108,12 +93,6 @@
             <div class="flex items-center justify-center">
               <span>Usuario</span>
               <i class="fas {{ getSortIcon('usuario') }} ml-1"></i>
-            </div>
-          </th>
-          <th (click)="sortTable('origen_id_local')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
-            <div class="flex items-center justify-center">
-              <span>Bodega Origen</span>
-              <i class="fas {{ getSortIcon('origen_id_local') }} ml-1"></i>
             </div>
           </th>
           <th (click)="sortTable('destino_id_bodega')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
@@ -174,11 +153,6 @@
           <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
             <div class="flex items-center justify-center h-full">
               {{ getNombreUsuario(incidencia.id_usuario) || '' | initCapFirst }}
-            </div>
-          </td>
-          <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
-            <div class="flex items-center justify-center h-full">
-              {{ incidencia.origen_id_local || '' }}
             </div>
           </td>
           <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
