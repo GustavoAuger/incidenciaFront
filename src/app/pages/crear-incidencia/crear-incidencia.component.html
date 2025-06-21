@@ -1,179 +1,190 @@
-<div class="min-h-screen bg-gray-100 py-8">
-  <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
-    <!-- Título fuera del recuadro -->
-    <div class="mb-6">
-      <h2 class="text-xl font-semibold">Crear Incidencia</h2>
+<!-- Pantalla de carga -->
+<div *ngIf="isLoading" class="fixed inset-0 bg-[#f5f5f5] bg-opacity-90 flex items-center justify-center z-50">
+    <div class="text-center">
+        <div class="loading loading-spinner loading-lg" style="color: #00bcd4;"></div>
+        <p class="mt-2 text-gray-600">Cargando ...</p>
     </div>
-    
-    <!-- Contenedor blanco -->
-    <div class="bg-white rounded-xl shadow-xl overflow-hidden">
-      <div class="p-8">
-        <form #incidenciaForm="ngForm" (ngSubmit)="incidenciaForm.valid && onSubmit()" class="space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">  
-            <div class="form-control w-full">
-              <label class="label">
-                <span class="label-text">Tipo de incidencia</span>
-              </label>
-              <select 
-                [(ngModel)]="incidencia.id_tipo_incidencia" 
-                name="tipo_incidencia"
-                (ngModelChange)="watchTipoIncidencia()"
-                #origen="ngModel"
-                class="select select-bordered w-full"
-                [class.select-error]="transportista.invalid && (transportista.dirty || transportista.touched)"
-                required>
-                <option disabled selected value="">Seleccione tipo incidencia</option>
-                <option *ngFor="let tipo_incidencia of lista_tipo_incidencia" [value]="tipo_incidencia.id">
-                  {{tipo_incidencia.nombre | initCapFirst}}
-                </option>
-              </select>
-              <label class="label" *ngIf="transportista.invalid && (transportista.dirty || transportista.touched)">
-                <span class="label-text-alt text-error">Debe seleccionar tipo de incindencia </span>
-              </label>
-            </div>
-            
-            <div class="form-control w-full">
-              <label class="label">
-                <span class="label-text">Origen de la Mercadería</span>
-              </label>
-              <select 
-                [(ngModel)]="incidencia.id_bodega" 
-                name="origen"
-                #origen="ngModel"
-                class="select select-bordered w-full"
-                [class.select-error]="origen.invalid && (origen.dirty || origen.touched)"
-                [disabled]="incidencia.id_tipo_incidencia == 1"
-                required>
-                <option disabled selected value="">Seleccione una bodega</option>
-                <ng-container *ngFor="let bodega of lista_bodegas">
-                  <option 
-                    *ngIf="bodega.id != 22 && bodega.id != 23 && bodega.id != +incidencia.destino_id_bodega"
-                    [value]="bodega.id"
-                    [selected]="incidencia.id_tipo_incidencia == 1 && bodega.id == 21">
-                    {{bodega.nombre | initCapFirst}}
+</div>
+
+<!-- Contenido principal -->
+<div [class.opacity-0]="isLoading" [class.invisible]="isLoading">
+  <div class="min-h-screen bg-gray-100 py-8">
+    <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+      <!-- Título fuera del recuadro -->
+      <div class="mb-6">
+        <h2 class="text-xl font-semibold">Crear Incidencia</h2>
+      </div>
+      
+      <!-- Contenedor blanco -->
+      <div class="bg-white rounded-xl shadow-xl overflow-hidden">
+        <div class="p-8">
+          <form #incidenciaForm="ngForm" (ngSubmit)="incidenciaForm.valid && onSubmit()" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">  
+              <div class="form-control w-full">
+                <label class="label">
+                  <span class="label-text">Tipo de incidencia</span>
+                </label>
+                <select 
+                  [(ngModel)]="incidencia.id_tipo_incidencia" 
+                  name="tipo_incidencia"
+                  (ngModelChange)="watchTipoIncidencia()"
+                  #origen="ngModel"
+                  class="select select-bordered w-full"
+                  [class.select-error]="transportista.invalid && (transportista.dirty || transportista.touched)"
+                  required>
+                  <option disabled selected value="">Seleccione tipo incidencia</option>
+                  <option *ngFor="let tipo_incidencia of lista_tipo_incidencia" [value]="tipo_incidencia.id">
+                    {{tipo_incidencia.nombre | initCapFirst}}
                   </option>
-                </ng-container>
-              </select>
-              <label class="label" *ngIf="origen.invalid && (origen.dirty || origen.touched)">
-                <span class="label-text-alt text-error">Debe seleccionar una bodega</span>
-              </label>
-            </div>
+                </select>
+                <label class="label" *ngIf="transportista.invalid && (transportista.dirty || transportista.touched)">
+                  <span class="label-text-alt text-error">Debe seleccionar tipo de incindencia </span>
+                </label>
+              </div>
+              
+              <div class="form-control w-full">
+                <label class="label">
+                  <span class="label-text">Origen de la Mercadería</span>
+                </label>
+                <select 
+                  [(ngModel)]="incidencia.id_bodega" 
+                  name="origen"
+                  #origen="ngModel"
+                  class="select select-bordered w-full"
+                  [class.select-error]="origen.invalid && (origen.dirty || origen.touched)"
+                  [disabled]="incidencia.id_tipo_incidencia == 1"
+                  required>
+                  <option disabled selected value="">Seleccione una bodega</option>
+                  <ng-container *ngFor="let bodega of lista_bodegas">
+                    <option 
+                      *ngIf="bodega.id != 22 && bodega.id != 23 && bodega.id != +incidencia.destino_id_bodega"
+                      [value]="bodega.id"
+                      [selected]="incidencia.id_tipo_incidencia == 1 && bodega.id == 21">
+                      {{bodega.nombre | initCapFirst}}
+                    </option>
+                  </ng-container>
+                </select>
+                <label class="label" *ngIf="origen.invalid && (origen.dirty || origen.touched)">
+                  <span class="label-text-alt text-error">Debe seleccionar una bodega</span>
+                </label>
+              </div>
 
 
+              
+              <div class="form-control w-full">
+                <label class="label">
+                  <span class="label-text">Transportista</span>
+                </label>
+                <select 
+                  [(ngModel)]="incidencia.id_transportista" 
+                  name="transportista"
+                  #transportista="ngModel"
+                  class="select select-bordered w-full"
+                  [class.select-error]="transportista.invalid && (transportista.dirty || transportista.touched)"
+                  required>
+                  <option disabled selected value="">Seleccione un transportista</option>
+                  <option *ngFor="let transportista of lista_transportistas" [value]="transportista.id">
+                    {{transportista.nombre | initCapFirst}}
+                  </option>
+                </select>
+                <label class="label" *ngIf="transportista.invalid && (transportista.dirty || transportista.touched)">
+                  <span class="label-text-alt text-error">Debe seleccionar un transportista</span>
+                </label>
+              </div>
+              <div class="form-control w-full">
+                <label class="label">
+                  <span class="label-text">OTS</span>
+                </label>
+                <input 
+                  type="text" 
+                  [ngModel]="incidencia.id_transportista == 4 ? '' : incidencia.ots" 
+                  (ngModelChange)="incidencia.ots = $event" 
+                  name="ots"
+                  #ots="ngModel"
+                  class="input input-bordered w-full"
+                  [class.input-error]="ots.invalid && (ots.dirty || ots.touched) && incidencia.id_transportista != 4"
+                  [disabled]="incidencia.id_transportista == 4"
+                  required>
+                <label class="label" *ngIf="ots.invalid && (ots.dirty || ots.touched)">
+                  <span class="label-text-alt text-error">OTS es requerido</span>
+                </label>
+              </div>
+
+
+              <div class="form-control w-full">
+                <label class="label">
+                  <span class="label-text">Fecha de Recepción</span>
+                </label>
+                <input 
+                  type="date" 
+                  [(ngModel)]="incidencia.fecha" 
+                  name="fecha"
+                  #fecha="ngModel"
+                  class="input input-bordered w-full"
+                  [class.input-error]="fecha.invalid && (fecha.dirty || fecha.touched)"
+                  required>
+                <label class="label" *ngIf="fecha.invalid && (fecha.dirty || fecha.touched)">
+                  <span class="label-text-alt text-error">Fecha es requerida</span>
+                </label>
+              </div>
             
-            <div class="form-control w-full">
-              <label class="label">
-                <span class="label-text">Transportista</span>
-              </label>
-              <select 
-                [(ngModel)]="incidencia.id_transportista" 
-                name="transportista"
-                #transportista="ngModel"
-                class="select select-bordered w-full"
-                [class.select-error]="transportista.invalid && (transportista.dirty || transportista.touched)"
-                required>
-                <option disabled selected value="">Seleccione un transportista</option>
-                <option *ngFor="let transportista of lista_transportistas" [value]="transportista.id">
-                  {{transportista.nombre | initCapFirst}}
-                </option>
-              </select>
-              <label class="label" *ngIf="transportista.invalid && (transportista.dirty || transportista.touched)">
-                <span class="label-text-alt text-error">Debe seleccionar un transportista</span>
-              </label>
-            </div>
-            <div class="form-control w-full">
-              <label class="label">
-                <span class="label-text">OTS</span>
-              </label>
-              <input 
-                type="text" 
-                [ngModel]="incidencia.id_transportista == 4 ? '' : incidencia.ots" 
-                (ngModelChange)="incidencia.ots = $event" 
-                name="ots"
-                #ots="ngModel"
-                class="input input-bordered w-full"
-                [class.input-error]="ots.invalid && (ots.dirty || ots.touched) && incidencia.id_transportista != 4"
-                [disabled]="incidencia.id_transportista == 4"
-                required>
-              <label class="label" *ngIf="ots.invalid && (ots.dirty || ots.touched)">
-                <span class="label-text-alt text-error">OTS es requerido</span>
-              </label>
-            </div>
 
 
-            <div class="form-control w-full">
-              <label class="label">
-                <span class="label-text">Fecha de Recepción</span>
-              </label>
-              <input 
-                type="date" 
-                [(ngModel)]="incidencia.fecha" 
-                name="fecha"
-                #fecha="ngModel"
-                class="input input-bordered w-full"
-                [class.input-error]="fecha.invalid && (fecha.dirty || fecha.touched)"
-                required>
-              <label class="label" *ngIf="fecha.invalid && (fecha.dirty || fecha.touched)">
-                <span class="label-text-alt text-error">Fecha es requerida</span>
-              </label>
-            </div>
-          
-
-
-            <div class="form-control w-full">
-              <label class="label">
-                <span class="label-text">Imágenes (Opcional - Máximo 2)</span>
-              </label>
-              <input 
-                type="file" 
-                (change)="onFileSelected($event)" 
-                accept="image/*" 
-                multiple
-                class="file-input file-input-bordered w-full"
-                #fileInput>
-              <div class="mt-2 flex gap-2" *ngIf="selectedImages.length > 0">
-                <div *ngFor="let image of selectedImages; let i = index" class="relative">
-                  <img [src]="image.preview" class="w-24 h-24 object-cover rounded">
-                  <button 
-                    type="button" 
-                    (click)="removeImage(i)" 
-                    class="btn btn-circle btn-xs absolute -top-2 -right-2 bg-red-500 text-white">
-                    ×
-                  </button>
+              <div class="form-control w-full">
+                <label class="label">
+                  <span class="label-text">Imágenes (Opcional - Máximo 2)</span>
+                </label>
+                <input 
+                  type="file" 
+                  (change)="onFileSelected($event)" 
+                  accept="image/*" 
+                  multiple
+                  class="file-input file-input-bordered w-full"
+                  #fileInput>
+                <div class="mt-2 flex gap-2" *ngIf="selectedImages.length > 0">
+                  <div *ngFor="let image of selectedImages; let i = index" class="relative">
+                    <img [src]="image.preview" class="w-24 h-24 object-cover rounded">
+                    <button 
+                      type="button" 
+                      (click)="removeImage(i)" 
+                      class="btn btn-circle btn-xs absolute -top-2 -right-2 bg-red-500 text-white">
+                      ×
+                    </button>
+                  </div>
                 </div>
               </div>
+              <div class="form-control w-full grid-cols-2">
+                <label class="label">
+                  <span class="label-text">Observaciones</span>
+                </label>
+                <textarea 
+                  [(ngModel)]="incidencia.observaciones" 
+                  name="observaciones" 
+                  class="textarea textarea-bordered h-24 w-full"
+                  
+                ></textarea>
+              </div>
             </div>
-            <div class="form-control w-full grid-cols-2">
-              <label class="label">
-                <span class="label-text">Observaciones</span>
-              </label>
-              <textarea 
-                [(ngModel)]="incidencia.observaciones" 
-                name="observaciones" 
-                class="textarea textarea-bordered h-24 w-full"
-                
-              ></textarea>
-            </div>
-          </div>
 
-          <div class="flex justify-end mt-6">
-            <button 
-              type="submit" 
-              class="btn btn-sm w-auto bg-[#00bcd4] hover:bg-[#00acc1] text-white border-0" 
-              [disabled]="!incidenciaForm.valid">
-              Siguiente
-            </button>
-          </div>
-        </form>
+            <div class="flex justify-end mt-6">
+              <button 
+                type="submit" 
+                class="btn btn-sm w-auto bg-[#00bcd4] hover:bg-[#00acc1] text-white border-0" 
+                [disabled]="!incidenciaForm.valid">
+                Siguiente
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
-    
-    <!-- Botón Volver -->
-    <div class="mt-6">
-      <button class="btn btn-sm flex items-center space-x-2 bg-gray-400 hover:bg-gray-500 text-white" (click)="navigateTo('/home')">
-        <i class="fas fa-arrow-left"></i>
-        <span>Volver</span>
-      </button>
+      
+      <!-- Botón Volver -->
+      <div class="mt-6">
+        <button class="btn btn-sm flex items-center space-x-2 bg-gray-400 hover:bg-gray-500 text-white" (click)="navigateTo('/home')">
+          <i class="fas fa-arrow-left"></i>
+          <span>Volver</span>
+        </button>
+      </div>
     </div>
   </div>
 </div>

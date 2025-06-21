@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { forkJoin, of, map, tap } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Incidencia } from '../../interfaces/incidencia';
 import { UserService } from '../../services/user.service';
 import { Bodega } from '../../interfaces/bodega';
@@ -14,7 +16,7 @@ import { Tipo_incidencia } from '../../interfaces/tipo_incidencia';
 @Component({
   selector: 'app-crear-incidencia',
   templateUrl: './crear-incidencia.component.html',
-  styleUrl: './crear-incidencia.component.css',
+  styleUrls: ['./crear-incidencia.component.css'],
   standalone: true,
   imports: [CommonModule, FormsModule, InitCapFirstPipe]
 })
@@ -81,50 +83,111 @@ export class CrearIncidenciaComponent {
     if (fechaInput) {
       fechaInput.setAttribute('max', maxDate);
     }
-    this.getTransportistas();
-    this.getBodegas();
-    this.getTipoIncidencias();
-    // Guardar una copia intacta
-   
+
+    // Usamos forkJoin para esperar a que todas las peticiones se completen
+    forkJoin([
+      this.getTransportistas(),
+      this.getBodegas(),
+      this.getTipoIncidencias()
+    ]).pipe(
+      catchError(error => {
+        console.error('Error al cargar los datos:', error);
+        return of(null); // Continuar con el flujo aun si hay errores
+      })
+    ).subscribe(() => {
+      // Todas las peticiones han terminado, ocultar el spinner
+      this.isLoading = false;
+    });
   }
-    watchTipoIncidencia() {       // Observar cambios en id_tipo_incidencia se ejecuta cuando cambia el select "ngModelChange"
-      this.lista_bodegas = [...this.lista_bodegas_original];  // Siempre comienza de la original
-      if (this.incidencia.id_tipo_incidencia == 1) {    // Cuando cambie el tipo de incidencia a 1, establecer bodega 21
-        this.incidencia.id_bodega = 21;
-      }
-      else {      // quita bodega central si es transferencia entre local o es devolución
-        this.lista_bodegas = this.lista_bodegas.filter(bodega => bodega.id != 21); 
-      }
+
+  getTransportistas() {
+    return this._incidenciaService.getTransportistas().pipe(
+      catchError(error => {
+        console.error('Error al obtener transportistas', error);
+        return of([]);
+      }),
+      tap((transportistas) => {
+        this.lista_transportistas = transportistas;
+        console.log('Transportistas cargados:', this.lista_transportistas);
+      })
+    );
+  }
+
+  getBodegas() {
+    return this._userService.getBodegas().pipe(
+      catchError(error => {
+        console.error('Error al obtener bodegas', error);
+        return of([]);
+      }),
+      tap((bodegas: Bodega[]) => {
+        this.lista_bodegas = [...bodegas];
+        this.lista_bodegas_original = [...bodegas]; // Guardar una copia intacta
+        console.log('Bodegas cargadas:', this.lista_bodegas);
+      })
+    );
+  }
+
+  getTipoIncidencias() {
+    return this._incidenciaService.getTipoIncidencia().pipe(
+      catchError(error => {
+        console.error('Error al obtener tipos de incidencia', error);
+        return of([]);
+      }),
+      map((tipo_incidencia: Tipo_incidencia[]) => {
+        // Aplicar filtros según el rol del usuario
+        if (this._userService.isEmisor()) {
+          return tipo_incidencia.filter(tipo => tipo.id !== 1 && tipo.id !== 3);
+        } else if (this._userService.isTienda()) {
+          return tipo_incidencia.filter(tipo => tipo.id !== 2);
+        }
+        return tipo_incidencia;
+      }),
+      tap((filteredTipos) => {
+        // Asignar los tipos filtrados a la propiedad del componente
+        this.lista_tipo_incidencia = filteredTipos;
+        console.log('Tipos de incidencia cargados:', this.lista_tipo_incidencia);
+      })
+    );
+  }
+
+  watchTipoIncidencia() {       // Observar cambios en id_tipo_incidencia se ejecuta cuando cambia el select "ngModelChange"
+    this.lista_bodegas = [...this.lista_bodegas_original];  // Siempre comienza de la original
+    if (this.incidencia.id_tipo_incidencia == 1) {    // Cuando cambie el tipo de incidencia a 1, establecer bodega 21
+      this.incidencia.id_bodega = 21;
     }
-    removeImage(index: number) {
-      this.selectedImages.splice(index, 1);
+    else {      // quita bodega central si es transferencia entre local o es devolución
+      this.lista_bodegas = this.lista_bodegas.filter(bodega => bodega.id != 21); 
     }
+  }
+  removeImage(index: number) {
+    this.selectedImages.splice(index, 1);
+  }
 
 
 
-    selectedImages: Array<{file: File, preview: string}> = [];
+  selectedImages: Array<{file: File, preview: string}> = [];
 
-    onFileSelected(event: Event) {
-      const input = event.target as HTMLInputElement;
-      if (!input.files || input.files.length === 0) return;
-    
-      const file = input.files[0]; // solo la primera imagen
-    
-      if (!file.type.startsWith('image/')) {
-        alert('El archivo seleccionado no es una imagen válida.');
-        input.value = ''; // limpiar input
-        return;
-      }
-    
-      const reader = new FileReader();
-      reader.onload = (e: ProgressEvent<FileReader>) => {
-        this.selectedImages = [{
-          file,
-          preview: e.target?.result as string
-        }];
-      };
-      reader.readAsDataURL(file);
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+  
+    const file = input.files[0]; // solo la primera imagen
+  
+    if (!file.type.startsWith('image/')) {
+      alert('El archivo seleccionado no es una imagen válida.');
+      input.value = ''; // limpiar input
+      return;
     }
+  
+    const reader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      this.selectedImages = [{
+        file,
+        preview: e.target?.result as string
+      }];
+    };
+    reader.readAsDataURL(file);
+  }
 
   subirSoloImagen(): void {
     if (this.selectedImages.length === 0) {
@@ -197,65 +260,6 @@ export class CrearIncidenciaComponent {
 
 
 
-
-  getTransportistas() {
-    this._incidenciaService.getTransportistas().subscribe({
-      next: (transportistas) => {
-        this.lista_transportistas = transportistas;
-      },
-      error: (err) => {
-        console.error('Error al obtener transportistas', err);
-      }
-    });
-  }
-
-  getBodegas(){
-    this._userService.getBodegas().subscribe({
-      next: (bodegas: Bodega[]) => {
-        this.lista_bodegas = bodegas;
-        this.lista_bodegas_original = [...this.lista_bodegas]; // Guardar una copia intacta
-      },
-      error: (error: Error) => {
-        console.error('Error fetching bodegas', error);
-      }
-    })
-  }
-  getTipoIncidencias(){  //refactor para que muestre tipo de incidencia de acuerdo a su rol
-    this._incidenciaService.getTipoIncidencia().subscribe({
-      next: (tipo_incidencia: Tipo_incidencia[]) => {
-        
-        this.lista_tipo_incidencia = tipo_incidencia;
-        if (this._userService.isEmisor()) {
-          this.lista_tipo_incidencia = this.lista_tipo_incidencia.filter(tipo => tipo.id !== 1 && tipo.id!== 3);
-          console.log(this.lista_tipo_incidencia);
-        }
-        else if (this._userService.isTienda()) {
-          this.lista_tipo_incidencia = this.lista_tipo_incidencia.filter(tipo => tipo.id !== 2);
-          console.log(this.lista_tipo_incidencia);
-        }
-        else{
-          this.lista_tipo_incidencia = this.lista_tipo_incidencia;
-          console.log(this.lista_tipo_incidencia);
-        }
-      },
-      error: (error: Error) => {
-        console.error('Error fetching bodegas', error);
-      }
-    })
-  }
-
-      //validar rol de usuario para permitir opciones de tipo incidencia
-    validarTipo(){
-
-      if (this._userService.isEmisor()) {
-          this.lista_tipo_incidencia = this.lista_tipo_incidencia.filter(tipo => tipo.id !== 1);
-          console.log(this.lista_tipo_incidencia);
-      }
-      else if (this._userService.isTienda()) {
-        this.lista_tipo_incidencia = this.lista_tipo_incidencia.filter(tipo => tipo.id !== 1);
-        console.log(this.lista_tipo_incidencia);
-      }
-    }
 
   getUserId() {
     const usernameStorage = localStorage.getItem('username');
