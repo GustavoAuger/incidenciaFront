@@ -21,6 +21,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   searchTerm: string = '';
   guias: Guia[] = [];
   originalIdBodega: string = '';
+  fromRoute: string = 'ver-incidencias'; // Valor por defecto
   
   incidencia: any = {
     bodOrigen: '',
@@ -62,19 +63,31 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
-      const incidenciaData = navigation.extras.state['incidencia'];
-      this.incidencia = {
-        destino_id_bodega: incidenciaData.id_bodega || 0,
-        bodOrigen: incidenciaData?.bodOrigen || '',
-        bodOrigenNombre: incidenciaData?.bodOrigenNombre || '',
-        transportista: incidenciaData?.transportista || '',
-        transportistaNombre: incidenciaData?.transportistaNombre || '',
-        ots: incidenciaData?.ots || '',
-        fechaRecepcion: incidenciaData?.fechaRecepcion || null,
-        tipo_estado: incidenciaData.tipo_estado || '',
-        bodDestino: incidenciaData?.bodDestino || ''
-      };
+      const state = navigation.extras.state as any;
+      if (state.incidencia) {
+        const incidenciaData = state.incidencia;
+        this.incidencia = {
+          destino_id_bodega: incidenciaData.id_bodega || 0,
+          bodOrigen: incidenciaData?.bodOrigen || '',
+          bodOrigenNombre: incidenciaData?.bodOrigenNombre || '',
+          transportista: incidenciaData?.transportista || '',
+          transportistaNombre: incidenciaData?.transportistaNombre || '',
+          ots: incidenciaData?.ots || '',
+          fechaRecepcion: incidenciaData?.fechaRecepcion || null,
+          tipo_estado: incidenciaData?.tipo_estado || '',
+          d_id_bodega: incidenciaData?.d_id_bodega || 0
+        };
+      }
+      // Obtener la ruta de origen del estado de navegación
+      this.fromRoute = state.fromRoute || 'ver-incidencias';
     }
+
+    // También verificar el parámetro de consulta 'from' como respaldo
+    this.route.queryParams.subscribe(params => {
+      if (params['from']) {
+        this.fromRoute = params['from'];
+      }
+    });
   }
 
   ngOnInit() {
@@ -364,7 +377,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
       next: (response) => {
         if (response) {
           alert(response); // envpia el mensaje del backend de exito de creación + correo enviado/no enviado
-          this.navigateTo('/home');
+          this.navigateTo(this.fromRoute);
         } else {
           alert('Error al crear la incidencia');
         }
@@ -537,7 +550,3 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     });
   }
 }
-
-  
-
-

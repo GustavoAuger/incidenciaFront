@@ -281,9 +281,38 @@ export class ResolverIncidenciasComponent implements OnInit {
   }
 
   verDetalle(incidencia: Incidencia) {
-    if (incidencia.id) {
-      this.router.navigate(['/ver-detalle-incidencia', incidencia.id]);
-    }
+    // Guardar la incidencia en el servicio
+    this._incidenciaService.setIncidenciaParcial(incidencia);
+    console.log(incidencia);
+    
+    // Preparar los datos para la navegación
+    const navigationExtras = {
+      state: {
+        incidencia: {
+          bodOrigen: incidencia.id_bodega,
+          bodOrigenNombre: incidencia.origen_id_local || 'Origen no disponible',
+          transportista: incidencia.id_transportista,
+          transportistaNombre: incidencia.transportista || '',
+          ots: incidencia.ots,
+          fechaRecepcion: incidencia.fecha_recepcion,
+          tipo_estado: incidencia.tipo_estado,
+          bodDestino: incidencia.destino_id_bodega || '',
+          id_bodega: incidencia.d_id_bodega,
+        },
+        // Agregar información de la ruta de origen
+        fromRoute: 'resolver-incidencias'
+      }
+    };
+    
+    // Navegar a la vista de detalle con modo visualización y el ID de la incidencia
+    this.router.navigate(['/crear-detalle-incidencia'], {
+      ...navigationExtras,
+      queryParams: {
+        modo: 'visualizacion',
+        id: incidencia.id,
+        from: 'resolver-incidencias' // Agregar parámetro de consulta para identificar la ruta de origen
+      }
+    });
   }
 
   get paginatedIncidencias(): Incidencia[] {
