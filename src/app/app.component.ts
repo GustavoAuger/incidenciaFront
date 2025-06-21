@@ -337,6 +337,9 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   openAdminModal() {
+    // Mostrar el spinner de carga
+    this.isNavbarLoading = true;
+    
     // Resetear el rol seleccionado
     this.selectedRoleId = null;
     this.selectedBodegaId = null;
@@ -346,23 +349,24 @@ export class AppComponent implements OnInit, OnDestroy {
     const currentRoute = this.router.url;
     const hideAdminRole = currentRoute === '/crear-incidencia' || currentRoute === '/incidencias-sin-resolver';
     
-    // Cargar los roles para el modal (filtrados si es necesario)
-    this.getRolesForModal(hideAdminRole);
-    
-    // Mostrar el dropdown de bodegas si el rol actual es Tienda
-    const savedRolId = localStorage.getItem('id_rol');
-    if (savedRolId) {
-      this.showBodegaDropdown = Number(savedRolId) === 4;
-      
-      // Si hay una bodega guardada, seleccionarla
-      if (Number(savedRolId) === 4) {
-        const savedBodegaId = localStorage.getItem('id_bodega');
-        if (savedBodegaId) {
-          this.selectedBodegaId = Number(savedBodegaId);
-        }
-      }
+    // Si ya tenemos roles cargados, filtrarlos según sea necesario
+    if (this.roles && this.roles.length > 0) {
+      this.filterAndShowRoles(hideAdminRole);
     } else {
-      this.showBodegaDropdown = false;
+      // Si no hay roles cargados, cargarlos primero
+      this.loadRolesForNavbar(() => {
+        this.filterAndShowRoles(hideAdminRole);
+      });
+    }
+  }
+
+  // Nuevo método para filtrar roles y mostrar el modal
+  private filterAndShowRoles(hideAdminRole: boolean): void {
+    // Filtrar roles si es necesario
+    if (hideAdminRole) {
+      this.modalRoles = this.roles.filter(rol => rol.id !== 1); // Excluir admin
+    } else {
+      this.modalRoles = [...this.roles];
     }
     
     // Mostrar el modal
@@ -370,6 +374,9 @@ export class AppComponent implements OnInit, OnDestroy {
     if (modal) {
       modal.showModal();
     }
+    
+    // Ocultar el spinner
+    this.isNavbarLoading = false;
   }
 
   // Modificar getRolesForModal para aceptar un parámetro que indique si se debe ocultar el rol de admin
@@ -397,7 +404,7 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  private loadRolesForNavbar(): void {
+  private loadRolesForNavbar(callback?: () => void): void {
     this.userService.getRoles().subscribe({
       next: (roles) => {
         // Guardar todos los roles para el navbar
@@ -406,6 +413,11 @@ export class AppComponent implements OnInit, OnDestroy {
         // Si el usuario está autenticado, cargar su información
         if (this.isAuthenticated) {
           this.loadUserInfo();
+        }
+        
+        // Ejecutar el callback si existe
+        if (callback) {
+          callback();
         }
       },
       error: (error) => {

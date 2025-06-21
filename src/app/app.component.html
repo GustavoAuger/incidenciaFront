@@ -47,34 +47,40 @@
       <div class="modal-box w-11/12 max-w-2xl">
         <h3 class="font-bold text-lg mb-4">Cambiar Rol</h3>
         
-        <div class="form-control w-full max-w-xs mb-4">
-          <label class="label">
-            <span class="label-text">Rol</span>
-          </label>
-          <select 
-            class="select select-bordered w-full" 
-            [(ngModel)]="selectedRoleId"
-            (change)="onRoleChange(selectedRoleId)">
-            <option [ngValue]="null" disabled>Seleccione un rol...</option>
-            <option *ngFor="let rol of modalRoles" [ngValue]="rol.id">{{ rol.nombre | initCapFirst}}</option>
-          </select>
+        <div *ngIf="isNavbarLoading" class="flex justify-center my-4">
+          <span class="loading loading-spinner loading-lg"></span>
         </div>
+        
+        <div *ngIf="!isNavbarLoading">
+          <div class="form-control w-full max-w-xs mb-4">
+            <label class="label">
+              <span class="label-text">Rol</span>
+            </label>
+            <select 
+              class="select select-bordered w-full" 
+              [(ngModel)]="selectedRoleId"
+              (change)="onRoleChange(selectedRoleId)">
+              <option [ngValue]="null" disabled>Seleccione un rol...</option>
+              <option *ngFor="let rol of modalRoles" [ngValue]="rol.id">{{ rol.nombre | initCapFirst}}</option>
+            </select>
+          </div>
 
-        <!-- Bodega Dropdown (only shown for Tienda role) -->
-        <div class="form-control w-full max-w-xs mt-4" *ngIf="showBodegaDropdown">
-          <label class="label">
-            <span class="label-text">Bodega</span>
-          </label>
-          <select 
-            class="select select-bordered w-full" 
-            [(ngModel)]="selectedBodegaId"
-            (change)="onBodegaChange(selectedBodegaId)">
-            <option [ngValue]="null" disabled>Seleccione una bodega...</option>
-            <option *ngFor="let bodega of tiendaBodegas" 
-                    [ngValue]="bodega.id">
-              {{ (bodega.id_bodega + ' - ' + (bodega.nombre | initCapFirst)) || 'Bodega ' + bodega.id_bodega }}
-            </option>
-          </select>
+          <!-- Bodega Dropdown (only shown for Tienda role) -->
+          <div class="form-control w-full max-w-xs mt-4" *ngIf="showBodegaDropdown">
+            <label class="label">
+              <span class="label-text">Bodega</span>
+            </label>
+            <select 
+              class="select select-bordered w-full" 
+              [(ngModel)]="selectedBodegaId"
+              (change)="onBodegaChange(selectedBodegaId)">
+              <option [ngValue]="null" disabled>Seleccione una bodega...</option>
+              <option *ngFor="let bodega of tiendaBodegas" 
+                      [ngValue]="bodega.id">
+                {{ (bodega.id_bodega + ' - ' + (bodega.nombre | initCapFirst)) || 'Bodega ' + bodega.id_bodega }}
+              </option>
+            </select>
+          </div>
         </div>
 
         <div class="modal-action">
