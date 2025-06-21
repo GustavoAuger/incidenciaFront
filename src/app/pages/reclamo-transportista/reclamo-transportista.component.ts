@@ -480,4 +480,8 @@ getTipoIncidencia() {
     //Logica para obtener la fecha de reclamo
     return '';
   }
+
+  editarReclamo(incidencia: Incidencia){
+    //Logica para editar el reclamo
+  }
 }

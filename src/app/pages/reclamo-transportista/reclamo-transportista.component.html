@@ -34,7 +34,7 @@
           [style.border-bottom]="activeTab === 'resueltos' ? '2px solid #10b981' : 'none'"
           [style.color]="activeTab === 'resueltos' ? '#10b981' : '#6b7280'"
         >
-          <i class="fas fa-pencil-alt mr-2"></i>
+          <i class="fas fa-keyboard mr-2"></i>
           Ingresar Reclamo a Transportista
           <span *ngIf="ingresarReclamo.length" class="ml-1 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
             {{ ingresarReclamo.length || 0 }}
@@ -582,11 +582,7 @@
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  <span 
-                    class="px-2 py-1 rounded-full text-xs"
-                    [ngClass]="getEstadoClass(incidencia.tipo_estado)">
-                    {{ (incidencia.tipo_estado | titlecase) || '' }}
-                  </span>
+                  {{ incidencia.tipo_estado | initCapFirst }}
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
@@ -597,6 +593,13 @@
                       class="btn btn-ghost btn-xs hover:bg-transparent"
                       title="Ver detalle">
                       <i class="fas fa-eye" style="color: #00bcd4;"></i>
+                    </button>
+                    <button 
+                      *ngIf="activeTab === 'resueltos'"
+                      (click)="editarReclamo(incidencia)" 
+                      class="btn btn-ghost btn-xs hover:bg-transparent"
+                      title="Ingresar información de reclamo">
+                      <i class="fas fa-keyboard" style="color: #4caf50;"></i>
                     </button>
                   </div>
                 </div>
