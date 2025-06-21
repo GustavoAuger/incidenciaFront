@@ -33,6 +33,7 @@ export class AppComponent implements OnInit, OnDestroy {
   selectedBodegaId: number | null = null;
   tiendaBodegas: any[] = [];
   isFormValid: boolean = false;
+  isNavbarLoading: boolean = true;
 
   private _isAdmin: boolean = false;
 
@@ -82,9 +83,15 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private loadUserInfo(): void {
+    // Activar el spinner al inicio de la carga
+    this.isNavbarLoading = true;
+    
     // Obtener el email del usuario logueado
     const userEmail = localStorage.getItem('username');
-    if (!userEmail) return;
+    if (!userEmail) {
+      this.isNavbarLoading = false;
+      return;
+    }
     
     // Limpiar el estado de admin al cargar
     this._isAdmin = false;
@@ -92,56 +99,72 @@ export class AppComponent implements OnInit, OnDestroy {
     // Siempre cargar la información del usuario desde la base de datos
     this.userService.getUsuarios().subscribe({
       next: (users: User[]) => {
-        const currentUser = users.find(user => user.email === userEmail);
-        if (!currentUser) return;
-        
-        // Obtener el rol y bodega originales del usuario desde la base de datos
-        const originalRolId = currentUser.id_rol;
-        const originalBodegaId = currentUser.id_bodega;
-        
-        // Actualizar el estado de admin
-        this._isAdmin = originalRolId === 1;
-        
-        // Guardar los valores originales en localStorage
-        localStorage.setItem('original_id_rol', originalRolId.toString());
-        localStorage.setItem('original_id_bodega', originalBodegaId!.toString());
-        
-        // Si no hay un rol temporal, usar los valores originales
-        if (!localStorage.getItem('id_rol') || !localStorage.getItem('id_bodega')) {
-          localStorage.setItem('id_rol', originalRolId.toString());
-          localStorage.setItem('id_bodega', originalBodegaId!.toString());
-        }
-        
-        // Actualizar la UI con los valores actuales (pueden ser temporales)
-        const currentRolId = parseInt(localStorage.getItem('id_rol') || originalRolId.toString(), 10);
-        const currentBodegaId = parseInt(localStorage.getItem('id_bodega') || originalBodegaId!.toString(), 10);
-        
-        // Actualizar el nombre del rol
-        const role = this.roles.find(r => r.id === currentRolId);
-        if (role) {
-          this.userRol = this.capitalizeFirstLetter(role.nombre);
-          localStorage.setItem('rol_nombre', this.userRol);
-        }
-        
-        // Actualizar el nombre de la bodega
-        this.userBodega = this.getBodegaName(currentBodegaId);
-        localStorage.setItem('bodega_nombre', this.userBodega);
-        
-        // Forzar la detección de cambios para actualizar la UI
-        this.changeDetectorRef.detectChanges();
-        
-        // Cargar bodegas de tienda si es necesario
-        if (currentRolId === 4) {
-          this.loadTiendaBodegas();
-        }
-        
-        // Si es admin, asegurarse de que el botón de admin sea visible
-        if (originalRolId === 1) {
-          localStorage.setItem('is_admin', 'true');
+        try {
+          const currentUser = users.find(user => user.email === userEmail);
+          if (!currentUser) {
+            this.isNavbarLoading = false;
+            return;
+          }
+          
+          // Obtener el rol y bodega originales del usuario desde la base de datos
+          const originalRolId = currentUser.id_rol;
+          const originalBodegaId = currentUser.id_bodega;
+          
+          // Actualizar el estado de admin
+          this._isAdmin = originalRolId === 1;
+          
+          // Guardar los valores originales en localStorage
+          localStorage.setItem('original_id_rol', originalRolId.toString());
+          localStorage.setItem('original_id_bodega', originalBodegaId!.toString());
+          
+          // Si no hay un rol temporal, usar los valores originales
+          if (!localStorage.getItem('id_rol') || !localStorage.getItem('id_bodega')) {
+            localStorage.setItem('id_rol', originalRolId.toString());
+            localStorage.setItem('id_bodega', originalBodegaId!.toString());
+          }
+          
+          // Actualizar la UI con los valores actuales (pueden ser temporales)
+          const currentRolId = parseInt(localStorage.getItem('id_rol') || originalRolId.toString(), 10);
+          const currentBodegaId = parseInt(localStorage.getItem('id_bodega') || originalBodegaId!.toString(), 10);
+          
+          // Actualizar el nombre del rol
+          const role = this.roles.find(r => r.id === currentRolId);
+          if (role) {
+            this.userRol = this.capitalizeFirstLetter(role.nombre);
+            localStorage.setItem('rol_nombre', this.userRol);
+          }
+          
+          // Actualizar el nombre de la bodega
+          this.userBodega = this.getBodegaName(currentBodegaId);
+          localStorage.setItem('bodega_nombre', this.userBodega);
+          
+          // Forzar la detección de cambios para actualizar la UI
+          this.changeDetectorRef.detectChanges();
+          
+          // Cargar bodegas de tienda si es necesario
+          if (currentRolId === 4) {
+            this.loadTiendaBodegas();
+          }
+          
+          // Si es admin, asegurarse de que el botón de admin sea visible
+          if (originalRolId === 1) {
+            localStorage.setItem('is_admin', 'true');
+          }
+          
+          // Desactivar el spinner cuando todo esté listo
+          this.isNavbarLoading = false;
+          this.changeDetectorRef.detectChanges();
+          
+        } catch (error) {
+          console.error('Error al procesar datos del usuario:', error);
+          this.isNavbarLoading = false;
+          this.changeDetectorRef.detectChanges();
         }
       },
       error: (error) => {
         console.error('Error al cargar la información del usuario:', error);
+        this.isNavbarLoading = false;
+        this.changeDetectorRef.detectChanges();
       }
     });
   }
