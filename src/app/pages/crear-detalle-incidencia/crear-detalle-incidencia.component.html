@@ -49,8 +49,12 @@
             <div class="form-control">
               <label class="label font-semibold text-gray-700">SKU (*)</label><br>
               <div class="flex gap-4">
-                <input class="input input-bordered flex-1 bg-white sku" [(ngModel)]="detalleIncidencia.sku" name="sku" required placeholder="Ingrese SKU" [disabled]="!skuEnabled && (detalleIncidencia.tipoDiferencia=='faltante' || detalleIncidencia.tipoDiferencia=='') "  />
-                <button type="button" class="btna btn-primary w-24"  (click)="buscarProducto()">BUSCAR</button>
+                <input class="input input-bordered flex-1 bg-white sku" [(ngModel)]="detalleIncidencia.sku" name="sku" required placeholder="Ingrese SKU" [disabled]="!skuEnabled && (detalleIncidencia.tipoDiferencia=='faltante' || detalleIncidencia.tipoDiferencia=='')"  />
+                <button type="button" 
+                        class="btn btn-sm flex items-center space-x-2 bg-[#00AFD7] hover:bg-[#00AFD7]/90 text-white h-10 px-4"
+                        (click)="buscarProducto()">
+                  <span>Buscar</span>
+                </button>
               </div>
             </div>
 
@@ -82,7 +86,11 @@
             </div>
 
             <div class="form-control flex items-end">
-              <button type="button" class="btna btn-primary w-full" (click)="agregarDetalle()">AGREGAR DETALLE</button>
+              <button type="button" 
+                      class="btn btn-sm flex items-center space-x-2 bg-[#00AFD7] hover:bg-[#00AFD7]/90 text-white h-10 px-4 w-full justify-center" 
+                      (click)="agregarDetalle()">
+                <span>Agregar detalle</span>
+              </button>
             </div>
           </div>
         </form>
@@ -144,33 +152,32 @@
         </div>
     </div>
 
-    <!-- Botones de acción con mejor espaciado -->
-     <!-- si viene desde crear incidencia -->
-    <div class="mt-8 flex justify-between space-x-6 px-4">
+    <!-- Botones de acción -->
+    <div class="px-8 py-6 bg-[#f5f5f5] -mx-8 mt-8 flex justify-between items-center">
+      <!-- Botón Volver -->
       <button type="button" 
-              *ngIf="!modoVisualizacion"
-              class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200 font-semibold" 
+              class="btn btn-sm flex items-center space-x-2 bg-gray-400 hover:bg-gray-500 text-white h-10 px-4" 
               (click)="navigateTo(fromRoute)">
-        VOLVER
+        <i class="fas fa-arrow-left"></i>
+        <span>Volver</span>
       </button>
-      <button type="button" 
-              *ngIf="!modoVisualizacion"
-              class="px-6 py-3 bg-[#00AFD7] btna text-black rounded-lg hover:bg-[#00AFD7]/90 transition-colors duration-200 font-semibold" 
-              (click)="generarIncidencia()">
-        GENERAR INCIDENCIA
-      </button>
-       <!-- si viene desde ver incidencias o resolver-incidencias -->
-       <button type="button" 
-        *ngIf="modoVisualizacion"
-        class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200 font-semibold" 
-        (click)="navigateTo(fromRoute)">
-        VOLVER
-      </button>  
+
+      <!-- Botón Actualizar Detalle -->
       <button type="button" 
               *ngIf="modoVisualizacion && incidencia.tipo_estado === 'nuevo' && originalIdBodega === incidencia.destino_id_bodega"
-              class="px-6 py-3 bg-[#00AFD7] btna text-black rounded-lg hover:bg-[#00AFD7]/90 transition-colors duration-200 font-semibold" 
+              class="btn btn-sm flex items-center space-x-2 bg-[#00AFD7] hover:bg-[#00AFD7]/90 text-white h-10 px-4" 
               (click)="actualizarIncidencia()">
-        ACTUALIZAR DETALLE
+        <span>Actualizar detalle</span>
+      </button>
+    </div>
+
+    <!-- Botón Generar Incidencia -->
+    <div class="mt-8 flex justify-end px-4">
+      <button type="button" 
+              *ngIf="!modoVisualizacion"
+              class="btn btn-sm flex items-center space-x-2 bg-[#00AFD7] hover:bg-[#00AFD7]/90 text-white h-10 px-6" 
+              (click)="generarIncidencia()">
+        <span>Generar incidencia</span>
       </button>
     </div>
   </div>
