@@ -339,4 +339,9 @@ export class ResolverIncidenciasComponent implements OnInit {
         break;
     }
   }
+
+  resolverIncidencia(incidencia: any) {
+    console.log('Resolviendo incidencia:', incidencia);
+    // Add your resolver logic here
+  }
 }
