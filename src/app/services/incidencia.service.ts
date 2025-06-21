@@ -109,4 +109,7 @@ export class IncidenciaService {
     }, 0);
   }
 
+  subirImagenes(formData: FormData) {
+    return this.http.post<{ urls: string[] }>(this.apiUrl + '/upload-image', formData);
+  }
 }

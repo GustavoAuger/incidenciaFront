@@ -18,6 +18,7 @@ export interface Incidencia {
     valorizado: number;
     total_item: number;
     d_id_bodega: number;
+    ruta: string;
     
 }
 

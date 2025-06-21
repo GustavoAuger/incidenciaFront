@@ -22,6 +22,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   guias: Guia[] = [];
   originalIdBodega: string = '';
   fromRoute: string = 'ver-incidencias'; // Valor por defecto
+  isLoading: boolean = true;
   
   incidencia: any = {
     bodOrigen: '',
@@ -35,7 +36,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     total_item:0,
     valorizado:0,
     destino_id_bodega: 0,
-    d_id_bodega: 0
+    d_id_bodega: 0,
+    ruta: ''
   };
 
   detalleIncidencia: any = {
@@ -75,7 +77,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
           ots: incidenciaData?.ots || '',
           fechaRecepcion: incidenciaData?.fechaRecepcion || null,
           tipo_estado: incidenciaData?.tipo_estado || '',
-          d_id_bodega: incidenciaData?.d_id_bodega || 0
+          d_id_bodega: incidenciaData?.d_id_bodega || 0,
+          bodDestino: incidenciaData?.bodDestino || ''
         };
       }
       // Obtener la ruta de origen del estado de navegación
@@ -367,7 +370,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
         tipo_estado: incidenciaParcial.tipo_estado || '',
         total_item: tot_item,
         valorizado: totalizado,
-        d_id_bodega: incidenciaParcial.d_id_bodega || 0
+        d_id_bodega: incidenciaParcial.d_id_bodega || 0,
+        ruta:' '
       }
       
     };
@@ -420,6 +424,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
           this.skuEnabled = true;
         } else {
           console.log('La guía no pertenece a la bodega del usuario');
+          console.log(idBodegaDestino);
+          console.log(bodegaUsuario);
           alert('La guía ingresada no tiene como destino su bodega');
           this.detalleIncidencia.numGuia = null;
           this.skuEnabled = false;

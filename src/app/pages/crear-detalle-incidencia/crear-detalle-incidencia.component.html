@@ -169,7 +169,7 @@
         VOLVER
       </button>  
       <button type="button" 
-              *ngIf="modoVisualizacion && incidencia.tipo_estado === 'nuevo' && originalIdBodega === incidencia.destino_id_bodega || !modoVisualizacion"
+              *ngIf="modoVisualizacion && incidencia.tipo_estado === 'nuevo' && originalIdBodega === incidencia.destino_id_bodega"
               class="px-6 py-3 bg-[#00AFD7] btna text-black rounded-lg hover:bg-[#00AFD7]/90 transition-colors duration-200 font-semibold" 
               (click)="actualizarIncidencia()">
         ACTUALIZAR DETALLE

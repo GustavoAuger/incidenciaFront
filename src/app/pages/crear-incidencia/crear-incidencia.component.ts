@@ -24,7 +24,7 @@ export class CrearIncidenciaComponent {
   lista_bodegas_original: Bodega[] = [];
   lista_transportistas: Transportista[] = [];
   lista_tipo_incidencia: Tipo_incidencia[] = [];
-  
+  isLoading: boolean = true;
 
   // Modelo para el formulario de incidencia
   incidencia: Incidencia = {
@@ -43,7 +43,8 @@ export class CrearIncidenciaComponent {
     id_tipo_incidencia: 0,
     total_item: 0,
     valorizado: 0,
-    d_id_bodega: 0
+    d_id_bodega: 0,
+    ruta:''
   };
 
   constructor(
@@ -99,42 +100,53 @@ export class CrearIncidenciaComponent {
 
     selectedImages: Array<{file: File, preview: string}> = [];
 
-  onFileSelected(event: any) {
-    const files = event.target.files;
-    if (files) {
-      // Limitar a 2 imágenes
-      const remainingSlots = 2 - this.selectedImages.length;
-      const filesToAdd = Array.from(files).slice(0, remainingSlots);
-
-      filesToAdd.forEach((file: any) => {
-        if (file.type.startsWith('image/')) {
-          const reader = new FileReader();
-          reader.onload = (e: any) => {
-            this.selectedImages.push({
-              file: file,
-              preview: e.target.result
-            });
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-
-      // Limpiar input si ya hay 2 imágenes
-      if (this.selectedImages.length >= 2) {
-        event.target.value = '';
+    onFileSelected(event: Event) {
+      const input = event.target as HTMLInputElement;
+      if (!input.files || input.files.length === 0) return;
+    
+      const file = input.files[0]; // solo la primera imagen
+    
+      if (!file.type.startsWith('image/')) {
+        alert('El archivo seleccionado no es una imagen válida.');
+        input.value = ''; // limpiar input
+        return;
       }
+    
+      const reader = new FileReader();
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        this.selectedImages = [{
+          file,
+          preview: e.target?.result as string
+        }];
+      };
+      reader.readAsDataURL(file);
     }
+
+  subirSoloImagen(): void {
+    if (this.selectedImages.length === 0) {
+      alert('Debes seleccionar al menos una imagen.');
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append('file', this.selectedImages[0].file);
+  
+    this._incidenciaService.subirImagenes(formData).subscribe({
+      next: (res) => {
+        console.log('Imagen subida con éxito:');
+        alert('Imagen subida correctamente.');
+        // Opcional: limpiar arreglo
+        // this.selectedImages = [];
+      },
+      error: (err) => {
+        console.error('Error al subir imagen:', err);
+        alert('Error al subir imagen');
+      }
+    });
   }
   onSubmit() {
     
-    if (this.selectedImages.length > 0) {
-      // Manejo de enviío de imagenes
-      const formData = new FormData();
-      this.selectedImages.forEach((image, index) => {
-        formData.append(`imagen${index + 1}`, image.file);
-      });
 
-    }
     this.watchTipoIncidencia(); // llamos la funcion para asignar bodega 21 si es tipo incidencia 1, parte de soulucion de bug
     // Encontrar los nombres correspondientes
     const bodegaSeleccionada = this.lista_bodegas.find(b => b.id == this.incidencia.id_bodega); // borre === para solucionar bug bodega central comparacion number/string
@@ -166,11 +178,12 @@ export class CrearIncidenciaComponent {
           ots: this.incidencia.ots,
           fechaRecepcion: this.incidencia.fecha,
           bodDestino: bodegaUsuario? bodegaUsuario.id_bodega : '',        
-          tipo_estado: "nuevo"
+          tipo_estado: "nuevo",
         }
       }
     };
      // Guardar los datos en el servicio
+    console.log(navigationExtras);
     this._incidenciaService.setIncidenciaParcial(this.incidencia);
     this.router.navigate(['/crear-detalle-incidencia'], navigationExtras);
 }
