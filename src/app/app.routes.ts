@@ -9,6 +9,8 @@ import { VerIncidenciasComponent } from './pages/ver-incidencias/ver-incidencias
 import { RolCrearGuard } from './guards/rol-crear.guard';
 import { RolAdministrarGuard } from './guards/rol-administrar.guard';
 import { LoginGuard } from './guards/login.guard';
+import { ResolverIncidenciasComponent } from './pages/resolver-incidencias/resolver-incidencias.component';
+import { RolResolverGuard } from './guards/rol-resolver.guard';
 
 export const routes: Routes = [
     { 
@@ -21,5 +23,6 @@ export const routes: Routes = [
     { path: 'crear-detalle-incidencia', component: CrearDetalleIncidenciaComponent, canActivate: [AuthGuard, RolCrearGuard] },
     { path: 'administrar-usuarios', component: AdministrarUsuariosComponent, canActivate: [AuthGuard, RolAdministrarGuard] }, 
     { path: 'ver-incidencias', component: VerIncidenciasComponent, canActivate: [AuthGuard] },
+    { path: 'resolver-incidencias', component: ResolverIncidenciasComponent, canActivate: [AuthGuard, RolResolverGuard] },
     { path: '', redirectTo: '/login', pathMatch: 'full' }
 ];
