@@ -290,11 +290,9 @@
                 <div class="flex items-center justify-center h-full">
                   <span [ngClass]="{
                     'px-2 py-1 rounded-full text-xs': true,
-                    'bg-yellow-100 text-yellow-800': getEstadoReclamo(incidencia) === 'Pendiente',
-                    'bg-blue-100 text-blue-800': getEstadoReclamo(incidencia) === 'En Proceso',
-                    'bg-green-100 text-green-800': getEstadoReclamo(incidencia) === 'Aprobado',
-                    'bg-red-100 text-red-800': getEstadoReclamo(incidencia) === 'Rechazado',
-                    'bg-gray-100 text-gray-800': getEstadoReclamo(incidencia) === 'No Aplica'
+                    'bg-yellow-100 text-yellow-800': getEstadoReclamo(incidencia) === 'Reclamado',
+                    'bg-green-100 text-green-800': getEstadoReclamo(incidencia) === 'Pagado',
+                    'bg-red-100 text-red-800': getEstadoReclamo(incidencia) === 'Rechazado'
                   }">
                     {{ getEstadoReclamo(incidencia) }}
                   </span>
@@ -429,17 +427,17 @@
           <colgroup>
             <col style="width: 40px;"> <!-- # -->
             <col style="width: 100px;"> <!-- N° Incidencia -->
-            <col style="width: 80px;">  <!-- FDR -->
-            <col style="width: 100px;"> <!-- Fecha Reclamo -->
+            <col style="width: 100px;"> <!-- Fecha Emisión -->
             <col style="width: 100px;"> <!-- Fecha Recepción -->
+            <col style="width: 120px;"> <!-- Usuario -->
+            <col style="width: 100px;"> <!-- Bodega Origen -->
             <col style="width: 100px;"> <!-- Bodega Destino -->
             <col style="width: 120px;"> <!-- Nombre Destino -->
             <col style="width: 80px;">  <!-- Unidades -->
             <col style="width: 100px;"> <!-- Valorizado -->
             <col style="width: 100px;"> <!-- OTS -->
             <col style="width: 100px;"> <!-- Transporte -->
-            <col style="width: 100px;"> <!-- Monto Pagado -->
-            <col style="width: 120px;"> <!-- Estado Reclamo -->
+            <col style="width: 100px;"> <!-- Estado -->
             <col style="width: 80px;">  <!-- Acción -->
           </colgroup>
           <thead class="bg-gray-100">
@@ -451,22 +449,28 @@
                   <i class="fas {{ getSortIcon('id') }} ml-1"></i>
                 </div>
               </th>
-              <th (click)="sortTable('fdr')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+              <th (click)="sortTable('fecha_emision')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
                 <div class="flex items-center justify-center">
-                  <span>FDR</span>
-                  <i class="fas {{ getSortIcon('fdr') }} ml-1"></i>
-                </div>
-              </th>
-              <th (click)="sortTable('fecha_reclamo')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
-                <div class="flex items-center justify-center">
-                  <span>Fecha Reclamo</span>
-                  <i class="fas {{ getSortIcon('fecha_reclamo') }} ml-1"></i>
+                  <span>Fecha Emisión</span>
+                  <i class="fas {{ getSortIcon('fecha_emision') }} ml-1"></i>
                 </div>
               </th>
               <th (click)="sortTable('fecha_recepcion')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
                 <div class="flex items-center justify-center">
                   <span>Fecha Recepción</span>
                   <i class="fas {{ getSortIcon('fecha_recepcion') }} ml-1"></i>
+                </div>
+              </th>
+              <th (click)="sortTable('usuario')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+                <div class="flex items-center justify-center">
+                  <span>Usuario</span>
+                  <i class="fas {{ getSortIcon('usuario') }} ml-1"></i>
+                </div>
+              </th>
+              <th (click)="sortTable('origen_id_local')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+                <div class="flex items-center justify-center">
+                  <span>Bodega Origen</span>
+                  <i class="fas {{ getSortIcon('origen_id_local') }} ml-1"></i>
                 </div>
               </th>
               <th (click)="sortTable('destino_id_bodega')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
@@ -501,15 +505,15 @@
               </th>
               <th (click)="sortTable('transportista')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
                 <div class="flex items-center justify-center">
-                  <span>Transportista</span>
-                  <i class="fas {{ getSortIcon('transportista')}} ml-1"></i>
+                  <span>Transporte</span>
+                  <i class="fas {{ getSortIcon('transportista') }} ml-1"></i>
                 </div>
               </th>
-              <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">
-                Monto Pagado
-              </th>
-              <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">
-                Estado Reclamo
+              <th (click)="sortTable('tipo_estado')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+                <div class="flex items-center justify-center">
+                  <span>Estado</span>
+                  <i class="fas {{ getSortIcon('tipo_estado') }} ml-1"></i>
+                </div>
               </th>
               <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">Acción</th>
             </tr>
@@ -518,43 +522,52 @@
             <tr *ngFor="let incidencia of paginatedIncidencias; let i = index" class="hover:bg-gray-50">
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  {{ (currentPage - 1) * itemsPerPage + i + 1 }}
+                  {{ i + 1 + (currentPage - 1) * itemsPerPage }}
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  {{ incidencia.id ? 'INC' + incidencia.id.toString() : '' }}
-                </div>
-              </td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
-                {{ getFDR(incidencia) }}
-              </td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
-                {{ getFechaReclamo(incidencia) | date:'dd/MM/yyyy' }}
-              </td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
-                <div class="flex items-center justify-center h-full">
-                  {{ incidencia.fecha_recepcion | date:'dd/MM/yyyy' }}
+                  {{ incidencia.id }}
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  {{ incidencia.destino_id_bodega || '-' }}
+                  {{ (incidencia.fecha_emision | date:'dd/MM/yyyy') || '' }}
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  {{ incidencia.destino || '' | initCapFirst }}
+                  {{ (incidencia.fecha_recepcion | date:'dd/MM/yyyy') || '' }}
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  {{ incidencia.total_item || '0' }}
+                  {{ incidencia.id_usuario || '' }}
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  {{ (incidencia.valorizado | currency:'CLP':'symbol-narrow':'1.0-0') || '$0' }}
+                  {{ incidencia.origen_id_local || '' }}
+                </div>
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+                <div class="flex items-center justify-center h-full">
+                  {{ incidencia.destino_id_bodega || '' }}
+                </div>
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+                <div class="flex items-center justify-center h-full">
+                  {{ (incidencia.destino! | initCapFirst) || '' }}
+                </div>
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+                <div class="flex items-center justify-center h-full">
+                  {{ incidencia.total_item || 0 }}
+                </div>
+              </td>
+              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
+                <div class="flex items-center justify-center h-full">
+                  {{ incidencia.valorizado | currency:'CLP':'symbol-narrow':'1.0-0' }}
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
@@ -564,32 +577,25 @@
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  {{ incidencia.transportista || '' | initCapFirst }}
+                  {{ (incidencia.transportista! | initCapFirst) || '' }}
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  {{ getMontoPagado(incidencia) | currency:'CLP':'symbol-narrow':'1.0-0' }}
-                </div>
-              </td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
-                <div class="flex items-center justify-center h-full">
-                  <span [ngClass]="{
-                    'px-2 py-1 rounded-full text-xs': true,
-                    'bg-yellow-100 text-yellow-800': getEstadoReclamo(incidencia) === 'Pendiente',
-                    'bg-blue-100 text-blue-800': getEstadoReclamo(incidencia) === 'En Proceso',
-                    'bg-green-100 text-green-800': getEstadoReclamo(incidencia) === 'Aprobado',
-                    'bg-red-100 text-red-800': getEstadoReclamo(incidencia) === 'Rechazado',
-                    'bg-gray-100 text-gray-800': getEstadoReclamo(incidencia) === 'No Aplica'
-                  }">
-                    {{ getEstadoReclamo(incidencia) }}
+                  <span 
+                    class="px-2 py-1 rounded-full text-xs"
+                    [ngClass]="getEstadoClass(incidencia.tipo_estado)">
+                    {{ (incidencia.tipo_estado | titlecase) || '' }}
                   </span>
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
                   <div class="flex justify-center space-x-1">
-                    <button (click)="verDetalle(incidencia)" class="btn btn-ghost btn-xs hover:bg-transparent">
+                    <button 
+                      (click)="verDetalle(incidencia)" 
+                      class="btn btn-ghost btn-xs hover:bg-transparent"
+                      title="Ver detalle">
                       <i class="fas fa-eye" style="color: #00bcd4;"></i>
                     </button>
                   </div>

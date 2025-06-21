@@ -253,6 +253,7 @@ getTipoIncidencia() {
     // Preparar los datos para la navegación
     const navigationExtras = {
       state: {
+        fromRoute: 'reclamo-transportista', 
         incidencia: {
           bodOrigen: incidencia.id_bodega,
           bodOrigenNombre: incidencia.origen_id_local || 'Origen no disponible',
@@ -275,7 +276,7 @@ getTipoIncidencia() {
         id: incidencia.id
       }
     });
-}
+  }
  
   // Getter para obtener las incidencias paginadas
   get paginatedIncidencias(): Incidencia[] {
@@ -382,14 +383,18 @@ getTipoIncidencia() {
       let valueA: any;
       let valueB: any;
 
+      // Manejar diferentes tipos de columnas
       if (column === 'numero_reclamo') {
-        // Ordenar por número de reclamo generado
         valueA = this.getNumeroReclamo(a);
         valueB = this.getNumeroReclamo(b);
-      } else if (column === 'fecha_recepcion') {
-        // Para fechas de recepción, convertir a timestamp para comparar
+      } else if (column === 'fecha_emision' || column === 'fecha_recepcion') {
+        // Para fechas, convertir a timestamp para comparar
         valueA = a[column] ? new Date(a[column] as string).getTime() : 0;
         valueB = b[column] ? new Date(b[column] as string).getTime() : 0;
+      } else if (column === 'valorizado' || column === 'total_item') {
+        // Para valores numéricos
+        valueA = Number(a[column as keyof Incidencia]) || 0;
+        valueB = Number(b[column as keyof Incidencia]) || 0;
       } else {
         // Para otros campos, usar el valor directamente
         valueA = a[column as keyof Incidencia] || '';
@@ -426,38 +431,53 @@ getTipoIncidencia() {
     return `R-${idIncidencia}`;
   }
 
-  // Método para obtener el número de FDR (temporal)
-  getFDR(incidencia: Incidencia): string {
-    // Lógica temporal para generar un número de FDR
-    // Formato: FDR-{id_incidencia}
-    if (!incidencia.id) return '-';
-    
-    const idIncidencia = incidencia.id.toString().padStart(4, '0');
-    
-    return `FDR-${idIncidencia}`;
-  }
-
-  // Método para obtener la fecha del reclamo
-  getFechaReclamo(incidencia: Incidencia): Date {
-    // Usar la fecha de recepción como fecha de reclamo por defecto
-    // Esto es temporal y debería reemplazarse con la lógica real cuando esté disponible
-    return incidencia.fecha_recepcion ? new Date(incidencia.fecha_recepcion) : new Date();
-  }
-
-  // Método para obtener el monto pagado (simulado)
-  getMontoPagado(incidencia: Incidencia): number {
-    // Lógica simulada para el monto pagado
-    // En una implementación real, esto vendría de la base de datos
-    const randomMultiplier = (incidencia.id || 1) % 5; // Usamos el ID para generar un valor consistente
-    return (randomMultiplier + 1) * 10000; // Montos entre 10.000 y 50.000
-  }
-
-  // Método para obtener el estado del reclamo (simulado)
+  // Método para obtener el estado del reclamo con formato
   getEstadoReclamo(incidencia: Incidencia): string {
-    // Lógica simulada para el estado del reclamo
-    // En una implementación real, esto vendría de la base de datos
-    const estados = ['Pendiente', 'En Proceso', 'Aprobado', 'Rechazado', 'No Aplica'];
-    const estadoIndex = (incidencia.id || 0) % 5; // Usamos el ID para generar un valor consistente
-    return estados[estadoIndex];
+    if (incidencia.tipo_estado?.toLowerCase() === 'resuelto') {
+      return 'Pagado';
+    } else if (incidencia.tipo_estado?.toLowerCase() === 'rechazado') {
+      return 'Rechazado';
+    }
+    return 'Reclamado';
+  }
+
+  // Método para obtener la clase CSS según el estado
+  getEstadoClass(estado: string | undefined): string {
+    if (!estado) return 'bg-gray-100 text-gray-800';
+    
+    switch(estado.toLowerCase()) {
+      case 'pendiente':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'en proceso':
+        return 'bg-blue-100 text-blue-800';
+      case 'resuelto':
+        return 'bg-green-100 text-green-800';
+      case 'rechazado':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  }
+
+  getMontoPagado(incidencia: any): number {
+    //Logica para obtener el monto pagado
+    return 0;
+  }
+
+  getFDR(incidencia: Incidencia): string {
+    // Implement your FDR logic here
+    // For example, if FDR is a property of incidencia:
+    // return incidencia.fdr || 'N/A';
+    
+    // Or if you need to calculate it:
+    // return `FDR-${incidencia.id || '0000'}`;
+    
+    // For now, returning an empty string as a placeholder
+    return '';
+  }
+
+  getFechaReclamo(incidencia: Incidencia): string {
+    //Logica para obtener la fecha de reclamo
+    return '';
   }
 }
