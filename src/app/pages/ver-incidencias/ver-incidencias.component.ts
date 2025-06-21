@@ -420,8 +420,13 @@ getTipoIncidencia() {
             detalles.forEach(detalle => {
               incidenciasExpandidas.push({
                 ...incidencia,
-                detalle_producto: detalle.sku,
-                detalle_cantidad: detalle.cantidad
+                sku: detalle.sku,
+                cantidad: detalle.cantidad,
+                guia: detalle.numGuia,
+                tipo_diferencia: detalle.tipoDiferencia,
+                nro_bulto: detalle.numBulto,
+                peso_origen: detalle.pesoOrigen,
+                peso_recepcion: detalle.pesoRecepcion
               });
             });
           }
