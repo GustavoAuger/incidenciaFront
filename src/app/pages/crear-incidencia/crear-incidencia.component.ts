@@ -194,7 +194,7 @@ export class CrearIncidenciaComponent {
     reader.readAsDataURL(file);
   }
 
-  subirSoloImagen(): void {
+  subirSoloImagen(): void { // este metodo nunca se usa, se usó para pruebas
     if (this.selectedImages.length === 0) {
       alert('Debes seleccionar al menos una imagen.');
       return;
