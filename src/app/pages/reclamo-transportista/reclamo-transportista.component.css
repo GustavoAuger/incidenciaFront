@@ -163,6 +163,44 @@ tbody tr:hover {
   overflow-x: hidden;
 }
 
+/* Estilos para las pestañas */
+.tab-button {
+  position: relative;
+  padding: 0.5rem 1.25rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: 1px solid #e5e7eb; /* gray-200 */
+  border-bottom: none;
+  cursor: pointer;
+  outline: none;
+  color: #4b5563; /* gray-600 */
+  background-color: white;
+  border-radius: 0.5rem 0.5rem 0 0;
+  margin-right: 0.25rem;
+  box-shadow: 0 -2px 4px -2px rgba(0,0,0,0.05);
+}
+
+/* Pestaña de Incidencias Reclamadas */
+.tab-button.reclamadas.active {
+  background-color: #f97316; /* orange-500 */
+  color: white;
+  font-weight: 600;
+  border-color: #f97316;
+}
+
+/* Pestaña de Ingresar Reclamo */
+.tab-button.ingresar.active {
+  background-color: #22c55e; /* green-500 */
+  color: white;
+  font-weight: 600;
+  border-color: #22c55e;
+}
+
+/* Efecto hover para pestañas inactivas */
+.tab-button:not(.active):hover {
+  background-color: #f9fafb; /* gray-50 */
+}
+
 /* Responsive adjustments */
 @media (max-width: 1200px) {
     .other-filters {

@@ -19,11 +19,8 @@
       <div class="flex gap-1 mb-4">
         <button 
           (click)="cambiarTab('reclamadas')"
-          class="px-4 py-2 font-medium rounded-t-lg transition-all duration-200"
-          [ngClass]="{
-            'bg-orange-500/90 text-white': activeTab === 'reclamadas',
-            'text-gray-600 hover:bg-gray-100/50': activeTab !== 'reclamadas'
-          }"
+          class="tab-button reclamadas"
+          [class.active]="activeTab === 'reclamadas'"
         >
           <i class="fas fa-clock mr-2"></i>
           Incidencias Reclamadas
@@ -31,11 +28,8 @@
         
         <button 
           (click)="cambiarTab('ingresar_reclamo')"
-          class="px-4 py-2 font-medium rounded-t-lg transition-all duration-200"
-          [ngClass]="{
-            'bg-green-500/90 text-white': activeTab === 'ingresar_reclamo',
-            'text-gray-600 hover:bg-gray-100/50': activeTab !== 'ingresar_reclamo' 
-          }"
+          class="tab-button ingresar"
+          [class.active]="activeTab === 'ingresar_reclamo'"
         >
           <i class="fas fa-keyboard mr-2"></i>
           Ingresar Reclamo a Transportista
