@@ -100,22 +100,29 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     console.log(this.incidencia.bodDestino);
     console.log(typeof this.originalIdBodega, typeof this.incidencia.destino_id_bodega);
 
-
     this.route.queryParams.subscribe(params => {
       this.modoVisualizacion = params['modo'] === 'visualizacion';
       const idIncidencia = params['id'];
+      
+      // Set loading to true when starting to load data
+      this.isLoading = true;
       
       // Cargar las guías al iniciar el componente
       this.incidenciaService.getGuias().subscribe({
         next: (guias) => {
           this.guias = guias;
           console.log('Guías cargadas:', this.guias);
+          if (!this.modoVisualizacion) {
+            this.completeLoading();
+          }
         },
         error: (error) => {
           console.error('Error al cargar guías:', error);
           alert('Error al cargar las guías');
+          this.completeLoading();
         }
       });
+      
       // si estamos en modo visualización, cargar los detalles de la incidencia
       if (this.modoVisualizacion && idIncidencia) {
         this.incidenciaService.getDetallesIncidencia(idIncidencia).subscribe({
@@ -125,6 +132,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
           error: (error) => {
             console.error('Error al obtener detalles:', error);
             alert('Error al cargar los detalles de la incidencia');
+            this.completeLoading();
           },
           complete: () => {
             console.log('Detalles cargados:', this.detalles);
@@ -143,18 +151,21 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
                       detalle.descripcion = productoEncontrado.descripcion;
                     }
                   });
+                  this.completeLoading();
                 },
                 error: (error) => {
                   console.error('Error al obtener productos para detalles:', error);
+                  this.completeLoading();
                 }
               });
+            } else {
+              this.completeLoading();
             }
             console.log('idIncidencia:', this.incidencia.id);
           }
-
         });
-      // sino estamos en modo nueva incidencia, cargar los datos de la incidencia parcial de la vista anterior
       } else {
+        // Modo creación de nueva incidencia
         const incidenciaParcial = this.incidenciaService.getIncidenciaParcial();
         if (incidenciaParcial) {
           this.incidenciaId = incidenciaParcial.id || 0;
@@ -164,6 +175,10 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
         }
       }
     });
+  }
+
+  private completeLoading() {
+    this.isLoading = false;
   }
 
   navigateTo(route: string): void {    
