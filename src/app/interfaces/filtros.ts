@@ -6,6 +6,6 @@ export interface Filtros {
   origen: string;
   destino: string;
   ots: string;
-  transporte: string;  // Almacenará el ID del transporte como string
-  estado: string;      // Almacenará el ID del estado como string
+  transporte: string;  
+  estado: string;    
 }

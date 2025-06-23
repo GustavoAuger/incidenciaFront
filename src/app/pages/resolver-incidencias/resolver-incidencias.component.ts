@@ -6,11 +6,10 @@ import { IncidenciaService } from '../../services/incidencia.service';
 import { Incidencia } from '../../interfaces/incidencia';
 import { UserService } from '../../services/user.service';
 import { Bodega } from '../../interfaces/bodega';
-import { Tipo_incidencia } from '../../interfaces/tipo_incidencia';
+import { EstadoIncidencia } from '../../interfaces/estado-incidencia';
 import { Filtros } from '../../interfaces/filtros';
 import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
 import { Transportista } from '../../interfaces/transportista';
-import { EstadoIncidencia } from '../../interfaces/estado-incidencia';
 
 @Component({
   selector: 'app-resolver-incidencias',
@@ -26,7 +25,6 @@ export class ResolverIncidenciasComponent implements OnInit {
   isLoading: boolean = true;
   isDestinoOpen = false;
   isTransporteOpen = false;
-  isTipoIncidenciaOpen = false;
   isEstadoOpen = false;
 
   sortColumn: string = 'id';
@@ -34,7 +32,6 @@ export class ResolverIncidenciasComponent implements OnInit {
 
   bodegas: Bodega[] = [];
   bodegasDestino: Bodega[] = [];
-  tiposIncidencia: Tipo_incidencia[] = [];
   estadosIncidencia: EstadoIncidencia[] = [];
   transportistas: Transportista[] = [];
 
@@ -42,12 +39,12 @@ export class ResolverIncidenciasComponent implements OnInit {
     fechaDesde: '',
     fechaHasta: '',
     numeroIncidencia: '',
-    tipoIncidencia: '',
     origen: '',
     destino: '',
     ots: '',
     transporte: '',
-    estado: ''
+    estado: '',
+    tipoIncidencia: ''
   };
 
   currentPage: number = 1;
@@ -95,7 +92,6 @@ export class ResolverIncidenciasComponent implements OnInit {
     });
 
     this.cargarBodegas();
-    this.getTipoIncidencia();
   }
 
   private cargarEstadosIncidencia() {
@@ -123,18 +119,6 @@ export class ResolverIncidenciasComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar bodegas', error);
-      }
-    });
-  }
-
-  getTipoIncidencia() {
-    this._incidenciaService.getTipoIncidencia().subscribe({
-      next: (tipos: Tipo_incidencia[]) => {
-        this.tiposIncidencia = tipos;
-        this.aplicarFiltros();
-      },
-      error: (error) => {
-        console.error('Error al obtener los tipos de incidencia:', error);
       }
     });
   }
@@ -222,8 +206,6 @@ export class ResolverIncidenciasComponent implements OnInit {
       // Aplicar los demás filtros
       return (
         cumpleNumeroIncidencia &&
-        (!this.filtros.tipoIncidencia || 
-          incidencia.id_tipo_incidencia?.toString() === this.filtros.tipoIncidencia) &&
         (!this.filtros.destino || 
           incidencia.destino_id_bodega?.toString() === this.filtros.destino) &&
         (!this.filtros.transporte || 
@@ -330,12 +312,9 @@ export class ResolverIncidenciasComponent implements OnInit {
 
   onSelectOpen(select: string) {
     switch(select) {
-      case 'tipoIncidencia':
-        this.isTipoIncidenciaOpen = !this.isTipoIncidenciaOpen;
-        break;  
       case 'destino':
         this.isDestinoOpen = !this.isDestinoOpen;
-        break;
+        break;  
       case 'transporte':
         this.isTransporteOpen = !this.isTransporteOpen;
         break;
@@ -441,12 +420,12 @@ export class ResolverIncidenciasComponent implements OnInit {
       fechaDesde: '',
       fechaHasta: '',
       numeroIncidencia: '',
-      tipoIncidencia: '',
       origen: '',
       destino: '',
       ots: '',
       transporte: '',
-      estado: ''
+      estado: '',
+      tipoIncidencia: ''
     };
     
     this.currentPage = 1;
