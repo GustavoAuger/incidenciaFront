@@ -595,7 +595,7 @@
                       <i class="fas fa-eye" style="color: #00bcd4;"></i>
                     </button>
                     <button 
-                      *ngIf="activeTab === 'reclamadas'"
+                      *ngIf="activeTab === 'reclamadas' || activeTab === 'ingresar_reclamo'"
                       (click)="editarReclamo(incidencia)" 
                       class="btn btn-ghost btn-xs hover:bg-transparent"
                       title="Ingresar reclamo">
@@ -641,6 +641,80 @@
             <i class="fas fa-arrow-left"></i>
             <span>Volver</span>
         </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para seleccionar estado de reclamo -->
+<div class="modal" [class.modal-open]="showEstadoModal">
+  <div class="modal-box max-w-2xl">
+    <h3 class="font-bold text-lg mb-4">Seleccionar Estado del Reclamo</h3>
+    <div class="space-y-4">
+      <!-- Selector de Estado -->
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">Estado del Reclamo</span>
+        </label>
+        <select 
+          class="select select-bordered w-full"
+          [(ngModel)]="selectedEstadoReclamo"
+        >
+          <option value="" disabled selected>Seleccione un estado</option>
+          <option *ngFor="let estado of estadosReclamo" [value]="estado.id">
+            {{ estado.nombre | initCapFirst }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Campos adicionales para estado Reclamado (id: 1) -->
+      <div *ngIf="mostrarCamposAdicionales" class="space-y-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">FDR</span>
+          </label>
+          <input 
+            type="text" 
+            class="input input-bordered w-full" 
+            [(ngModel)]="reclamoForm.fdr"
+            placeholder="Ingrese el número de FDR"
+            required
+          >
+        </div>
+
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">Fecha de Reclamo</span>
+          </label>
+          <input 
+            type="date" 
+            class="input input-bordered w-full" 
+            [(ngModel)]="reclamoForm.fechaReclamo"
+            required
+          >
+        </div>
+
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">Observación</span>
+          </label>
+          <textarea 
+            class="textarea textarea-bordered w-full h-24" 
+            [(ngModel)]="reclamoForm.observacion"
+            placeholder="Ingrese una observación"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-action">
+      <button class="btn btn-ghost" (click)="closeEstadoModal()">Cancelar</button>
+      <button 
+        class="btn btn-primary" 
+        (click)="guardarEstadoReclamo()"
+        [disabled]="!selectedEstadoReclamo || (mostrarCamposAdicionales && (!reclamoForm.fdr || !reclamoForm.fechaReclamo))"
+      >
+        Guardar Cambios
+      </button>
     </div>
   </div>
 </div>

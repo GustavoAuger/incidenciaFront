@@ -10,6 +10,8 @@ import { Tipo_incidencia} from '../../interfaces/tipo_incidencia';
 import { Filtros } from '../../interfaces/filtros';
 import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
 import { Transportista } from '../../interfaces/transportista';
+import { ReclamoTransportistaService } from '../../services/reclamo-transportista.service';
+import { EstadoReclamo } from '../../interfaces/estado-reclamo';
 
 @Component({
   selector: 'app-ver-incidencias',
@@ -43,6 +45,24 @@ export class ReclamoTransportistaComponent implements OnInit {
   // Modificar las propiedades de incidencias para manejar ambos estados
   incidenciasReclamadas: Incidencia[] = [];
   ingresarReclamo: Incidencia[] = [];
+
+  // Propiedades para el modal de estados de reclamo
+  showEstadoModal: boolean = false;
+  selectedEstadoReclamo: string = '';
+  estadosReclamo: EstadoReclamo[] = [];
+  incidenciaSeleccionada: Incidencia | null = null;
+
+  // Propiedades para el formulario de reclamo
+  reclamoForm = {
+    fdr: '',
+    fechaReclamo: new Date().toISOString().split('T')[0], // Fecha actual por defecto
+    observacion: ''
+  };
+
+  // Getter para verificar si mostrar campos adicionales
+  get mostrarCamposAdicionales(): boolean {
+    return this.selectedEstadoReclamo === '1'; // 1 es el ID para "Reclamado"
+  }
 
   // Función para controlar la apertura de los selects
   onSelectOpen(select: string) {
@@ -100,7 +120,8 @@ export class ReclamoTransportistaComponent implements OnInit {
   constructor(
       private router: Router, 
       private _incidenciaService: IncidenciaService,
-      private _userService: UserService
+      private _userService: UserService,
+      private reclamoTransportistaService: ReclamoTransportistaService
   ) {}
 
   ngOnInit() {
@@ -173,6 +194,7 @@ export class ReclamoTransportistaComponent implements OnInit {
     
     this.getBodegas();
     this.getTipoIncidencia();
+    this.loadEstadosReclamo();
   }
 
   getBodegas() {
@@ -204,6 +226,66 @@ getTipoIncidencia() {
     } 
   }); 
 }
+
+  // Método para cargar los estados de reclamo
+  loadEstadosReclamo(): void {
+    this.reclamoTransportistaService.getEstadosReclamo().subscribe({
+      next: (estados) => {
+        this.estadosReclamo = estados;
+      },
+      error: (error) => {
+        console.error('Error al cargar estados de reclamo:', error);
+      }
+    });
+  }
+
+  // Método para abrir el modal de estado de reclamo
+  editarReclamo(incidencia: Incidencia): void {
+    this.incidenciaSeleccionada = incidencia;
+    this.selectedEstadoReclamo = ''; // Reiniciar selección
+    
+    // Reiniciar el formulario
+    this.reclamoForm = {
+      fdr: '',
+      fechaReclamo: new Date().toISOString().split('T')[0],
+      observacion: ''
+    };
+    
+    this.showEstadoModal = true;
+  }
+
+  // Método para cerrar el modal
+  closeEstadoModal(): void {
+    this.showEstadoModal = false;
+    this.incidenciaSeleccionada = null;
+  }
+
+  // Método para guardar el estado del reclamo
+  guardarEstadoReclamo(): void {
+    if (this.incidenciaSeleccionada && this.selectedEstadoReclamo) {
+      console.log('Guardando estado seleccionado:', this.selectedEstadoReclamo);
+      console.log('Incidencia:', this.incidenciaSeleccionada);
+      
+      // Si es estado Reclamado (id: 1), agregar datos adicionales
+      if (this.selectedEstadoReclamo === '1') {
+        console.log('Datos del reclamo:', this.reclamoForm);
+        // Aquí puedes agregar la lógica para guardar los datos adicionales
+      }
+      
+      // Llama al servicio para actualizar el estado
+      // this.actualizarEstadoReclamo(this.incidenciaSeleccionada, this.selectedEstadoReclamo);
+      
+      // Cierra el modal
+      this.closeEstadoModal();
+    }
+  }
+
+  // Método privado que maneja el cambio de estado (ahora solo se usa internamente)
+  private onEstadoReclamoChange(): void {
+    // Este método ya no se usa directamente desde el template
+    // pero lo dejamos por si se necesita en el futuro
+    console.log('Estado cambiado a:', this.selectedEstadoReclamo);
+  }
 
   // Método para cambiar entre pestañas
   cambiarTab(tab: 'reclamadas' | 'ingresar_reclamo') {
@@ -479,9 +561,5 @@ getTipoIncidencia() {
   getFechaReclamo(incidencia: Incidencia): string {
     //Logica para obtener la fecha de reclamo
     return '';
-  }
-
-  editarReclamo(incidencia: Incidencia){
-    //Logica para editar el reclamo
   }
 }

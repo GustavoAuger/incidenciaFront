@@ -7,6 +7,9 @@
 .resumen-incidencias {
     padding: 20px;
     background-color: #f5f5f5;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 .header {
@@ -32,6 +35,9 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     margin-bottom: 20px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 .date-filters {
@@ -110,11 +116,16 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     overflow-x: auto;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 100%;
+    table-layout: auto;
 }
 
 thead {
@@ -126,6 +137,8 @@ th, td {
     text-align: left;
     border-bottom: 1px solid #ddd;
     font-size: 14px;
+    white-space: normal;
+    word-wrap: break-word;
 }
 
 th {
@@ -141,6 +154,13 @@ tbody tr:hover {
     width: 20px;
     height: 20px;
     cursor: pointer;
+}
+
+/* Prevenir scroll horizontal */
+:host {
+  display: block;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* Responsive adjustments */
