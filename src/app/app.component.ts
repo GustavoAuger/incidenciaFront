@@ -34,6 +34,10 @@ export class AppComponent implements OnInit, OnDestroy {
   tiendaBodegas: any[] = [];
   isFormValid: boolean = false;
   isNavbarLoading: boolean = true;
+  isHomePage: boolean = false;
+  showTooltip: boolean = false;
+  isHoveringRoleButton: boolean = false;
+  private tooltipTimeout: any;
 
   private _isAdmin: boolean = false;
 
@@ -43,19 +47,19 @@ export class AppComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private changeDetectorRef: ChangeDetectorRef
   ) {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      this.isHomePage = event.url === '/' || event.url === '/home';
+      this.isNotLogin = event.url !== '/login';
+      this.updateAuthStatus();
+    });
+
     this.loadTiendaBodegas();
   }
 
   ngOnInit(): void {
     this.updateAuthStatus();    
-    this.routerSubscription = this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      this.isNotLogin = this.router.url !== '/login';
-      this.updateAuthStatus();
-      
-    });
-
     this.loadRolesForNavbar();
   }
 
@@ -465,5 +469,18 @@ export class AppComponent implements OnInit, OnDestroy {
 
   getLocalStorageItem(key: string): string | null {
     return localStorage.getItem(key);
+  }
+
+  onRoleButtonClick(event: Event) {
+    event.stopPropagation();
+    if (this.isHomePage) {
+      this.openAdminModal();
+    }
+  }
+
+  onRoleButtonHover(hovering: boolean) {
+    if (!this.isHomePage) {
+      this.isHoveringRoleButton = hovering;
+    }
   }
 }

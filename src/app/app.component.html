@@ -14,9 +14,24 @@
             <div class="text-right">
                 <p class="text-lg font-semibold">{{ username }}</p>
                 <div class="flex items-center gap-2 text-xs text-gray-500 tracking-wide">
-                    <button *ngIf="isAdmin" (click)="openAdminModal()" class="btn btn-circle btn-xs p-1 bg-gray-100 hover:bg-gray-200 transition-all duration-200 shadow-sm hover:shadow-md active:shadow-sm active:translate-y-0.5">
-                        <i class="fas fa-user-secret text-base"></i>
-                    </button>
+                    <div class="relative">
+                        <button 
+                            *ngIf="isAdmin" 
+                            (click)="onRoleButtonClick($event)"
+                            (mouseenter)="onRoleButtonHover(true)"
+                            (mouseleave)="onRoleButtonHover(false)"
+                            [class.opacity-50]="!isHomePage"
+                            [class.cursor-not-allowed]="!isHomePage"
+                            class="btn btn-circle btn-xs p-1 bg-gray-100 hover:bg-gray-200 transition-all duration-200 shadow-sm hover:shadow-md active:shadow-sm active:translate-y-0.5">
+                            <i class="fas fa-user-secret text-base"></i>
+                        </button>
+                        <!-- Tooltip that shows on hover when not on home page -->
+                        <div *ngIf="isHoveringRoleButton && !isHomePage" 
+                             class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-800 text-white text-xs rounded whitespace-nowrap">
+                            El cambio de rol solo se puede hacer desde la página de inicio
+                            <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-l-transparent border-r-4 border-r-transparent border-t-4 border-t-gray-800"></div>
+                        </div>
+                    </div>
                     <div class="min-h-[20px] flex items-center">
                         <span *ngIf="isNavbarLoading" class="loading loading-spinner loading-xs"></span>
                         <div *ngIf="!isNavbarLoading" class="flex items-center gap-2">
