@@ -1,5 +1,5 @@
 export interface ReclamoTransportista{
-    id:number;
+    id?:number;
     id_incidencia:number;
     monto_pagado:number;
     fdr:string;

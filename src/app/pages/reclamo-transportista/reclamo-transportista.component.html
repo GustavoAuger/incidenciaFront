@@ -645,75 +645,61 @@
   </div>
 </div>
 
-<!-- Modal para seleccionar estado de reclamo -->
-<div class="modal" [class.modal-open]="showEstadoModal">
+<!-- Modal para ingresar reclamo -->
+<div class="modal" [class.modal-open]="ingresarReclamoModal">
   <div class="modal-box max-w-2xl">
-    <h3 class="font-bold text-lg mb-4">Seleccionar Estado del Reclamo</h3>
+    <h3 class="font-bold text-lg mb-6">Ingresar Reclamo</h3>
     <div class="space-y-4">
-      <!-- Selector de Estado -->
+      <!-- Campo FDR -->
       <div class="form-control w-full">
         <label class="label">
-          <span class="label-text">Estado del Reclamo</span>
+          <span class="label-text font-medium">FDR</span>
+          <span class="label-text-alt text-error">*</span>
         </label>
-        <select 
-          class="select select-bordered w-full"
-          [(ngModel)]="selectedEstadoReclamo"
+        <input 
+          type="text" 
+          class="input input-bordered w-full" 
+          [(ngModel)]="reclamoForm.fdr"
+          placeholder="Ingrese el número de FDR"
+          required
         >
-          <option value="" disabled selected>Seleccione un estado</option>
-          <option *ngFor="let estado of estadosReclamo" [value]="estado.id">
-            {{ estado.nombre | initCapFirst }}
-          </option>
-        </select>
       </div>
 
-      <!-- Campos adicionales para estado Reclamado (id: 1) -->
-      <div *ngIf="mostrarCamposAdicionales" class="space-y-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text">FDR</span>
-          </label>
-          <input 
-            type="text" 
-            class="input input-bordered w-full" 
-            [(ngModel)]="reclamoForm.fdr"
-            placeholder="Ingrese el número de FDR"
-            required
-          >
-        </div>
+      <!-- Fecha de Reclamo -->
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text font-medium">Fecha de Reclamo</span>
+          <span class="label-text-alt text-error">*</span>
+        </label>
+        <input 
+          type="date" 
+          class="input input-bordered w-full" 
+          [(ngModel)]="reclamoForm.fechaReclamo"
+          [max]="fechaActual"
+          required
+        >
+      </div>
 
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text">Fecha de Reclamo</span>
-          </label>
-          <input 
-            type="date" 
-            class="input input-bordered w-full" 
-            [(ngModel)]="reclamoForm.fechaReclamo"
-            required
-          >
-        </div>
-
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text">Observación</span>
-          </label>
-          <textarea 
-            class="textarea textarea-bordered w-full h-24" 
-            [(ngModel)]="reclamoForm.observacion"
-            placeholder="Ingrese una observación"
-          ></textarea>
-        </div>
+      <!-- Observación -->
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text font-medium">Observación</span>
+        </label>
+        <textarea 
+          class="textarea textarea-bordered w-full h-24" 
+          [(ngModel)]="reclamoForm.observacion"
+          placeholder="Ingrese una observación (opcional)"
+        ></textarea>
       </div>
     </div>
 
     <div class="modal-action">
-      <button class="btn btn-ghost" (click)="closeEstadoModal()">Cancelar</button>
+      <button class="btn btn-ghost" (click)="closeIngresarReclamoModal()">Cancelar</button>
       <button 
-        class="btn btn-primary" 
-        (click)="guardarEstadoReclamo()"
-        [disabled]="!selectedEstadoReclamo || (mostrarCamposAdicionales && (!reclamoForm.fdr || !reclamoForm.fechaReclamo))"
+        class="btn bg-cyan-500 hover:bg-cyan-600 text-white" 
+        (click)="guardarReclamo()"
       >
-        Guardar Cambios
+        Guardar
       </button>
     </div>
   </div>

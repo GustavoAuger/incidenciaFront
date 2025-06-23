@@ -12,6 +12,7 @@ import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
 import { Transportista } from '../../interfaces/transportista';
 import { ReclamoTransportistaService } from '../../services/reclamo-transportista.service';
 import { EstadoReclamo } from '../../interfaces/estado-reclamo';
+import { ReclamoTransportista } from '../../interfaces/reclamo-transportista';
 
 @Component({
   selector: 'app-ver-incidencias',
@@ -47,7 +48,7 @@ export class ReclamoTransportistaComponent implements OnInit {
   ingresarReclamo: Incidencia[] = [];
 
   // Propiedades para el modal de estados de reclamo
-  showEstadoModal: boolean = false;
+  ingresarReclamoModal: boolean = false;
   selectedEstadoReclamo: string = '';
   estadosReclamo: EstadoReclamo[] = [];
   incidenciaSeleccionada: Incidencia | null = null;
@@ -63,6 +64,9 @@ export class ReclamoTransportistaComponent implements OnInit {
   get mostrarCamposAdicionales(): boolean {
     return this.selectedEstadoReclamo === '1'; // 1 es el ID para "Reclamado"
   }
+
+  // Propiedad para almacenar la fecha actual
+  fechaActual: string = new Date().toISOString().split('T')[0];
 
   // Función para controlar la apertura de los selects
   onSelectOpen(select: string) {
@@ -251,40 +255,13 @@ getTipoIncidencia() {
       observacion: ''
     };
     
-    this.showEstadoModal = true;
+    this.ingresarReclamoModal = true;
   }
 
   // Método para cerrar el modal
-  closeEstadoModal(): void {
-    this.showEstadoModal = false;
+  closeIngresarReclamoModal(): void {
+    this.ingresarReclamoModal = false;
     this.incidenciaSeleccionada = null;
-  }
-
-  // Método para guardar el estado del reclamo
-  guardarEstadoReclamo(): void {
-    if (this.incidenciaSeleccionada && this.selectedEstadoReclamo) {
-      console.log('Guardando estado seleccionado:', this.selectedEstadoReclamo);
-      console.log('Incidencia:', this.incidenciaSeleccionada);
-      
-      // Si es estado Reclamado (id: 1), agregar datos adicionales
-      if (this.selectedEstadoReclamo === '1') {
-        console.log('Datos del reclamo:', this.reclamoForm);
-        // Aquí puedes agregar la lógica para guardar los datos adicionales
-      }
-      
-      // Llama al servicio para actualizar el estado
-      // this.actualizarEstadoReclamo(this.incidenciaSeleccionada, this.selectedEstadoReclamo);
-      
-      // Cierra el modal
-      this.closeEstadoModal();
-    }
-  }
-
-  // Método privado que maneja el cambio de estado (ahora solo se usa internamente)
-  private onEstadoReclamoChange(): void {
-    // Este método ya no se usa directamente desde el template
-    // pero lo dejamos por si se necesita en el futuro
-    console.log('Estado cambiado a:', this.selectedEstadoReclamo);
   }
 
   // Método para cambiar entre pestañas
@@ -561,5 +538,53 @@ getTipoIncidencia() {
   getFechaReclamo(incidencia: Incidencia): string {
     //Logica para obtener la fecha de reclamo
     return '';
+  }
+
+  guardarReclamo() {
+    // Validar que haya una incidencia seleccionada
+    if (!this.incidenciaSeleccionada?.id) {
+      alert('No se ha seleccionado una incidencia válida');
+      return;
+    }
+
+    // Validar que la fecha no sea posterior a hoy
+    const fechaReclamo = new Date(this.reclamoForm.fechaReclamo);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
+    if (fechaReclamo > hoy) {
+      alert('La fecha de reclamo no puede ser posterior a la fecha actual');
+      return;
+    }
+
+    // Validar campos requeridos
+    if (!this.reclamoForm.fdr) {
+      alert('El campo FDR es requerido');
+      return;
+    }
+
+    // Crear el objeto ReclamoTransportista
+    const nuevoReclamo: ReclamoTransportista = {
+      id_incidencia: this.incidenciaSeleccionada.id,
+      monto_pagado: 0, // Valor por defecto
+      fdr: this.reclamoForm.fdr,
+      fecha_reclamo: new Date(this.reclamoForm.fechaReclamo),
+      observacion: this.reclamoForm.observacion || '',
+      id_estado: 1 // Siempre 1 según el requerimiento
+    };
+
+    // Llamar al servicio para guardar el reclamo
+    this.reclamoTransportistaService.createReclamoTransportista(nuevoReclamo).subscribe({
+      next: (response) => {
+        console.log('Reclamo guardado exitosamente', response);
+        alert('Reclamo guardado correctamente');
+        this.closeIngresarReclamoModal();
+        // Aquí podrías recargar la lista de reclamos o actualizar la vista según sea necesario
+      },
+      error: (error) => {
+        console.error('Error al guardar el reclamo', error);
+        alert('Error al guardar el reclamo. Por favor intente nuevamente.');
+      }
+    });
   }
 }
