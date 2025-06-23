@@ -260,7 +260,8 @@
               name="estado" 
               [value]="4" 
               [(ngModel)]="selectedEstado" 
-              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+              class="h-4 w-4 accent-cyan-500 border-gray-300 focus:ring-cyan-400"
+              style="accent-color: #06b6d4;"
             >
             <label for="estadoAceptado" class="ml-2 block text-sm text-gray-700">Aceptado</label>
           </div>
@@ -271,7 +272,8 @@
               name="estado" 
               [value]="3" 
               [(ngModel)]="selectedEstado" 
-              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+              class="h-4 w-4 accent-cyan-500 border-gray-300 focus:ring-cyan-400"
+              style="accent-color: #06b6d4;"
             >
             <label for="estadoRechazado" class="ml-2 block text-sm text-gray-700">Rechazado</label>
           </div>
@@ -281,14 +283,14 @@
       <div class="flex justify-end space-x-3">
         <button 
           (click)="closeResolveModal()" 
-          class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-400"
         >
           Cancelar
         </button>
         <button 
           (click)="confirmarResolucion()" 
           [disabled]="!selectedEstado"
-          class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-500 hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           Guardar Cambios
         </button>
