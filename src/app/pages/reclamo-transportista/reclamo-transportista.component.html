@@ -14,31 +14,29 @@
       <h3 class="text-2xl font-bold text-gray-800 mb-4">Reclamo a Transportista</h3>
       
       <!-- Pestañas básicas -->
-      <div class="flex border-b mb-4">
+      <div class="flex gap-1 mb-4">
         <button 
           (click)="cambiarTab('pendientes')"
-          class="px-4 py-2 mr-2 font-medium"
-          [style.border-bottom]="activeTab === 'pendientes' ? '2px solid #4f46e5' : 'none'"
-          [style.color]="activeTab === 'pendientes' ? '#4f46e5' : '#6b7280'"
+          class="px-4 py-2 font-medium rounded-t-lg transition-all duration-200"
+          [ngClass]="{
+            'bg-orange-500/90 text-white': activeTab === 'pendientes',
+            'text-gray-600 hover:bg-gray-100/50': activeTab !== 'pendientes'
+          }"
         >
           <i class="fas fa-clock mr-2"></i>
           Incidencias Reclamadas
-          <span *ngIf="incidenciasReclamadas.length" class="ml-1 bg-indigo-100 text-indigo-800 text-xs px-2 py-0.5 rounded-full">
-            {{ incidenciasReclamadas.length || 0 }}
-          </span>
         </button>
         
         <button 
           (click)="cambiarTab('resueltos')"
-          class="px-4 py-2 font-medium"
-          [style.border-bottom]="activeTab === 'resueltos' ? '2px solid #10b981' : 'none'"
-          [style.color]="activeTab === 'resueltos' ? '#10b981' : '#6b7280'"
+          class="px-4 py-2 font-medium rounded-t-lg transition-all duration-200"
+          [ngClass]="{
+            'bg-green-500/90 text-white': activeTab === 'resueltos',
+            'text-gray-600 hover:bg-gray-100/50': activeTab !== 'resueltos' 
+          }"
         >
           <i class="fas fa-keyboard mr-2"></i>
           Ingresar Reclamo a Transportista
-          <span *ngIf="ingresarReclamo.length" class="ml-1 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
-            {{ ingresarReclamo.length || 0 }}
-          </span>
         </button>
       </div>
     </div>
@@ -142,7 +140,7 @@
             <col style="width: 80px;">  <!-- Unidades -->
             <col style="width: 100px;"> <!-- Valorizado -->
             <col style="width: 100px;"> <!-- OTS -->
-            <col style="width: 100px;"> <!-- Transporte -->
+            <col style="width: 100px;"> <!-- Transportista -->
             <col style="width: 100px;"> <!-- Monto Pagado -->
             <col style="width: 120px;"> <!-- Estado Reclamo -->
             <col style="width: 80px;">  <!-- Acción -->
