@@ -377,13 +377,46 @@ export class ResolverIncidenciasComponent implements OnInit {
     const userIdString = localStorage.getItem('id_usuario');
     const id_usuario = userIdString ? parseInt(userIdString, 10) : 0;
     
-    // Llamar al servicio para actualizar el estado de la incidencia
-    this._incidenciaService.updateEstadoIncidencia({
-      id_incidencia: this.selectedIncidencia.id,
-      id_estado: nuevoEstadoId
-    }).subscribe({
-      next: (response) => {
-        if (response) {
+    // Primero generar el movimiento
+    this._incidenciaService.generarMovimiento(this.selectedIncidencia.id).subscribe({
+      next: (movimientoResponse) => {
+        if (movimientoResponse) {
+          // Si el movimiento se generó correctamente, proceder con la actualización del estado
+          // Llamar al servicio para actualizar el estado de la incidencia
+          this._incidenciaService.updateEstadoIncidencia({
+            id_incidencia: this.selectedIncidencia.id,
+            id_estado: nuevoEstadoId
+          }).subscribe({
+            next: (response) => {
+              if (response) {
+                // Cerrar el modal y resetear el estado
+                this.showResolveModal = false;
+                this.selectedEstado = null;
+                
+                // Guardar el estado actual de paginación y ordenamiento
+                const currentPage = this.currentPage;
+                const currentSortColumn = this.sortColumn;
+                const currentSortDirection = this.sortDirection;
+                
+                alert('Incidencia actualizada correctamente');
+                
+                // Recargar las incidencias
+                this.cargarIncidencias(id_usuario);
+              }
+            },
+            error: (error) => {
+              console.error('Error al actualizar la incidencia:', error);
+              alert('Ocurrió un error al actualizar la incidencia. Por favor, intente nuevamente.');
+              this.isUpdating = false;
+            },
+            complete: () => {
+              this.isUpdating = false;
+            }
+          });
+        } else {
+          console.error('No se pudo generar el movimiento');
+          alert('No se pudo generar el movimiento. Por favor, intente nuevamente.');
+          this.isUpdating = false;
           // Cerrar el modal y resetear el estado
           this.showResolveModal = false;
           this.selectedEstado = null;
@@ -393,7 +426,7 @@ export class ResolverIncidenciasComponent implements OnInit {
           const currentSortColumn = this.sortColumn;
           const currentSortDirection = this.sortDirection;
           
-          alert('Incidencia actualizada correctamente');
+        
           
           // Recargar las incidencias
           this.cargarIncidencias(id_usuario);
