@@ -11,16 +11,18 @@
   <div class="resumen-incidencias">
     <!-- Título y pestañas -->
     <div class="mb-6">
-      <h3 class="text-2xl font-bold text-gray-800 mb-4">Reclamo a Transportista</h3>
+      <div class="flex justify-between items-center mb-4 mt-6">
+        <h3 class="text-lg font-semibold">Reclamo a Transportista</h3>
+      </div>
       
       <!-- Pestañas básicas -->
       <div class="flex gap-1 mb-4">
         <button 
-          (click)="cambiarTab('pendientes')"
+          (click)="cambiarTab('reclamadas')"
           class="px-4 py-2 font-medium rounded-t-lg transition-all duration-200"
           [ngClass]="{
-            'bg-orange-500/90 text-white': activeTab === 'pendientes',
-            'text-gray-600 hover:bg-gray-100/50': activeTab !== 'pendientes'
+            'bg-orange-500/90 text-white': activeTab === 'reclamadas',
+            'text-gray-600 hover:bg-gray-100/50': activeTab !== 'reclamadas'
           }"
         >
           <i class="fas fa-clock mr-2"></i>
@@ -28,11 +30,11 @@
         </button>
         
         <button 
-          (click)="cambiarTab('resueltos')"
+          (click)="cambiarTab('ingresar_reclamo')"
           class="px-4 py-2 font-medium rounded-t-lg transition-all duration-200"
           [ngClass]="{
-            'bg-green-500/90 text-white': activeTab === 'resueltos',
-            'text-gray-600 hover:bg-gray-100/50': activeTab !== 'resueltos' 
+            'bg-green-500/90 text-white': activeTab === 'ingresar_reclamo',
+            'text-gray-600 hover:bg-gray-100/50': activeTab !== 'ingresar_reclamo' 
           }"
         >
           <i class="fas fa-keyboard mr-2"></i>
@@ -42,8 +44,8 @@
     </div>
 
     <!-- Contenido de las pestañas -->
-    <div [hidden]="activeTab !== 'pendientes'">
-      <!-- Contenido de la pestaña Pendientes -->
+    <div [hidden]="activeTab !== 'reclamadas'">
+      <!-- Contenido de la pestaña Reclamadas -->
       <div class="filters-container">
         <div class="date-filters">
             <div class="filter-group">
@@ -336,8 +338,8 @@
       </div>
     </div>
 
-    <div [hidden]="activeTab !== 'resueltos'">
-      <!-- Contenido de la pestaña Resueltos -->
+    <div [hidden]="activeTab !== 'ingresar_reclamo'">
+      <!-- Contenido de la pestaña Ingresar Reclamo -->
       <div class="filters-container">
         <div class="date-filters">
             <div class="filter-group">
@@ -593,10 +595,10 @@
                       <i class="fas fa-eye" style="color: #00bcd4;"></i>
                     </button>
                     <button 
-                      *ngIf="activeTab === 'resueltos'"
+                      *ngIf="activeTab === 'reclamadas'"
                       (click)="editarReclamo(incidencia)" 
                       class="btn btn-ghost btn-xs hover:bg-transparent"
-                      title="Ingresar información de reclamo">
+                      title="Ingresar reclamo">
                       <i class="fas fa-keyboard" style="color: #4caf50;"></i>
                     </button>
                   </div>

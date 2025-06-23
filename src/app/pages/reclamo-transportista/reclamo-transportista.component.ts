@@ -38,7 +38,7 @@ export class ReclamoTransportistaComponent implements OnInit {
   sortDirection: 'asc' | 'desc' = 'desc';
 
   // Propiedad para controlar la pestaña activa
-  activeTab: 'pendientes' | 'resueltos' = 'pendientes';
+  activeTab: 'reclamadas' | 'ingresar_reclamo' = 'reclamadas';
   
   // Modificar las propiedades de incidencias para manejar ambos estados
   incidenciasReclamadas: Incidencia[] = [];
@@ -206,7 +206,7 @@ getTipoIncidencia() {
 }
 
   // Método para cambiar entre pestañas
-  cambiarTab(tab: 'pendientes' | 'resueltos') {
+  cambiarTab(tab: 'reclamadas' | 'ingresar_reclamo') {
     this.activeTab = tab;
     this.aplicarFiltros();
   }
@@ -298,7 +298,7 @@ getTipoIncidencia() {
   // Metodo para aplicar los filtros
   aplicarFiltros() {
     // Seleccionar el conjunto de datos según la pestaña activa
-    const dataSource = this.activeTab === 'pendientes' 
+    const dataSource = this.activeTab === 'reclamadas' 
       ? [...this.incidenciasReclamadas] 
       : [...this.ingresarReclamo];
     
