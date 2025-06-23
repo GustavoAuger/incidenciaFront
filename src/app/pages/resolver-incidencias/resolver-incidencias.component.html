@@ -255,3 +255,56 @@
         </button>
     </div>
 </div>
+
+<!-- Modal para Resolver Incidencia -->
+<div *ngIf="showResolveModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+    <div class="p-6">
+      <h3 class="text-lg font-semibold mb-4">Resolver Incidencia INC{{ selectedIncidencia?.id }}</h3>
+      
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Estado de la Incidencia</label>
+        <div class="space-y-2">
+          <div class="flex items-center">
+            <input 
+              type="radio" 
+              id="estadoAceptado" 
+              name="estado" 
+              [value]="4" 
+              [(ngModel)]="selectedEstado" 
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+            >
+            <label for="estadoAceptado" class="ml-2 block text-sm text-gray-700">Aceptado</label>
+          </div>
+          <div class="flex items-center">
+            <input 
+              type="radio" 
+              id="estadoRechazado" 
+              name="estado" 
+              [value]="3" 
+              [(ngModel)]="selectedEstado" 
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+            >
+            <label for="estadoRechazado" class="ml-2 block text-sm text-gray-700">Rechazado</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-3">
+        <button 
+          (click)="closeResolveModal()" 
+          class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Cancelar
+        </button>
+        <button 
+          (click)="confirmarResolucion()" 
+          [disabled]="!selectedEstado"
+          class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Guardar Cambios
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

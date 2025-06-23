@@ -112,4 +112,12 @@ export class IncidenciaService {
   subirImagenes(formData: FormData) {
     return this.http.post<{ urls: string[] }>(this.apiUrl + '/upload-image', formData);
   }
+
+  updateEstadoIncidencia(data: {id_incidencia: number, id_estado: number}): Observable<boolean> {
+    const body = {
+      id_incidencia: data.id_incidencia,
+      id_estado: data.id_estado
+    }
+    return this.http.post<boolean>(this.apiUrl + '/update-estado-incidencia', body);
+  }
 }

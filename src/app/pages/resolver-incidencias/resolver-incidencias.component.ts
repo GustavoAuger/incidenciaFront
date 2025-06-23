@@ -35,7 +35,7 @@ export class ResolverIncidenciasComponent implements OnInit {
   bodegas: Bodega[] = [];
   bodegasDestino: Bodega[] = [];
   tiposIncidencia: Tipo_incidencia[] = [];
-  estados: EstadoIncidencia[] = [];
+  estadosIncidencia: EstadoIncidencia[] = [];
   transportistas: Transportista[] = [];
 
   filtros: Filtros = {
@@ -56,11 +56,18 @@ export class ResolverIncidenciasComponent implements OnInit {
 
   Math = Math;
 
+  showResolveModal: boolean = false;
+  selectedIncidencia: any = null;
+  selectedEstado: number | null = null;
+  isUpdating: boolean = false;
+
   constructor(
     private router: Router,
     private _incidenciaService: IncidenciaService,
     private _userService: UserService
-  ) {}
+  ) {
+    this.cargarEstadosIncidencia();
+  }
 
   ngOnInit() {
     this.isLoading = true;
@@ -78,15 +85,6 @@ export class ResolverIncidenciasComponent implements OnInit {
       }
     });
 
-    this._incidenciaService.getEstadoIncidencias().subscribe({
-      next: (estados) => {
-        this.estados = estados;
-      },
-      error: (error) => {
-        console.error('Error al cargar estados de incidencias', error);
-      }
-    });
-
     this._incidenciaService.getTransportistas().subscribe({
       next: (transportistas) => {
         this.transportistas = transportistas;
@@ -98,6 +96,17 @@ export class ResolverIncidenciasComponent implements OnInit {
 
     this.cargarBodegas();
     this.getTipoIncidencia();
+  }
+
+  private cargarEstadosIncidencia() {
+    this._incidenciaService.getEstadoIncidencias().subscribe({
+      next: (estados) => {
+        this.estadosIncidencia = estados;
+      },
+      error: (error) => {
+        console.error('Error al cargar los estados de incidencia:', error);
+      }
+    });
   }
 
   cargarBodegas() {
@@ -337,8 +346,94 @@ export class ResolverIncidenciasComponent implements OnInit {
   }
 
   resolverIncidencia(incidencia: any) {
-    console.log('Resolviendo incidencia:', incidencia);
-    // Add your resolver logic here
+    this.selectedIncidencia = { ...incidencia };
+    
+    // Si el estado actual es 'Nuevo' (id 1), cambiar a 'En Revisión' (id 2) sin mostrar alertas
+    if (this.selectedIncidencia.id_estado === 1) {
+      this._incidenciaService.updateEstadoIncidencia({
+        id_incidencia: this.selectedIncidencia.id,
+        id_estado: 2 // Estado 'En Revisión'
+      }).subscribe({
+        next: (response) => {
+          if (response) {
+            // Actualizar el estado localmente
+            const index = this.incidencias.findIndex(i => i.id === this.selectedIncidencia.id);
+            if (index !== -1) {
+              this.incidencias[index].id_estado = 2;
+              this.incidencias[index].tipo_estado = 'En Revisión';
+              this.aplicarFiltros();
+            }
+            // Abrir el modal después de actualizar el estado
+            this.showResolveModal = true;
+          }
+        },
+        error: (error) => {
+          console.error('Error al actualizar el estado a En Revisión:', error);
+          // Aún así abrir el modal aunque falle la actualización
+          this.showResolveModal = true;
+        }
+      });
+    } else {
+      // Si no es estado 'Nuevo', simplemente abrir el modal
+      this.showResolveModal = true;
+    }
+  }
+
+  closeResolveModal() {
+    this.showResolveModal = false;
+    this.selectedEstado = null;
+    this.selectedIncidencia = null;
+  }
+
+  confirmarResolucion() {
+    if (this.selectedEstado && this.selectedIncidencia) {
+      this.actualizarEstadoIncidencia(this.selectedEstado);
+    }
+  }
+
+  private actualizarEstadoIncidencia(nuevoEstadoId: number) {
+    if (!this.selectedIncidencia) return;
+    
+    this.isUpdating = true;
+    const userIdString = localStorage.getItem('id_usuario');
+    const id_usuario = userIdString ? parseInt(userIdString, 10) : 0;
+    
+    // Llamar al servicio para actualizar el estado de la incidencia
+    this._incidenciaService.updateEstadoIncidencia({
+      id_incidencia: this.selectedIncidencia.id,
+      id_estado: nuevoEstadoId
+    }).subscribe({
+      next: (response) => {
+        if (response) {
+          // Cerrar el modal y resetear el estado
+          this.showResolveModal = false;
+          this.selectedEstado = null;
+          
+          // Guardar el estado actual de paginación y ordenamiento
+          const currentPage = this.currentPage;
+          const currentSortColumn = this.sortColumn;
+          const currentSortDirection = this.sortDirection;
+          
+          alert('Incidencia actualizada correctamente');
+          
+          // Recargar las incidencias
+          this.cargarIncidencias(id_usuario);
+        }
+      },
+      error: (error) => {
+        console.error('Error al actualizar la incidencia:', error);
+        alert('Ocurrió un error al actualizar la incidencia. Por favor, intente nuevamente.');
+        this.isUpdating = false;
+      },
+      complete: () => {
+        this.isUpdating = false;
+      }
+    });
+  }
+  
+  private getEstadoNombre(estadoId: number): string {
+    const estado = this.estadosIncidencia.find(e => e.id === estadoId);
+    return estado ? estado.tipo_estado : 'Desconocido';
   }
 
   limpiarFiltros(): void {
