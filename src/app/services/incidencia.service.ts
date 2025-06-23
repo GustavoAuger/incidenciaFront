@@ -9,6 +9,7 @@ import { Tipo_incidencia } from '../interfaces/tipo_incidencia';
 import { DetalleIncidencia } from '../interfaces/detalleIncidencia';
 import { Guia } from '../interfaces/guia';
 import { catchError, throwError } from 'rxjs';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -20,8 +21,15 @@ export class IncidenciaService {
   createIncidenciaCompleta(data: { 
     incidencia: Incidencia, 
     detalles: DetalleIncidencia[] 
-  }): Observable<boolean> {
-    return this.http.post<boolean>(this.apiUrl + '/createIncidencia', data);
+  }, file?: File): Observable<boolean> {
+    const formData = new FormData();
+    formData.append('body', JSON.stringify(data));
+    
+    if (file) {
+      formData.append('file', file);
+    }
+
+    return this.http.post<boolean>(this.apiUrl + '/createIncidencia', formData);
   }
   getIncidencias(id_usuario: number): Observable<Incidencia[]> {
     return this.http.post<Incidencia[]>(this.apiUrl + '/getIncidencias', { id_usuario });

@@ -37,7 +37,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     valorizado:0,
     destino_id_bodega: 0,
     d_id_bodega: 0,
-    ruta: ''
+    ruta: '',
+    file: null
   };
 
   detalleIncidencia: any = {
@@ -78,7 +79,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
           fechaRecepcion: incidenciaData?.fechaRecepcion || null,
           tipo_estado: incidenciaData?.tipo_estado || '',
           d_id_bodega: incidenciaData?.d_id_bodega || 0,
-          bodDestino: incidenciaData?.bodDestino || ''
+          bodDestino: incidenciaData?.bodDestino || '',
+          file: incidenciaData?.file || null
         };
       }
       // Obtener la ruta de origen del estado de navegación
@@ -386,13 +388,16 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
         total_item: tot_item,
         valorizado: totalizado,
         d_id_bodega: incidenciaParcial.d_id_bodega || 0,
-        ruta:' '
+        ruta:''
       }
       
     };
     console.log(datosParaEnviar);
+    // Obtener el archivo si existe
+    const file = this.incidencia.file;
+
     // Llamar al servicio para crear la incidencia
-    this.incidenciaService.createIncidenciaCompleta(datosParaEnviar).subscribe({
+    this.incidenciaService.createIncidenciaCompleta(datosParaEnviar, file).subscribe({
       next: (response) => {
         if (response) {
           alert(response); // envpia el mensaje del backend de exito de creación + correo enviado/no enviado
