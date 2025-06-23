@@ -13,6 +13,7 @@ import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
 import { Transportista } from '../../interfaces/transportista';
 import { Tipo_incidencia } from '../../interfaces/tipo_incidencia';
 
+
 @Component({
   selector: 'app-crear-incidencia',
   templateUrl: './crear-incidencia.component.html',
@@ -181,15 +182,19 @@ export class CrearIncidenciaComponent {
   
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
+      // Actualizar selectedImages
       this.selectedImages = [{
         file,
         preview: e.target?.result as string
       }];
+      
+      // Actualizar ruta en el objeto incidencia
+      this.incidencia.ruta = e.target?.result as string;
     };
     reader.readAsDataURL(file);
   }
 
-  subirSoloImagen(): void {
+  subirSoloImagen(): void { // este metodo nunca se usa, se usó para pruebas
     if (this.selectedImages.length === 0) {
       alert('Debes seleccionar al menos una imagen.');
       return;
@@ -246,6 +251,7 @@ export class CrearIncidenciaComponent {
           fechaRecepcion: this.incidencia.fecha,
           bodDestino: bodegaUsuario? bodegaUsuario.id_bodega : '',        
           tipo_estado: "nuevo",
+          file: this.selectedImages.length > 0 ? this.selectedImages[0].file : null
         }
       }
     };

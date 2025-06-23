@@ -132,13 +132,12 @@
 
               <div class="form-control w-full">
                 <label class="label">
-                  <span class="label-text">Imágenes (Opcional - Máximo 2)</span>
+                  <span class="label-text">Imágen (Opcional)</span>
                 </label>
                 <input 
                   type="file" 
                   (change)="onFileSelected($event)" 
                   accept="image/*" 
-                  multiple
                   class="file-input file-input-bordered w-full"
                   #fileInput>
                 <div class="mt-2 flex gap-2" *ngIf="selectedImages.length > 0">
