@@ -1,5 +1,6 @@
 <div class="w-full min-h-screen flex flex-col">
-    <div class="navbar bg-base-100 shadow-sm px-8 py-2">
+    <!-- Navbar with fixed position -->
+    <div class="navbar bg-base-100 shadow-sm px-8 py-2 fixed top-0 left-0 right-0 z-50">
         <div class="flex-none">
             <div class="flex items-center cursor-pointer" (click)="navigateToHome()">
                 <img src="/assets/images/Head-Logo.png" alt="Logo" class="h-16">
@@ -48,9 +49,12 @@
             </button>
         </div>
     </div>
-    <div class="flex-grow">
+    
+    <!-- Main content with padding top to account for fixed navbar -->
+    <div class="flex-grow pt-20">
         <router-outlet></router-outlet>
     </div>
+    
     <footer class="footer sm:footer-horizontal footer-center bg-base-300 text-base-content p-4">
         <aside>
             <p>Copyright 2025 - Todos los derechos reservados</p>
