@@ -131,7 +131,7 @@
                <td class="text-center">{{detalle.tipoDiferencia | initCapFirst}}</td>
                <td class="text-center">{{detalle.sku}}</td>
                <td class="text-center">{{detalle.descripcion | initCapFirst}}</td>
-               <td class="text-center">{{detalle.cantidad}}</td>
+               <td class="text-center">{{detalle.cantidad >= 0 ? detalle.cantidad : -detalle.cantidad}}</td>
                <td class="text-center">{{detalle.numGuia}}</td>
                <td class="text-center">{{detalle.numBulto}}</td>
                <td class="text-center">{{detalle.pesoOrigen}}</td>
