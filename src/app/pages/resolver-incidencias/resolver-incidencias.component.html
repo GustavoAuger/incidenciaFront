@@ -20,18 +20,6 @@
                 <input type="text" class="text-input text-xs p-1 h-8" [(ngModel)]="filtros.numeroIncidencia" (ngModelChange)="aplicarFiltros()">
             </div>
             <div class="filter-group">
-                <label>Tipo Incidencia</label>
-                <select class="select-input text-xs p-1 h-8" 
-                [ngClass]="{'text-gray-400': !filtros.tipoIncidencia && !isTipoIncidenciaOpen, 'text-black': filtros.tipoIncidencia || isTipoIncidenciaOpen}"
-                [(ngModel)]="filtros.tipoIncidencia" 
-                (ngModelChange)="aplicarFiltros(); isTipoIncidenciaOpen = false"
-                (click)="isTipoIncidenciaOpen = !isTipoIncidenciaOpen"
-                (blur)="isTipoIncidenciaOpen = false">
-                    <option value="">Seleccionar...</option>
-                    <option *ngFor="let tipo of tiposIncidencia" [value]="tipo.id">{{tipo.nombre}}</option>
-                </select>
-            </div>
-            <div class="filter-group">
                 <label>Bodega Destino</label>
                 <select class="select-input text-xs p-1 h-8"
                 [ngClass]="{'text-gray-400': !filtros.destino && !isDestinoOpen, 'text-black': filtros.destino || isDestinoOpen}"
