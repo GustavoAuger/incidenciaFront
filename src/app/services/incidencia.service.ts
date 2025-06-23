@@ -99,6 +99,10 @@ export class IncidenciaService {
     return this.http.post<boolean>(this.apiUrl + '/actualizarDetalle', data);
   }
 
+  generarMovimiento(id_incidencia: number): Observable<boolean> {
+    return this.http.post<boolean>(this.apiUrl + '/post-movimientos', { id_incidencia });
+  }
+
   // Método para calcular el total de items
   calcularTotalItems(detalles: DetalleIncidencia[]): number {
     return detalles.reduce((total, detalle) => {
