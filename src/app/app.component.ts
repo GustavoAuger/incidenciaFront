@@ -340,7 +340,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
-  openAdminModal() {
+  openAdminModal(id_hideRole?: number) {
     // Mostrar el spinner de carga
     this.isNavbarLoading = true;
     
@@ -349,30 +349,24 @@ export class AppComponent implements OnInit, OnDestroy {
     this.selectedBodegaId = null;
     this.isFormValid = false;
     
-    // Verificar si estamos en una ruta donde no se debe mostrar el rol de admin
-    const currentRoute = this.router.url;
-    const hideAdminRole = currentRoute === '/crear-incidencia' || 
-                         currentRoute === '/resolver-incidencias';
-    
     // Si ya tenemos roles cargados, filtrarlos según sea necesario
     if (this.roles && this.roles.length > 0) {
-      this.filterAndShowRoles(hideAdminRole);
+      this.filterAndShowRoles(id_hideRole);
     } else {
       // Si no hay roles cargados, cargarlos primero
       this.loadRolesForNavbar(() => {
-        this.filterAndShowRoles(hideAdminRole);
+        this.filterAndShowRoles(id_hideRole);
       });
     }
   }
 
   // Nuevo método para filtrar roles y mostrar el modal
-  private filterAndShowRoles(hideAdminRole: boolean): void {
-    // Filtrar roles si es necesario
-    if (hideAdminRole) {
-      this.modalRoles = this.roles.filter(rol => rol.id !== 1); // Excluir admin
-    } else {
-      this.modalRoles = [...this.roles];
-    }
+  private filterAndShowRoles(id_hideRole?: number): void {
+    // Obtener el ID del rol actual del usuario desde localStorage
+    const currentRoleId = parseInt(localStorage.getItem('id_rol') || '0', 10);
+    
+    // Filtrar roles para excluir el rol actual del usuario
+    this.modalRoles = this.roles.filter(rol => rol.id !== currentRoleId && rol.id !== id_hideRole);
     
     // Mostrar el modal
     const modal = document.getElementById('adminModal') as HTMLDialogElement;
@@ -382,31 +376,6 @@ export class AppComponent implements OnInit, OnDestroy {
     
     // Ocultar el spinner
     this.isNavbarLoading = false;
-  }
-
-  // Modificar getRolesForModal para aceptar un parámetro que indique si se debe ocultar el rol de admin
-  getRolesForModal(hideAdminRole: boolean = false): void {
-    this.userService.getRoles().subscribe({
-      next: (roles) => {
-        const currentRoleId = localStorage.getItem('id_rol');
-        
-        // Filtrar el rol de administrador si es necesario
-        if (currentRoleId === '1' || hideAdminRole) {
-          this.modalRoles = roles.filter(rol => rol.id !== 1); // Excluir el rol de administrador
-        } else {
-          this.modalRoles = roles; // Mostrar todos los roles
-        }
-        
-        // Actualizar el rol seleccionado
-        const storedRoleId = localStorage.getItem('id_rol');
-        if (storedRoleId) {
-          this.selectedRoleId = Number(storedRoleId);
-        }
-      },
-      error: (error) => {
-        console.error('Error al cargar los roles:', error);
-      }
-    });
   }
 
   private loadRolesForNavbar(callback?: () => void): void {

@@ -81,7 +81,7 @@ export class HomeComponent implements OnInit {
     if (idRol === 1) {
       // Si es administrador, mostrar el modal de cambio de rol
       if (this.appComponent) {
-        this.appComponent.openAdminModal();
+        this.appComponent.openAdminModal(3);
       } else {
         console.error('No se pudo acceder al componente principal');
         this.navigateTo('/crear-incidencia');
@@ -99,7 +99,7 @@ export class HomeComponent implements OnInit {
     if (idRol === 1) {
       // Si es administrador, mostrar el modal de cambio de rol
       if (this.appComponent) {
-        this.appComponent.openAdminModal();
+        this.appComponent.openAdminModal(2);
       } else {
         console.error('No se pudo acceder al componente principal');
         this.navigateTo('/resolver-incidencias');
