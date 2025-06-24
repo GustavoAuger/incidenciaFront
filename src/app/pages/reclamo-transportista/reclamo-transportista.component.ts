@@ -500,7 +500,8 @@ export class ReclamoTransportistaComponent implements OnInit {
           fechaRecepcion: incidencia.fecha_recepcion,
           tipo_estado: incidencia.tipo_estado,
           bodDestino: incidencia.destino_id_bodega || '',      
-          id_bodega: incidencia.d_id_bodega,     
+          id_bodega: incidencia.d_id_bodega,
+          ruta: incidencia.ruta || ''     
         }
       }
     };
