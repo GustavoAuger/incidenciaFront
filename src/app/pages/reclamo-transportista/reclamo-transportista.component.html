@@ -43,37 +43,32 @@
       <div class="filters-container">
         <div class="date-filters">
             <div class="filter-group">
-                <label>Fecha Recepción</label>
+                <label>Fecha Reclamo</label>
                 <label>Desde</label>
-                <input type="date" class="date-input text-xs p-1 h-8" value="{minDate}"  #fechaInput
-                [ngClass]="{'text-gray-400': !filtros.fechaDesde && !isFechaDesdeOpen, 'text-black': filtros.fechaDesde || isFechaDesdeOpen}"
-                name="fecha" [(ngModel)]="filtros.fechaDesde" (ngModelChange)="aplicarFiltros()">
+                <input type="date" class="date-input text-xs p-1 h-8" 
+                [ngClass]="{'text-gray-400': !filtros.fechaReclamoDesde && !isFechaReclamoDesdeOpen, 'text-black': filtros.fechaReclamoDesde || isFechaReclamoDesdeOpen}"
+                name="fechaReclamoDesde" [(ngModel)]="filtros.fechaReclamoDesde" (ngModelChange)="aplicarFiltros()"
+                [max]="getTodayDate()"
+                (click)="isFechaReclamoDesdeOpen = !isFechaReclamoDesdeOpen"
+                (blur)="isFechaReclamoDesdeOpen = false">
             </div>
             <div class="filter-group">
                 <label>&nbsp;</label>
                 <label>Hasta</label>
-                <input type="date" class="date-input text-xs p-1 h-8"  value="" #fechaInput2
-                [ngClass]="{'text-gray-400': !filtros.fechaHasta && !isFechaHastaOpen, 'text-black': filtros.fechaHasta || isFechaHastaOpen}"
-                name="fecha2" [(ngModel)]="filtros.fechaHasta" (ngModelChange)="aplicarFiltros()">
+                <input type="date" class="date-input text-xs p-1 h-8" 
+                [ngClass]="{'text-gray-400': !filtros.fechaReclamoHasta && !isFechaReclamoHastaOpen, 'text-black': filtros.fechaReclamoHasta || isFechaReclamoHastaOpen}"
+                name="fechaReclamoHasta" [(ngModel)]="filtros.fechaReclamoHasta" (ngModelChange)="aplicarFiltros()"
+                [min]="filtros.fechaReclamoDesde"
+                [max]="getTodayDate()"
+                (click)="isFechaReclamoHastaOpen = !isFechaReclamoHastaOpen"
+                (blur)="isFechaReclamoHastaOpen = false">
             </div>
         </div>
 
-        <div class="other-filters">
+        <div class="other-filters" *ngIf="activeTab === 'reclamadas'">
             <div class="filter-group">
-                <label>N° Incidencia</label>
-                <input type="text" class="text-input text-xs p-1 h-8" [(ngModel)]="filtros.numeroIncidencia" (ngModelChange)="aplicarFiltros()">
-            </div>
-            <div class="filter-group">
-                <label>Tipo Incidencia</label>
-                <select class="select-input text-xs p-1 h-8" 
-                [ngClass]="{'text-gray-400': !filtros.tipoIncidencia && !isTipoIncidenciaOpen, 'text-black': filtros.tipoIncidencia || isTipoIncidenciaOpen}"
-                [(ngModel)]="filtros.tipoIncidencia" 
-                (ngModelChange)="aplicarFiltros(); isTipoIncidenciaOpen = false"
-                (click)="isTipoIncidenciaOpen = !isTipoIncidenciaOpen"
-                (blur)="isTipoIncidenciaOpen = false">
-                    <option value="">Seleccionar...</option>
-                    <option *ngFor="let tipo of tiposIncidencia" [value]="tipo.id">{{tipo.nombre}}</option>
-                </select>
+                <label>N° Reclamo</label>
+                <input type="text" class="text-input text-xs p-1 h-8" [(ngModel)]="filtros.numeroReclamo" (ngModelChange)="aplicarFiltros()">
             </div>
             <div class="filter-group">
               <label>Bodega Destino</label>
@@ -226,7 +221,7 @@
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  {{ incidencia.id ? 'INC' + incidencia.id.toString() : '' }}
+                  {{ formatearNumeroReclamo(incidencia.id!) }}
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
@@ -350,22 +345,10 @@
             </div>
         </div>
 
-        <div class="other-filters">
+        <div class="other-filters" *ngIf="activeTab === 'ingresar_reclamo'">
             <div class="filter-group">
                 <label>N° Incidencia</label>
                 <input type="text" class="text-input text-xs p-1 h-8" [(ngModel)]="filtros.numeroIncidencia" (ngModelChange)="aplicarFiltros()">
-            </div>
-            <div class="filter-group">
-                <label>Tipo Incidencia</label>
-                <select class="select-input text-xs p-1 h-8" 
-                [ngClass]="{'text-gray-400': !filtros.tipoIncidencia && !isTipoIncidenciaOpen, 'text-black': filtros.tipoIncidencia || isTipoIncidenciaOpen}"
-                [(ngModel)]="filtros.tipoIncidencia" 
-                (ngModelChange)="aplicarFiltros(); isTipoIncidenciaOpen = false"
-                (click)="isTipoIncidenciaOpen = !isTipoIncidenciaOpen"
-                (blur)="isTipoIncidenciaOpen = false">
-                    <option value="">Seleccionar...</option>
-                    <option *ngFor="let tipo of tiposIncidencia" [value]="tipo.id">{{tipo.nombre}}</option>
-                </select>
             </div>
             <div class="filter-group">
               <label>Bodega Destino</label>
@@ -519,7 +502,7 @@
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  {{ incidencia.id }}
+                  {{ formatearNumeroReclamo(incidencia.id!) }}
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
@@ -652,7 +635,6 @@
           type="text" 
           class="input input-bordered w-full" 
           [(ngModel)]="reclamoForm.fdr"
-          placeholder="Ingrese el número de FDR"
           required
         >
       </div>
@@ -680,7 +662,6 @@
         <textarea 
           class="textarea textarea-bordered h-24" 
           [(ngModel)]="reclamoForm.observacion"
-          placeholder="Ingrese una observación (opcional)"
         ></textarea>
       </div>
     </div>

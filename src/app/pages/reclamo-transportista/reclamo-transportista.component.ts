@@ -6,7 +6,6 @@ import { IncidenciaService } from '../../services/incidencia.service';
 import { Incidencia } from '../../interfaces/incidencia';
 import { UserService } from '../../services/user.service';
 import { Bodega } from '../../interfaces/bodega';
-import { Tipo_incidencia} from '../../interfaces/tipo_incidencia';
 import { Filtros } from '../../interfaces/filtros';
 import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
 import { Transportista } from '../../interfaces/transportista';
@@ -34,7 +33,8 @@ export class ReclamoTransportistaComponent implements OnInit {
   isTransporteOpen = false;
   isFechaDesdeOpen = false;
   isFechaHastaOpen = false;
-  isTipoIncidenciaOpen = false;
+  isFechaReclamoDesdeOpen = false;
+  isFechaReclamoHastaOpen = false;
 
   // Propiedades para ordenamiento
   sortColumn: string = 'id';
@@ -87,9 +87,6 @@ export class ReclamoTransportistaComponent implements OnInit {
         break;
       case 'fechaHasta':
         this.isFechaHastaOpen = !this.isFechaHastaOpen;
-        break;
-      case 'tipoIncidencia':
-        this.isTipoIncidenciaOpen =!this.isTipoIncidenciaOpen;
         break;  
       case 'origen':
         this.isOrigenOpen = !this.isOrigenOpen;
@@ -100,14 +97,17 @@ export class ReclamoTransportistaComponent implements OnInit {
       case 'transporte':
         this.isTransporteOpen = !this.isTransporteOpen;
         break;
+      case 'fechaReclamoDesde':
+        this.isFechaReclamoDesdeOpen = !this.isFechaReclamoDesdeOpen;
+        break;
+      case 'fechaReclamoHasta':
+        this.isFechaReclamoHastaOpen = !this.isFechaReclamoHastaOpen;
+        break;
     }
   }
   // Datos de bodegas
   bodegas: Bodega[] = [ ];
   bodegasDestino: Bodega[] = [];
-
-  // Tipos de incidencia
-  tiposIncidencia: Tipo_incidencia[] = [ ];
 
   // Transportes (ahora se obtienen del servicio)
   transportistas: Transportista[] = [];
@@ -116,13 +116,16 @@ export class ReclamoTransportistaComponent implements OnInit {
   filtros: Filtros = {
     fechaDesde: '',
     fechaHasta: '',
+    fechaReclamoDesde: '',
+    fechaReclamoHasta: '',
     numeroIncidencia: '',
-    tipoIncidencia: '',
+    numeroReclamo: '',
     origen: '',
     destino: '',
     ots: '',
     transporte: '',
-    estado: ''
+    estado: '',
+    tipoIncidencia: ''
   };
 
   // Propiedades de paginación
@@ -160,6 +163,7 @@ export class ReclamoTransportistaComponent implements OnInit {
         this.usuarios = usuarios;
         // Una vez cargados los usuarios, cargar las incidencias
         this.cargarIncidencias(id_usuario);
+        this.initializeDefaultDates();
       },
       error: (error) => {
         console.error('Error al cargar usuarios', error);
@@ -216,7 +220,6 @@ export class ReclamoTransportistaComponent implements OnInit {
     }
     
     this.getBodegas();
-    this.getTipoIncidencia();
     this.loadEstadosReclamo();
     
     // Restaurar la pestaña guardada después de cargar los datos
@@ -240,20 +243,6 @@ export class ReclamoTransportistaComponent implements OnInit {
             console.error('Error al obtener bodegas', error);
         }
     });
-}
-
-getTipoIncidencia() { 
-  this._incidenciaService.getTipoIncidencia().subscribe({ 
-    next: (tiposIncidencia: Tipo_incidencia[]) => { 
-      this.tiposIncidencia = tiposIncidencia.map(tipo => ({
-        id: tipo.id,
-        nombre: tipo.nombre
-      }));
-    }, 
-    error: (error: Error) => { 
-      console.error('Error al obtener tipos de incidencia', error); 
-    } 
-  }); 
 }
 
   // Método para cargar los estados de reclamo
@@ -542,53 +531,102 @@ getTipoIncidencia() {
     this.currentPage = 1; // Volver a la primera página al aplicar filtros
   }
 
+  // Método para comparar fechas ignorando la hora
+  private compararFechas(fecha1: string | Date, fecha2: string | Date): number {
+    const d1 = new Date(fecha1);
+    const d2 = new Date(fecha2);
+    
+    // Resetear horas, minutos, segundos y milisegundos para comparar solo fechas
+    d1.setHours(0, 0, 0, 0);
+    d2.setHours(0, 0, 0, 0);
+    
+    return d1.getTime() - d2.getTime();
+  }
+
   // Metodo para aplicar los filtros
   aplicarFiltros() {
+    console.log('Aplicando filtros...');
+    console.log('Filtros actuales:', this.filtros);
+    
     // Seleccionar el conjunto de datos según la pestaña activa
     const dataSource = this.activeTab === 'reclamadas' 
       ? [...this.incidenciasReclamadas] 
       : [...this.ingresarReclamo];
     
+    console.log(`Total de incidencias a filtrar: ${dataSource.length}`);
+    
     this.incidenciasFiltradas = dataSource.filter(incidencia => {
-      // Filtro por fechas
-      const cumpleFechaDesde = !this.filtros.fechaDesde || 
-        (incidencia.fecha_recepcion && new Date(incidencia.fecha_recepcion) >= new Date(this.filtros.fechaDesde));
+      // Filtro por fechas de recepción
+      let cumpleFechaDesde = true;
+      let cumpleFechaHasta = true;
       
-      const cumpleFechaHasta = !this.filtros.fechaHasta || 
-        (incidencia.fecha_recepcion && new Date(incidencia.fecha_recepcion) <= new Date(this.filtros.fechaHasta));
+      if (this.filtros.fechaDesde && incidencia.fecha_recepcion) {
+        const fechaRecepcion = new Date(incidencia.fecha_recepcion);
+        const fechaDesde = new Date(this.filtros.fechaDesde);
+        cumpleFechaDesde = this.compararFechas(fechaRecepcion, fechaDesde) >= 0;
+        
+        if (!cumpleFechaDesde) {
+          console.log(`Incidencia ${incidencia.id} no cumple fecha desde:`, {
+            fechaRecepcion: incidencia.fecha_recepcion,
+            fechaDesde: this.filtros.fechaDesde,
+            resultado: cumpleFechaDesde
+          });
+        }
+      }
+      
+      if (this.filtros.fechaHasta && incidencia.fecha_recepcion) {
+        const fechaRecepcion = new Date(incidencia.fecha_recepcion);
+        const fechaHasta = new Date(this.filtros.fechaHasta);
+        // Sumar un día a la fecha hasta para incluir todo el día
+        fechaHasta.setDate(fechaHasta.getDate() + 1);
+        cumpleFechaHasta = this.compararFechas(fechaRecepcion, fechaHasta) <= 0;
+        
+        if (!cumpleFechaHasta) {
+          console.log(`Incidencia ${incidencia.id} no cumple fecha hasta:`, {
+            fechaRecepcion: incidencia.fecha_recepcion,
+            fechaHasta: this.filtros.fechaHasta,
+            resultado: cumpleFechaHasta
+          });
+        }
+      }
+      
+      // Resto de los filtros...
+      // Option 1: If you have a reclamos array, find the related claim
+      const reclamoRelacionado = this.reclamos.find(r => r.id_incidencia === incidencia.id);
+      const cumpleFiltroNumero = !this.filtros.numeroReclamo || 
+        (incidencia.id && incidencia.id.toString().includes(this.filtros.numeroReclamo)) ||
+        (reclamoRelacionado && reclamoRelacionado.id && reclamoRelacionado.id.toString().includes(this.filtros.numeroReclamo));
 
-      // Filtro por número de incidencia
       const cumpleNumeroIncidencia = !this.filtros.numeroIncidencia || 
-        (incidencia.id?.toString().toLowerCase() || '').includes(this.filtros.numeroIncidencia.toLowerCase()) ||
-        (incidencia.id?.toString().toLowerCase() || '').includes(this.filtros.numeroIncidencia.replace('inc', '').toLowerCase()) ||
-        ('inc' + (incidencia.id?.toString() || '').toLowerCase()).includes(this.filtros.numeroIncidencia.toLowerCase());
+        (incidencia.id && incidencia.id.toString().includes(this.filtros.numeroIncidencia));
       
-      // Filtro por tipo de incidencia
-      const cumpleTipoIncidencia = !this.filtros.tipoIncidencia || 
-        incidencia.id_tipo_incidencia?.toString() === this.filtros.tipoIncidencia;
-      
-      // Filtro por destino
       const cumpleDestino = !this.filtros.destino || 
-        incidencia.destino === this.filtros.destino;
+        (incidencia.destino_id_bodega && incidencia.destino_id_bodega === this.filtros.destino);
       
-      // Filtro por OTS
       const cumpleOTS = !this.filtros.ots || 
-        (incidencia.ots?.toLowerCase() || '').includes(this.filtros.ots.toLowerCase());
+        (incidencia.ots && incidencia.ots.toLowerCase().includes(this.filtros.ots.toLowerCase()));
       
-      // Filtro por transportista (comparando el nombre)
       const cumpleTransporte = !this.filtros.transporte || 
-        (incidencia.transportista?.toLowerCase() === this.filtros.transporte.toLowerCase());
+        (incidencia.transportista && incidencia.transportista.toLowerCase().includes(this.filtros.transporte.toLowerCase()));
       
       // Aplicar todos los filtros
-      return cumpleFechaDesde && 
-             cumpleFechaHasta && 
-             cumpleNumeroIncidencia && 
-             cumpleTipoIncidencia && 
-             cumpleDestino && 
-             cumpleOTS && 
-             cumpleTransporte;
+      const cumpleTodosLosFiltros = cumpleFechaDesde && 
+                                  cumpleFechaHasta && 
+                                  cumpleFiltroNumero && 
+                                  cumpleNumeroIncidencia && 
+                                  cumpleDestino && 
+                                  cumpleOTS && 
+                                  cumpleTransporte;
+      
+      if (cumpleTodosLosFiltros) {
+        console.log(`Incidencia ${incidencia.id} pasa todos los filtros`);
+      }
+      
+      return cumpleTodosLosFiltros;
     });
-
+    
+    console.log(`Total de incidencias después de filtrar: ${this.incidenciasFiltradas.length}`);
+    
     // Ordenar por ID descendente después de filtrar
     this.incidenciasFiltradas.sort((a, b) => (b.id || 0) - (a.id || 0));
     
@@ -597,19 +635,30 @@ getTipoIncidencia() {
   }
 
   limpiarFiltros() {
-    this.filtros = {
-      fechaDesde: '',
-      fechaHasta: '',
-      numeroIncidencia: '',
-      tipoIncidencia: '',
-      origen: '',
-      destino: '',
-      ots: '',
-      transporte: '',
-      estado: ''
-    };
-    this.incidenciasFiltradas = [...this.incidencias];
-    this.updatePagination();
+    if (this.activeTab === 'reclamadas') {
+      // Clear only filters for "Incidencias Reclamadas" tab
+      this.filtros = {
+        ...this.filtros,  // Keep all existing filters
+        fechaReclamoDesde: '',
+        fechaReclamoHasta: '',
+        numeroReclamo: '',
+        destino: '',
+        ots: '',
+        transporte: ''
+      };
+    } else if (this.activeTab === 'ingresar_reclamo') {
+      // Clear only filters for "Ingresar Reclamo" tab
+      this.filtros = {
+        ...this.filtros,  // Keep all existing filters
+        fechaDesde: '',
+        fechaHasta: '',
+        numeroIncidencia: '',
+        destino: '',
+        ots: '',
+        transporte: ''
+      };
+    }
+    this.aplicarFiltros();
   }
 
   // Método para navegar a una ruta específica
@@ -627,36 +676,42 @@ getTipoIncidencia() {
     }
 
     this.incidenciasFiltradas.sort((a, b) => {
-      let valueA: any;
-      let valueB: any;
+      let aValue: any;
+      let bValue: any;
 
-      // Manejar diferentes tipos de columnas
-      if (column === 'numero_reclamo') {
-        valueA = this.getNumeroReclamo(a);
-        valueB = this.getNumeroReclamo(b);
-      } else if (column === 'fecha_emision' || column === 'fecha_recepcion') {
-        // Para fechas, convertir a timestamp para comparar
-        valueA = a[column] ? new Date(a[column] as string).getTime() : 0;
-        valueB = b[column] ? new Date(b[column] as string).getTime() : 0;
-      } else if (column === 'valorizado' || column === 'total_item') {
-        // Para valores numéricos
-        valueA = Number(a[column as keyof Incidencia]) || 0;
-        valueB = Number(b[column as keyof Incidencia]) || 0;
-      } else {
-        // Para otros campos, usar el valor directamente
-        valueA = a[column as keyof Incidencia] || '';
-        valueB = b[column as keyof Incidencia] || '';
+      switch (column) {
+        case 'id':
+          aValue = a.id || 0;
+          bValue = b.id || 0;
+          break;
+        case 'fecha':
+          aValue = a.fecha ? new Date(a.fecha).getTime() : 0;
+          bValue = b.fecha ? new Date(b.fecha).getTime() : 0;
+          break;
+        case 'origen':
+          aValue = a.origen_id_local || '';
+          bValue = a.origen_id_local || '';
+          break;
+        case 'destino':
+          aValue = a.destino_id_bodega || '';
+          bValue = a.destino_id_bodega || '';
+          break;
+        case 'transporte':
+          aValue = a.transportista || '';
+          bValue = a.transportista || '';
+          break;
+        case 'estado':
+          aValue = this.getEstadoReclamo(a);
+          bValue = this.getEstadoReclamo(b);
+          break;
+        default:
+          return 0;
       }
 
-      // Manejar valores nulos o indefinidos
-      if (valueA == null) return this.sortDirection === 'asc' ? -1 : 1;
-      if (valueB == null) return this.sortDirection === 'asc' ? 1 : -1;
-
-      // Comparar valores
-      if (valueA < valueB) {
+      if (aValue < bValue) {
         return this.sortDirection === 'asc' ? -1 : 1;
       }
-      if (valueA > valueB) {
+      if (aValue > bValue) {
         return this.sortDirection === 'asc' ? 1 : -1;
       }
       return 0;
@@ -831,5 +886,43 @@ getTipoIncidencia() {
   onFormChange() {
     // Este método se llama desde el template cuando hay cambios en los campos del formulario
     // No es necesario hacer nada aquí, solo asegurarse de que Angular detecte los cambios
+  }
+
+  // Get today's date in YYYY-MM-DD format
+  getTodayDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // Get date 30 days ago in YYYY-MM-DD format
+  getThirtyDaysAgoDate(): string {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    
+    const year = thirtyDaysAgo.getFullYear();
+    const month = String(thirtyDaysAgo.getMonth() + 1).padStart(2, '0');
+    const day = String(thirtyDaysAgo.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // Initialize default dates
+  private initializeDefaultDates() {
+    // Fechas para reclamos
+    this.filtros.fechaReclamoDesde = this.getThirtyDaysAgoDate();
+    this.filtros.fechaReclamoHasta = this.getTodayDate();
+    
+    // Fechas para recepción (últimos 30 días por defecto)
+    this.filtros.fechaDesde = this.getThirtyDaysAgoDate();
+    this.filtros.fechaHasta = this.getTodayDate();
+  }
+
+  // Formatea un número de incidencia con el formato INCXX
+  formatearNumeroReclamo(id: number): string {
+    if (!id) return '';
+    return `INC${id}`;
   }
 }
