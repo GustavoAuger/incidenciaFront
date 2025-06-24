@@ -351,7 +351,8 @@ export class AppComponent implements OnInit, OnDestroy {
     
     // Verificar si estamos en una ruta donde no se debe mostrar el rol de admin
     const currentRoute = this.router.url;
-    const hideAdminRole = currentRoute === '/crear-incidencia' || currentRoute === '/incidencias-sin-resolver';
+    const hideAdminRole = currentRoute === '/crear-incidencia' || 
+                         currentRoute === '/resolver-incidencias';
     
     // Si ya tenemos roles cargados, filtrarlos según sea necesario
     if (this.roles && this.roles.length > 0) {

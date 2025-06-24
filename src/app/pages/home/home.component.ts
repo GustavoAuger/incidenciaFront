@@ -92,6 +92,24 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  // Método para manejar el clic en Resolver Incidencias
+  onResolverIncidenciasClick(): void {
+    const idRol = parseInt(localStorage.getItem('id_rol') || '0', 10);
+    
+    if (idRol === 1) {
+      // Si es administrador, mostrar el modal de cambio de rol
+      if (this.appComponent) {
+        this.appComponent.openAdminModal();
+      } else {
+        console.error('No se pudo acceder al componente principal');
+        this.navigateTo('/resolver-incidencias');
+      }
+    } else {
+      // Si no es administrador, navegar normalmente
+      this.navigateTo('/resolver-incidencias');
+    }
+  }
+
   // Métodos auxiliares para verificar roles
   isAdmin(): boolean {
     return this.user.id_rol === 1;
