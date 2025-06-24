@@ -285,7 +285,7 @@
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
                   <div class="flex justify-center space-x-1">
-                    <button (click)="verDetalle(incidencia)" class="btn btn-ghost btn-xs hover:bg-transparent" title="Ver detalle">
+                    <button (click)="verDetalle(incidencia)" class="btn btn-ghost btn-xs hover:bg-transparent" title="Ver detalle incidencia">
                       <i class="fas fa-eye" style="color: #00bcd4;"></i>
                     </button>
                     <button (click)="abrirEditarReclamo(incidencia)" class="btn btn-ghost btn-xs hover:bg-transparent" title="Editar reclamo">
@@ -673,6 +673,26 @@
     <h3 class="font-bold text-lg mb-4">Editar Reclamo</h3>
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <!-- Estado -->
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Estado</span>
+        </label>
+        <select class="select select-bordered w-full" [(ngModel)]="editarReclamoForm.id_estado">
+          <option *ngFor="let estado of estadosReclamo" [value]="estado.id">{{ estado.nombre | initCapFirst}}</option>
+        </select>
+      </div>
+      
+      <!-- Monto Pagado -->
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Monto Pagado</span>
+        </label>
+        <input type="number" class="input input-bordered w-full" [(ngModel)]="editarReclamoForm.monto_pagado" min="0" step="0.01">
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <!-- FDR -->
       <div class="form-control">
         <label class="label">
@@ -687,24 +707,6 @@
           <span class="label-text">Fecha Reclamo</span>
         </label>
         <input type="date" class="input input-bordered w-full" [(ngModel)]="editarReclamoForm.fechaReclamo">
-      </div>
-      
-      <!-- Monto Pagado -->
-      <div class="form-control">
-        <label class="label">
-          <span class="label-text">Monto Pagado</span>
-        </label>
-        <input type="number" class="input input-bordered w-full" [(ngModel)]="editarReclamoForm.monto_pagado" min="0" step="0.01">
-      </div>
-      
-      <!-- Estado -->
-      <div class="form-control">
-        <label class="label">
-          <span class="label-text">Estado</span>
-        </label>
-        <select class="select select-bordered w-full" [(ngModel)]="editarReclamoForm.id_estado">
-          <option *ngFor="let estado of estadosReclamo" [value]="estado.id">{{ estado.nombre | initCapFirst}}</option>
-        </select>
       </div>
     </div>
     
