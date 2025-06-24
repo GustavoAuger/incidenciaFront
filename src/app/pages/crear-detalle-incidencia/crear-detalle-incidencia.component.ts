@@ -98,6 +98,9 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Hacer scroll al inicio de la página
+    window.scrollTo(0, 0);
+    
     this.originalIdBodega = localStorage.getItem('id_bodega') ?? '';
     console.log('Original bodega ID:', this.originalIdBodega);
     console.log(this.incidencia.ruta);
