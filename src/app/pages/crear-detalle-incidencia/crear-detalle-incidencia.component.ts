@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,7 +14,7 @@ import { IncidenciaService } from '../../services/incidencia.service';
   standalone: true,
   imports: [CommonModule, FormsModule, InitCapFirstPipe]
 })
-export class CrearDetalleIncidenciaComponent implements OnInit {
+export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
   modoVisualizacion: boolean = false;
   incidenciaId: number = 0;
   detalles: DetalleIncidencia[] = [];
@@ -59,12 +59,35 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
     'sobrante',
   ];
 
+  // Variable para controlar la visibilidad del modal
+  showImageModal: boolean = false;
+  modalImageUrl: string = '';
+
+  // Método para abrir la imagen en el modal
+  openImageModal(imageUrl: string): void {
+    this.modalImageUrl = imageUrl;
+    this.showImageModal = true;
+    // Deshabilitar el scroll del body cuando el modal está abierto
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Método para cerrar el modal
+  closeImageModal(): void {
+    this.showImageModal = false;
+    // Restaurar el scroll del body
+    document.body.style.overflow = 'auto';
+  }
+
   constructor(
     private router: Router,
     private incidenciaService: IncidenciaService,
     private route: ActivatedRoute,
 
   ) {
+    // Deshabilitar el scroll de restauración del navegador
+    if (typeof window !== 'undefined') {
+      history.scrollRestoration = 'manual';
+    }
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       const state = navigation.extras.state as any;
@@ -98,7 +121,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Hacer scroll al inicio de la página
+    // Forzar scroll al inicio cuando se inicia el componente
     window.scrollTo(0, 0);
     
     this.originalIdBodega = localStorage.getItem('id_bodega') ?? '';
@@ -195,6 +218,17 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
         }
       }
     });
+  }
+
+  ngAfterViewInit() {
+    // Asegurar que el scroll esté en la parte superior después de la renderización
+    window.scrollTo(0, 0);
+    // Forzar scroll después de un pequeño retraso para asegurar que todo esté renderizado
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+    }, 0);
   }
 
   private completeLoading() {

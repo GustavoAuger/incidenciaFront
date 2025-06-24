@@ -41,22 +41,30 @@
     <!-- Contenedor blanco -->
     <div class="bg-white rounded-xl shadow-xl overflow-hidden">
       <!-- Información de cabecera -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 p-8 bg-[#00AFD7]">
-        <div class="bg-white rounded-lg p-5 shadow-lg">
-          <p class="text-[#00AFD7] font-bold text-sm mb-2 text-center">ORIGEN</p>
-          <p class="text-black-700 text-lg text-center">{{incidencia.bodOrigenNombre}}</p>
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4 p-6 bg-[#00AFD7]">
+        <div class="bg-white rounded-lg p-4 shadow-lg min-w-0 h-full">
+          <p class="text-[#00AFD7] font-bold text-sm mb-3 text-center">ORIGEN</p>
+          <p class="text-black-700 text-base text-center truncate">{{incidencia.bodOrigenNombre}}</p>
         </div>
-        <div class="bg-white rounded-lg p-5 shadow-lg">
-          <p class="text-[#00AFD7] font-bold text-sm mb-2 text-center">TRANSPORTE</p>
-          <p class="text-black-700 text-lg text-center">{{incidencia.transportistaNombre}}</p>
+
+        <div class="bg-white rounded-lg p-4 shadow-lg min-w-0 h-full">
+          <p class="text-[#00AFD7] font-bold text-sm mb-3 text-center">DESTINO</p>
+          <p class="text-black-700 text-base text-center truncate">{{incidencia.bodDestino}}</p>
         </div>
-        <div class="bg-white rounded-lg p-5 shadow-lg">
-          <p class="text-[#00AFD7] font-bold text-sm mb-2 text-center">OTS</p>
-          <p class="text-black-700 text-lg text-center">{{incidencia.ots || '-'}}</p>
+
+        <div class="bg-white rounded-lg p-4 shadow-lg min-w-0 h-full">
+          <p class="text-[#00AFD7] font-bold text-sm mb-3 text-center">TRANSPORTE</p>
+          <p class="text-black-700 text-base text-center truncate">{{incidencia.transportistaNombre}}</p>
         </div>
-        <div class="bg-white rounded-lg p-5 shadow-lg">
-          <p class="text-[#00AFD7] font-bold text-sm mb-2 text-center">FECHA RECEPCIÓN</p>
-          <p class="text-black-700 text-lg text-center">{{incidencia.fechaRecepcion ? (incidencia.fechaRecepcion | date:'dd/MM/yyyy') : ''}}</p>
+
+        <div class="bg-white rounded-lg p-4 shadow-lg min-w-0 h-full">
+          <p class="text-[#00AFD7] font-bold text-sm mb-3 text-center">OTS</p>
+          <p class="text-black-700 text-base text-center">{{incidencia.ots || '-'}}</p>
+        </div>
+
+        <div class="bg-white rounded-lg p-4 shadow-lg min-w-0 h-full">
+          <p class="text-[#00AFD7] font-bold text-sm mb-3 text-center">FECHA RECEPCIÓN</p>
+          <p class="text-black-700 text-base text-center">{{incidencia.fechaRecepcion ? (incidencia.fechaRecepcion | date:'dd/MM/yyyy') : ''}}</p>
         </div>
       </div>
 
@@ -185,14 +193,36 @@
         </div>
     </div>
     <!-- Imagen de la incidencia (si hay) -->
-    <div *ngIf="incidencia.ruta" class="mb-6 mt-8">
-      <div class="rounded-lg overflow-hidden shadow-lg w-1/3">
-        <img [src]="incidencia.ruta" alt="Evidencia de la incidencia" class="w-full h-64 object-cover">
-        <div class="p-4 bg-white">
-          <p class="text-sm text-gray-600">Evidencia de la incidencia</p>
+    <div *ngIf="incidencia.ruta" class="mb-6 mt-8 w-1/3">
+      <div class="rounded-lg overflow-hidden shadow-lg bg-white">
+        <div class="p-3 border-b border-gray-200">
+          <p class="font-bold text-gray-800">Evidencia de la incidencia</p>
+        </div>
+        <div class="cursor-pointer hover:opacity-90 transition-opacity" (click)="openImageModal(incidencia.ruta)">
+          <img [src]="incidencia.ruta" alt="Evidencia de la incidencia" class="w-full h-64 object-cover">
         </div>
       </div>
     </div>
+
+    <!-- Modal para visualizar la imagen en tamaño completo -->
+    <div *ngIf="showImageModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" (click)="closeImageModal()">
+      <!-- Fondo con desenfoque -->
+      <div class="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+      
+      <!-- Contenedor del modal -->
+      <div class="relative max-w-4xl w-full max-h-[90vh] flex flex-col z-10 bg-white rounded-lg shadow-2xl overflow-hidden" (click)="$event.stopPropagation()">
+        <div class="bg-white p-4 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="text-lg font-semibold">Evidencia de la Incidencia - INC{{incidencia.id}}</h3>
+          <button (click)="closeImageModal()" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="bg-gray-50 p-2 flex-1 overflow-auto">
+          <img [src]="modalImageUrl" alt="Imagen ampliada" class="max-w-full max-h-[calc(90vh-120px)] mx-auto object-contain rounded">
+        </div>
+      </div>
+    </div>
+
     <!-- Botones de acción -->
     <div class="px-8 py-6 bg-[#f5f5f5] -mx-8 mt-8 flex justify-between items-center">
 
