@@ -575,8 +575,15 @@ export class ReclamoTransportistaComponent implements OnInit {
     // Pre-calcular los timestamps de filtro para mejor rendimiento
     const filtroFechaDesde = this.filtros.fechaDesde ? this.getStartOfDayTimestamp(this.filtros.fechaDesde) : null;
     const filtroFechaHasta = this.filtros.fechaHasta ? this.getEndOfDayTimestamp(this.filtros.fechaHasta) : null;
-    const filtroFechaReclamoDesde = this.filtros.fechaReclamoDesde ? this.getStartOfDayTimestamp(this.filtros.fechaReclamoDesde) : null;
-    const filtroFechaReclamoHasta = this.filtros.fechaReclamoHasta ? this.getEndOfDayTimestamp(this.filtros.fechaReclamoHasta) : null;
+    
+    // Solo aplicar filtros de fecha de reclamo si estamos en la pestaña 'reclamadas'
+    const filtroFechaReclamoDesde = (this.activeTab === 'reclamadas' && this.filtros.fechaReclamoDesde) 
+      ? this.getStartOfDayTimestamp(this.filtros.fechaReclamoDesde) 
+      : null;
+      
+    const filtroFechaReclamoHasta = (this.activeTab === 'reclamadas' && this.filtros.fechaReclamoHasta) 
+      ? this.getEndOfDayTimestamp(this.filtros.fechaReclamoHasta) 
+      : null;
     
     // Debug: Mostrar los rangos de fechas
     if (filtroFechaReclamoDesde || filtroFechaReclamoHasta) {
@@ -604,32 +611,34 @@ export class ReclamoTransportistaComponent implements OnInit {
         cumpleFechaHasta = fechaRecepcion <= filtroFechaHasta;
       }
 
-      // Filtro por fecha de reclamo
-      const reclamoRelacionado = this.reclamos.find(r => r.id_incidencia === incidencia.id);
-      const fechaReclamo = reclamoRelacionado?.fecha_reclamo;
-      
-      if (filtroFechaReclamoDesde && fechaReclamo) {
-        const fechaReclamoTs = this.toUTCTimestamp(fechaReclamo);
-        cumpleFechaReclamoDesde = fechaReclamoTs >= filtroFechaReclamoDesde;
-      }
-      
-      if (filtroFechaReclamoHasta && fechaReclamo) {
-        const fechaReclamoTs = this.toUTCTimestamp(fechaReclamo);
-        cumpleFechaReclamoHasta = fechaReclamoTs <= filtroFechaReclamoHasta;
+      // Filtro por fecha de reclamo (solo si estamos en la pestaña 'reclamadas')
+      if (this.activeTab === 'reclamadas') {
+        const reclamoRelacionado = this.reclamos.find(r => r.id_incidencia === incidencia.id);
+        const fechaReclamo = reclamoRelacionado?.fecha_reclamo;
         
-        // Debug: Mostrar información de fecha de reclamo que está siendo filtrada
-        if (!cumpleFechaReclamoHasta) {
-          console.log('Fecha de reclamo no cumple el filtro hasta:', {
-            fechaReclamo: new Date(fechaReclamo).toISOString(),
-            fechaReclamoTs,
-            filtroHasta: filtroFechaReclamoHasta,
-            diferencia: fechaReclamoTs - filtroFechaReclamoHasta
-          });
+        if (filtroFechaReclamoDesde && fechaReclamo) {
+          const fechaReclamoTs = this.toUTCTimestamp(fechaReclamo);
+          cumpleFechaReclamoDesde = fechaReclamoTs >= filtroFechaReclamoDesde;
         }
-      } else if ((this.filtros.fechaReclamoDesde || this.filtros.fechaReclamoHasta) && !fechaReclamo) {
-        // Si hay filtros de fecha de reclamo pero no hay fecha de reclamo, no mostrar
-        cumpleFechaReclamoDesde = false;
-        cumpleFechaReclamoHasta = false;
+        
+        if (filtroFechaReclamoHasta && fechaReclamo) {
+          const fechaReclamoTs = this.toUTCTimestamp(fechaReclamo);
+          cumpleFechaReclamoHasta = fechaReclamoTs <= filtroFechaReclamoHasta;
+          
+          // Debug: Mostrar información de fecha de reclamo que está siendo filtrada
+          if (!cumpleFechaReclamoHasta) {
+            console.log('Fecha de reclamo no cumple el filtro hasta:', {
+              fechaReclamo: new Date(fechaReclamo).toISOString(),
+              fechaReclamoTs,
+              filtroHasta: filtroFechaReclamoHasta,
+              diferencia: fechaReclamoTs - filtroFechaReclamoHasta
+            });
+          }
+        } else if ((filtroFechaReclamoDesde || filtroFechaReclamoHasta) && !fechaReclamo) {
+          // Si hay filtros de fecha de reclamo pero no hay fecha de reclamo, no mostrar
+          cumpleFechaReclamoDesde = false;
+          cumpleFechaReclamoHasta = false;
+        }
       }
       
       // Resto de los filtros...
