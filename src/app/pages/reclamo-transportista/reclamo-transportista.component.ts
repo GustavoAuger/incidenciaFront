@@ -139,6 +139,9 @@ export class ReclamoTransportistaComponent implements OnInit {
   // Propiedad para almacenar los reclamos
   reclamos: ReclamoTransportista[] = [];
 
+  // Agregar esta propiedad para almacenar el mapeo de ID de usuario a nombre
+  private usuarioMap: Map<number, string> = new Map();
+
   constructor(
       private router: Router, 
       private _incidenciaService: IncidenciaService,
@@ -165,6 +168,7 @@ export class ReclamoTransportistaComponent implements OnInit {
         // Una vez cargados los usuarios, cargar las incidencias
         this.cargarIncidencias(id_usuario);
         this.initializeDefaultDates();
+        this.loadUsuarios(); // Cargar la lista de usuarios
       },
       error: (error) => {
         console.error('Error al cargar usuarios', error);
@@ -1002,6 +1006,29 @@ export class ReclamoTransportistaComponent implements OnInit {
     // Fechas para recepción (últimos 30 días por defecto)
     this.filtros.fechaDesde = this.getThirtyDaysAgoDate();
     this.filtros.fechaHasta = this.getTodayDate();
+  }
+
+  // Método para cargar la lista de usuarios
+  private loadUsuarios(): void {
+    this._userService.getUsuarios().subscribe({
+      next: (usuarios) => {
+        // Crear un mapa de ID de usuario a nombre
+        usuarios.forEach(usuario => {
+          if (usuario.id && usuario.nombre) {
+            this.usuarioMap.set(usuario.id, usuario.nombre);
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Error al cargar usuarios:', error);
+      }
+    });
+  }
+
+  // Método para obtener el nombre del usuario por su ID
+  getNombreUsuario(idUsuario: number | null | undefined): string {
+    if (idUsuario === null || idUsuario === undefined) return '';
+    return this.usuarioMap.get(idUsuario) || idUsuario.toString();
   }
 
   // Formatea un número de incidencia con el formato INCXX
