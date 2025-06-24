@@ -81,7 +81,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
           tipo_estado: incidenciaData?.tipo_estado || '',
           d_id_bodega: incidenciaData?.d_id_bodega || 0,
           bodDestino: incidenciaData?.bodDestino || '',
-          file: incidenciaData?.file || null
+          file: incidenciaData?.file || null,
+          ruta: incidenciaData?.ruta || ''
         };
       }
       // Obtener la ruta de origen del estado de navegación
@@ -99,15 +100,14 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   ngOnInit() {
     this.originalIdBodega = localStorage.getItem('id_bodega') ?? '';
     console.log('Original bodega ID:', this.originalIdBodega);
-
+    console.log(this.incidencia.ruta);
     // Subscribe to queryParams once
     this.route.queryParams.subscribe(params => {
       this.modoVisualizacion = params['modo'] === 'visualizacion';
       this.incidenciaId = params['id'] ? Number(params['id']) : 0;
       this.isLoading = true;
-      // solo se  muestra si esta en modo visluazacion
+      // solo mostrar el movimiento de la incidencia si existe y esta en modo visualizacion
       if (this.incidenciaId && this.modoVisualizacion) {
-        console.log('numero de incidencia', this.incidenciaId);
         this.incidenciaService.getMovimiento(this.incidenciaId).subscribe({
           next: (response: any) => {
             console.log('Movement number response:', response);
