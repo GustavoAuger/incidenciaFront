@@ -650,7 +650,13 @@ export class ReclamoTransportistaComponent implements OnInit {
          `REC${reclamoRelacionado2.id.toString().padStart(3, '0')}`.includes(this.filtros.numeroReclamo.toUpperCase()));
 
       const cumpleNumeroIncidencia = !this.filtros.numeroIncidencia || 
-        (incidencia.id && incidencia.id.toString().includes(this.filtros.numeroIncidencia));
+        (incidencia.id && (
+           // Buscar por número simple (1, 2, 3...)
+           incidencia.id.toString().includes(this.filtros.numeroIncidencia) ||
+           // O por el formato completo (INC001, INC002...)
+           `INC${incidencia.id.toString()}`.toLowerCase()
+             .includes(this.filtros.numeroIncidencia.toLowerCase())
+        ));
       
       const cumpleDestino = !this.filtros.destino || 
         (incidencia.destino_id_bodega && incidencia.destino_id_bodega === this.filtros.destino);
