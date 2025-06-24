@@ -125,7 +125,8 @@ export class ReclamoTransportistaComponent implements OnInit {
     ots: '',
     transporte: '',
     estado: '',
-    tipoIncidencia: ''
+    tipoIncidencia: '',
+    estadoReclamoId: ''
   };
 
   // Propiedades de paginación
@@ -531,19 +532,35 @@ export class ReclamoTransportistaComponent implements OnInit {
     this.currentPage = 1; // Volver a la primera página al aplicar filtros
   }
 
-  // Método para comparar fechas ignorando la hora
-  private compararFechas(fecha1: string | Date, fecha2: string | Date): number {
-    const d1 = new Date(fecha1);
-    const d2 = new Date(fecha2);
-    
-    // Resetear horas, minutos, segundos y milisegundos para comparar solo fechas
-    d1.setHours(0, 0, 0, 0);
-    d2.setHours(0, 0, 0, 0);
-    
-    return d1.getTime() - d2.getTime();
+  // Método para obtener el timestamp de inicio del día (00:00:00.000) en UTC
+  private getStartOfDayTimestamp(date: Date | string): number {
+    const d = new Date(date);
+    // Usar UTC para evitar problemas de zona horaria
+    return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
   }
 
-  // Metodo para aplicar los filtros
+  // Método para obtener el timestamp de fin del día (23:59:59.999) en UTC
+  private getEndOfDayTimestamp(date: Date | string): number {
+    const d = new Date(date);
+    // Usar UTC y sumar un día, luego restar 1ms para obtener el último ms del día
+    return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1) - 1;
+  }
+
+  // Método para convertir una fecha a timestamp UTC
+  private toUTCTimestamp(date: Date | string): number {
+    const d = new Date(date);
+    return Date.UTC(
+      d.getUTCFullYear(),
+      d.getUTCMonth(),
+      d.getUTCDate(),
+      d.getUTCHours(),
+      d.getUTCMinutes(),
+      d.getUTCSeconds(),
+      d.getUTCMilliseconds()
+    );
+  }
+
+  // Método para aplicar los filtros
   aplicarFiltros() {
     console.log('Aplicando filtros...');
     console.log('Filtros actuales:', this.filtros);
@@ -555,47 +572,73 @@ export class ReclamoTransportistaComponent implements OnInit {
     
     console.log(`Total de incidencias a filtrar: ${dataSource.length}`);
     
+    // Pre-calcular los timestamps de filtro para mejor rendimiento
+    const filtroFechaDesde = this.filtros.fechaDesde ? this.getStartOfDayTimestamp(this.filtros.fechaDesde) : null;
+    const filtroFechaHasta = this.filtros.fechaHasta ? this.getEndOfDayTimestamp(this.filtros.fechaHasta) : null;
+    const filtroFechaReclamoDesde = this.filtros.fechaReclamoDesde ? this.getStartOfDayTimestamp(this.filtros.fechaReclamoDesde) : null;
+    const filtroFechaReclamoHasta = this.filtros.fechaReclamoHasta ? this.getEndOfDayTimestamp(this.filtros.fechaReclamoHasta) : null;
+    
+    // Debug: Mostrar los rangos de fechas
+    if (filtroFechaReclamoDesde || filtroFechaReclamoHasta) {
+      console.log('Rango de fechas de reclamo:', {
+        desde: filtroFechaReclamoDesde ? new Date(filtroFechaReclamoDesde).toISOString() : 'N/A',
+        hasta: filtroFechaReclamoHasta ? new Date(filtroFechaReclamoHasta).toISOString() : 'N/A'
+      });
+    }
+    
     this.incidenciasFiltradas = dataSource.filter(incidencia => {
       // Filtro por fechas de recepción
       let cumpleFechaDesde = true;
       let cumpleFechaHasta = true;
+      let cumpleFechaReclamoDesde = true;
+      let cumpleFechaReclamoHasta = true;
       
-      if (this.filtros.fechaDesde && incidencia.fecha_recepcion) {
-        const fechaRecepcion = new Date(incidencia.fecha_recepcion);
-        const fechaDesde = new Date(this.filtros.fechaDesde);
-        cumpleFechaDesde = this.compararFechas(fechaRecepcion, fechaDesde) >= 0;
-        
-        if (!cumpleFechaDesde) {
-          console.log(`Incidencia ${incidencia.id} no cumple fecha desde:`, {
-            fechaRecepcion: incidencia.fecha_recepcion,
-            fechaDesde: this.filtros.fechaDesde,
-            resultado: cumpleFechaDesde
-          });
-        }
+      // Filtro por fecha de recepción
+      if (filtroFechaDesde && incidencia.fecha_recepcion) {
+        const fechaRecepcion = this.toUTCTimestamp(incidencia.fecha_recepcion);
+        cumpleFechaDesde = fechaRecepcion >= filtroFechaDesde;
       }
       
-      if (this.filtros.fechaHasta && incidencia.fecha_recepcion) {
-        const fechaRecepcion = new Date(incidencia.fecha_recepcion);
-        const fechaHasta = new Date(this.filtros.fechaHasta);
-        // Sumar un día a la fecha hasta para incluir todo el día
-        fechaHasta.setDate(fechaHasta.getDate() + 1);
-        cumpleFechaHasta = this.compararFechas(fechaRecepcion, fechaHasta) <= 0;
+      if (filtroFechaHasta && incidencia.fecha_recepcion) {
+        const fechaRecepcion = this.toUTCTimestamp(incidencia.fecha_recepcion);
+        cumpleFechaHasta = fechaRecepcion <= filtroFechaHasta;
+      }
+
+      // Filtro por fecha de reclamo
+      const reclamoRelacionado = this.reclamos.find(r => r.id_incidencia === incidencia.id);
+      const fechaReclamo = reclamoRelacionado?.fecha_reclamo;
+      
+      if (filtroFechaReclamoDesde && fechaReclamo) {
+        const fechaReclamoTs = this.toUTCTimestamp(fechaReclamo);
+        cumpleFechaReclamoDesde = fechaReclamoTs >= filtroFechaReclamoDesde;
+      }
+      
+      if (filtroFechaReclamoHasta && fechaReclamo) {
+        const fechaReclamoTs = this.toUTCTimestamp(fechaReclamo);
+        cumpleFechaReclamoHasta = fechaReclamoTs <= filtroFechaReclamoHasta;
         
-        if (!cumpleFechaHasta) {
-          console.log(`Incidencia ${incidencia.id} no cumple fecha hasta:`, {
-            fechaRecepcion: incidencia.fecha_recepcion,
-            fechaHasta: this.filtros.fechaHasta,
-            resultado: cumpleFechaHasta
+        // Debug: Mostrar información de fecha de reclamo que está siendo filtrada
+        if (!cumpleFechaReclamoHasta) {
+          console.log('Fecha de reclamo no cumple el filtro hasta:', {
+            fechaReclamo: new Date(fechaReclamo).toISOString(),
+            fechaReclamoTs,
+            filtroHasta: filtroFechaReclamoHasta,
+            diferencia: fechaReclamoTs - filtroFechaReclamoHasta
           });
         }
+      } else if ((this.filtros.fechaReclamoDesde || this.filtros.fechaReclamoHasta) && !fechaReclamo) {
+        // Si hay filtros de fecha de reclamo pero no hay fecha de reclamo, no mostrar
+        cumpleFechaReclamoDesde = false;
+        cumpleFechaReclamoHasta = false;
       }
       
       // Resto de los filtros...
       // Option 1: If you have a reclamos array, find the related claim
-      const reclamoRelacionado = this.reclamos.find(r => r.id_incidencia === incidencia.id);
+      const reclamoRelacionado2 = this.reclamos.find(r => r.id_incidencia === incidencia.id);
       const cumpleFiltroNumero = !this.filtros.numeroReclamo || 
-        (incidencia.id && incidencia.id.toString().includes(this.filtros.numeroReclamo)) ||
-        (reclamoRelacionado && reclamoRelacionado.id && reclamoRelacionado.id.toString().includes(this.filtros.numeroReclamo));
+        (reclamoRelacionado2 && 
+         reclamoRelacionado2.id && 
+         `REC${reclamoRelacionado2.id.toString().padStart(3, '0')}`.includes(this.filtros.numeroReclamo.toUpperCase()));
 
       const cumpleNumeroIncidencia = !this.filtros.numeroIncidencia || 
         (incidencia.id && incidencia.id.toString().includes(this.filtros.numeroIncidencia));
@@ -609,14 +652,35 @@ export class ReclamoTransportistaComponent implements OnInit {
       const cumpleTransporte = !this.filtros.transporte || 
         (incidencia.transportista && incidencia.transportista.toLowerCase().includes(this.filtros.transporte.toLowerCase()));
       
+      const cumpleEstadoReclamo = !this.filtros.estadoReclamoId || 
+        (reclamoRelacionado2 && reclamoRelacionado2.id_estado.toString() === this.filtros.estadoReclamoId);
+
+      if (!cumpleEstadoReclamo) {
+        console.log(`Incidencia ${incidencia.id} no cumple con el estado de reclamo filtrado`);
+      }
+
+      // Debug: Mostrar información de filtrado
+      if (this.filtros.numeroReclamo && reclamoRelacionado2) {
+        const numeroReclamoFormateado = `REC${reclamoRelacionado2.id!.toString().padStart(3, '0')}`;
+        console.log('Filtrando por número de reclamo:', {
+          filtroIngresado: this.filtros.numeroReclamo,
+          idReclamo: reclamoRelacionado2.id,
+          numeroReclamoFormateado,
+          cumpleFiltro: numeroReclamoFormateado.includes(this.filtros.numeroReclamo.toUpperCase())
+        });
+      }
+      
       // Aplicar todos los filtros
       const cumpleTodosLosFiltros = cumpleFechaDesde && 
                                   cumpleFechaHasta && 
-                                  cumpleFiltroNumero && 
-                                  cumpleNumeroIncidencia && 
-                                  cumpleDestino && 
-                                  cumpleOTS && 
-                                  cumpleTransporte;
+                                  cumpleFechaReclamoDesde &&
+                                  cumpleFechaReclamoHasta &&
+                                  cumpleFiltroNumero &&
+                                  cumpleNumeroIncidencia &&
+                                  cumpleDestino &&
+                                  cumpleOTS &&
+                                  cumpleTransporte &&
+                                  cumpleEstadoReclamo;
       
       if (cumpleTodosLosFiltros) {
         console.log(`Incidencia ${incidencia.id} pasa todos los filtros`);
@@ -636,20 +700,21 @@ export class ReclamoTransportistaComponent implements OnInit {
 
   limpiarFiltros() {
     if (this.activeTab === 'reclamadas') {
-      // Clear only filters for "Incidencias Reclamadas" tab
+      // Limpiar filtros de la pestaña reclamadas
       this.filtros = {
-        ...this.filtros,  // Keep all existing filters
+        ...this.filtros,  
         fechaReclamoDesde: '',
         fechaReclamoHasta: '',
         numeroReclamo: '',
         destino: '',
         ots: '',
-        transporte: ''
+        transporte: '',
+        estadoReclamoId: '' 
       };
     } else if (this.activeTab === 'ingresar_reclamo') {
-      // Clear only filters for "Ingresar Reclamo" tab
+      // Limpiar filtros de la pestaña ingresar reclamo
       this.filtros = {
-        ...this.filtros,  // Keep all existing filters
+        ...this.filtros, 
         fechaDesde: '',
         fechaHasta: '',
         numeroIncidencia: '',

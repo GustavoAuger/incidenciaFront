@@ -10,5 +10,6 @@ export interface Filtros {
   destino: string;
   ots: string;
   transporte: string;  
-  estado: string;    
+  estado: string;
+  estadoReclamoId?: string;
 }
