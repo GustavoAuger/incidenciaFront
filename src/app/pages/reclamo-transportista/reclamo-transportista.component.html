@@ -283,15 +283,18 @@
                     'bg-green-100 text-green-800': getEstadoReclamo(incidencia) === 'Pagado',
                     'bg-red-100 text-red-800': getEstadoReclamo(incidencia) === 'Rechazado'
                   }">
-                    {{ getEstadoReclamo(incidencia) }}
+                    {{ getEstadoReclamo(incidencia) | initCapFirst }}
                   </span>
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
                   <div class="flex justify-center space-x-1">
-                    <button (click)="verDetalle(incidencia)" class="btn btn-ghost btn-xs hover:bg-transparent">
+                    <button (click)="verDetalle(incidencia)" class="btn btn-ghost btn-xs hover:bg-transparent" title="Ver detalle">
                       <i class="fas fa-eye" style="color: #00bcd4;"></i>
+                    </button>
+                    <button (click)="abrirEditarReclamo(incidencia)" class="btn btn-ghost btn-xs hover:bg-transparent" title="Editar reclamo">
+                      <i class="fas fa-edit" style="color: #4CAF50;"></i>
                     </button>
                   </div>
                 </div>
@@ -675,7 +678,7 @@
           <span class="label-text font-medium">Observación</span>
         </label>
         <textarea 
-          class="textarea textarea-bordered w-full h-24" 
+          class="textarea textarea-bordered h-24" 
           [(ngModel)]="reclamoForm.observacion"
           placeholder="Ingrese una observación (opcional)"
         ></textarea>
@@ -689,6 +692,68 @@
         (click)="guardarReclamo()"
       >
         Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para editar reclamo -->
+<div class="modal" [class.modal-open]="editarReclamoModal">
+  <div class="modal-box max-w-2xl">
+    <h3 class="font-bold text-lg mb-4">Editar Reclamo</h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <!-- FDR -->
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">FDR</span>
+        </label>
+        <input type="text" class="input input-bordered w-full" [(ngModel)]="editarReclamoForm.fdr" placeholder="Ingrese FDR">
+      </div>
+      
+      <!-- Fecha Reclamo -->
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Fecha Reclamo</span>
+        </label>
+        <input type="date" class="input input-bordered w-full" [(ngModel)]="editarReclamoForm.fechaReclamo">
+      </div>
+      
+      <!-- Monto Pagado -->
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Monto Pagado</span>
+        </label>
+        <input type="number" class="input input-bordered w-full" [(ngModel)]="editarReclamoForm.monto_pagado" min="0" step="0.01">
+      </div>
+      
+      <!-- Estado -->
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Estado</span>
+        </label>
+        <select class="select select-bordered w-full" [(ngModel)]="editarReclamoForm.id_estado">
+          <option *ngFor="let estado of estadosReclamo" [value]="estado.id">{{ estado.nombre | initCapFirst}}</option>
+        </select>
+      </div>
+      
+      <!-- Observación -->
+      <div class="form-control md:col-span-2">
+        <label class="label">
+          <span class="label-text">Observación</span>
+        </label>
+        <textarea class="textarea textarea-bordered h-24" [(ngModel)]="editarReclamoForm.observacion" placeholder="Ingrese una observación (opcional)"></textarea>
+      </div>
+    </div>
+    
+    <div class="modal-action">
+      <button class="btn btn-ghost" (click)="cerrarEditarReclamo()">Cancelar</button>
+      <button 
+        class="btn btn-primary" 
+        [class.btn-disabled]="!hayCambiosEnFormulario()"
+        [disabled]="!hayCambiosEnFormulario()"
+        (click)="guardarCambiosReclamo()">
+        Guardar Cambios
       </button>
     </div>
   </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -68,6 +68,17 @@ export class ReclamoTransportistaComponent implements OnInit {
   // Propiedad para almacenar la fecha actual
   fechaActual: string = new Date().toISOString().split('T')[0];
 
+  // Propiedades para el modal de edición
+  editarReclamoModal = false;
+  reclamoEditando: ReclamoTransportista | null = null;
+  editarReclamoForm = {
+    fdr: '',
+    fechaReclamo: new Date().toISOString().split('T')[0],
+    observacion: '',
+    monto_pagado: 0,
+    id_estado: 1
+  };
+
   // Función para controlar la apertura de los selects
   onSelectOpen(select: string) {
     switch(select) {
@@ -128,7 +139,8 @@ export class ReclamoTransportistaComponent implements OnInit {
       private router: Router, 
       private _incidenciaService: IncidenciaService,
       private _userService: UserService,
-      private reclamoTransportistaService: ReclamoTransportistaService
+      private reclamoTransportistaService: ReclamoTransportistaService,
+      private cdr: ChangeDetectorRef
   ) {
     // Restaurar la pestaña guardada o usar 'reclamadas' por defecto
     const savedTab = localStorage.getItem('reclamoTransportista_activeTab') as 'reclamadas' | 'ingresar_reclamo' | null;
@@ -275,6 +287,120 @@ getTipoIncidencia() {
   closeIngresarReclamoModal(): void {
     this.ingresarReclamoModal = false;
     this.incidenciaSeleccionada = null;
+  }
+
+  // Método para abrir el modal de edición
+  abrirEditarReclamo(incidencia: any) {
+    // Buscar el reclamo correspondiente a la incidencia
+    const reclamo = this.reclamos.find(r => r.id_incidencia === incidencia.id);
+    
+    if (reclamo) {
+      // Hacer una copia profunda del reclamo para editar
+      this.reclamoEditando = JSON.parse(JSON.stringify(reclamo));
+      
+      // Inicializar el formulario con los valores actuales del reclamo
+      this.editarReclamoForm = {
+        fdr: reclamo.fdr || '',
+        fechaReclamo: reclamo.fecha_reclamo 
+          ? new Date(reclamo.fecha_reclamo).toISOString().split('T')[0] 
+          : new Date().toISOString().split('T')[0],
+        observacion: reclamo.observacion || '',
+        monto_pagado: reclamo.monto_pagado || 0,
+        id_estado: reclamo.id_estado || 1
+      };
+      
+      console.log('Datos del reclamo a editar:', this.reclamoEditando);
+      console.log('Formulario de edición:', this.editarReclamoForm);
+      
+      this.editarReclamoModal = true;
+    } else {
+      console.error('No se encontró el reclamo para la incidencia:', incidencia.id);
+      alert('No se pudo cargar la información del reclamo para editar');
+    }
+  }
+
+  // Método para cerrar el modal de edición
+  cerrarEditarReclamo() {
+    this.editarReclamoModal = false;
+    this.reclamoEditando = null;
+    this.editarReclamoForm = {
+      fdr: '',
+      fechaReclamo: new Date().toISOString().split('T')[0],
+      observacion: '',
+      monto_pagado: 0,
+      id_estado: 1
+    };
+  }
+
+  // Método para guardar los cambios del reclamo
+  guardarCambiosReclamo() {
+    // Verificar si hay cambios en el formulario
+    if (!this.hayCambiosEnFormulario()) {
+      alert('No se han realizado cambios en el formulario.');
+      this.cerrarEditarReclamo();
+      return;
+    }
+
+    // Mostrar mensaje de carga
+    this.isLoading = true;
+
+    // Crear un objeto con todos los campos del reclamo en el formato que espera el backend
+    const reclamoActualizado: ReclamoTransportista = {
+      id: this.reclamoEditando?.id,
+      id_incidencia: this.reclamoEditando!.id_incidencia,
+      fdr: this.editarReclamoForm.fdr,
+      fecha_reclamo: new Date(this.editarReclamoForm.fechaReclamo),
+      observacion: this.editarReclamoForm.observacion || undefined,
+      monto_pagado: Number(this.editarReclamoForm.monto_pagado),
+      id_estado: Number(this.editarReclamoForm.id_estado)
+    };
+
+    console.log('Actualizando reclamo con datos:', reclamoActualizado);
+
+    // Llamar al servicio para actualizar el reclamo
+    this.reclamoTransportistaService.updateReclamoTransportista(reclamoActualizado).subscribe({
+      next: (response) => {
+        console.log('Reclamo actualizado exitosamente', response);
+        alert('Los cambios se han guardado correctamente');
+        
+        // Cerrar el modal
+        this.cerrarEditarReclamo();
+        
+        // Recargar los datos para asegurar que todo esté sincronizado
+        const userIdString = localStorage.getItem('id_usuario');
+        const id_usuario = userIdString ? parseInt(userIdString, 10) : 0;
+        this.cargarIncidencias(id_usuario);
+      },
+      error: (error) => {
+        console.error('Error al actualizar el reclamo', error);
+        alert('Error al guardar los cambios. Por favor, intente nuevamente.');
+        this.isLoading = false;
+      }
+    });
+  }
+
+  // Método para verificar si hay cambios en el formulario
+  hayCambiosEnFormulario(): boolean {
+    if (!this.reclamoEditando) return false;
+    
+    // Comparar cada campo individualmente
+    const fdrCambiado = this.editarReclamoForm.fdr !== (this.reclamoEditando.fdr || '');
+    
+    // Comparar fechas como strings en formato YYYY-MM-DD
+    const fechaOriginal = this.reclamoEditando.fecha_reclamo 
+      ? new Date(this.reclamoEditando.fecha_reclamo).toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0];
+    const fechaCambiada = this.editarReclamoForm.fechaReclamo !== fechaOriginal;
+    
+    const observacionCambiada = this.editarReclamoForm.observacion !== (this.reclamoEditando.observacion || '');
+    
+    // Comparar montos como números
+    const montoCambiado = Number(this.editarReclamoForm.monto_pagado) !== Number(this.reclamoEditando.monto_pagado || 0);
+    
+    const estadoCambiado = Number(this.editarReclamoForm.id_estado) !== Number(this.reclamoEditando.id_estado || 1);
+    
+    // Devolver true si algún campo ha cambiado
+    return fdrCambiado || fechaCambiada || observacionCambiada || montoCambiado || estadoCambiado;
   }
 
   // Método para cambiar entre pestañas
@@ -548,14 +674,22 @@ getTipoIncidencia() {
     return incidencia.id_reclamo ? `REC${String(incidencia.id_reclamo).padStart(3, '0')}` : '';
   }
 
-  // Método para obtener el estado del reclamo con formato
-  getEstadoReclamo(incidencia: Incidencia): string {
-    if (incidencia.tipo_estado?.toLowerCase() === 'resuelto') {
-      return 'Pagado';
-    } else if (incidencia.tipo_estado?.toLowerCase() === 'rechazado') {
-      return 'Rechazado';
+  // Método para obtener el estado del reclamo
+  getEstadoReclamo(incidencia: any): string {
+    // Si la incidencia tiene un estado de reclamo directamente, lo devolvemos
+    if (incidencia.estado_reclamo) {
+      return incidencia.estado_reclamo.nombre || 'Reclamado';
     }
-    return 'Reclamado';
+    
+    // Si no tiene estado directamente, buscamos en la lista de reclamos
+    const reclamo = this.reclamos.find(r => r.id_incidencia === incidencia.id);
+    if (reclamo) {
+      const estado : EstadoReclamo = this.estadosReclamo.filter(e => e.id === reclamo.id_estado)[0];
+      return estado.nombre || '-';
+    }
+    
+    // Si no encontramos el estado, devolvemos 'Reclamado' como valor por defecto
+    return '-';
   }
 
   // Método para obtener la clase CSS según el estado
@@ -577,7 +711,18 @@ getTipoIncidencia() {
   }
 
   getMontoPagado(incidencia: any): number {
-    //Logica para obtener el monto pagado
+    // Si la incidencia tiene un monto de reclamo directamente, lo devolvemos
+    if (incidencia.monto_pagado_reclamo !== undefined) {
+      return Number(incidencia.monto_pagado_reclamo) || 0;
+    }
+    
+    // Si no tiene monto directamente, buscamos en la lista de reclamos
+    const reclamo = this.reclamos.find(r => r.id_incidencia === incidencia.id);
+    if (reclamo && reclamo.monto_pagado !== undefined) {
+      return Number(reclamo.monto_pagado) || 0;
+    }
+    
+    // Si no encontramos el monto, devolvemos 0
     return 0;
   }
 
@@ -680,5 +825,11 @@ getTipoIncidencia() {
         alert('Error al guardar el reclamo. Por favor, intente nuevamente.');
       }
     });
+  }
+
+  // Método para manejar cambios en el formulario
+  onFormChange() {
+    // Este método se llama desde el template cuando hay cambios en los campos del formulario
+    // No es necesario hacer nada aquí, solo asegurarse de que Angular detecte los cambios
   }
 }
