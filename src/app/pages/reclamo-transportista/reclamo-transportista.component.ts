@@ -121,12 +121,19 @@ export class ReclamoTransportistaComponent implements OnInit {
 
   Math = Math;
 
+  // Propiedad para almacenar los reclamos
+  reclamos: ReclamoTransportista[] = [];
+
   constructor(
       private router: Router, 
       private _incidenciaService: IncidenciaService,
       private _userService: UserService,
       private reclamoTransportistaService: ReclamoTransportistaService
-  ) {}
+  ) {
+    // Restaurar la pestaña guardada o usar 'reclamadas' por defecto
+    const savedTab = localStorage.getItem('reclamoTransportista_activeTab') as 'reclamadas' | 'ingresar_reclamo' | null;
+    this.activeTab = savedTab || 'reclamadas';
+  }
 
   ngOnInit() {
     // Mostrar loader
@@ -199,6 +206,12 @@ export class ReclamoTransportistaComponent implements OnInit {
     this.getBodegas();
     this.getTipoIncidencia();
     this.loadEstadosReclamo();
+    
+    // Restaurar la pestaña guardada después de cargar los datos
+    const savedTab = localStorage.getItem('reclamoTransportista_activeTab') as 'reclamadas' | 'ingresar_reclamo' | null;
+    if (savedTab) {
+      this.activeTab = savedTab;
+    }
   }
 
   getBodegas() {
@@ -267,45 +280,94 @@ getTipoIncidencia() {
   // Método para cambiar entre pestañas
   cambiarTab(tab: 'reclamadas' | 'ingresar_reclamo') {
     this.activeTab = tab;
+    // Guardar la pestaña seleccionada en localStorage
+    localStorage.setItem('reclamoTransportista_activeTab', tab);
     this.aplicarFiltros();
+  }
+
+  // Agregar un nuevo método para encontrar el ID de reclamo por ID de incidencia
+  private encontrarIdReclamo(idIncidencia: number): number | null {
+    const reclamo = this.reclamos.find(r => r.id_incidencia === idIncidencia);
+    return reclamo ? reclamo.id || null : null;
   }
 
   cargarIncidencias(id_usuario: number) {
     this.isLoading = true;
-    this._incidenciaService.getIncidencias(id_usuario).subscribe(
-      (incidencias) => {
-        const todasLasIncidencias = [...incidencias].sort((a, b) => (b.id || 0) - (a.id || 0));
-        let incidenciasFiltradas = [...todasLasIncidencias];
+    
+    // Primero obtenemos los reclamos existentes
+    this.reclamoTransportistaService.getReclamosTransportista().subscribe({
+      next: (reclamos) => {
+        // Guardamos los reclamos en una propiedad de clase para usarlos después
+        this.reclamos = reclamos;
         
-        if (localStorage.getItem('id_rol') == '2') {
-          incidenciasFiltradas = incidenciasFiltradas.filter((inc) => inc.destino_id_bodega == 'BDE-001');
-        } else if (localStorage.getItem('id_rol') == '4') {
-          const id_bodega = 'LO-' + (localStorage.getItem('id_bodega')!.padStart(3, '0'));
-          incidenciasFiltradas = incidenciasFiltradas.filter((inc) => 
-            inc.destino_id_bodega === id_bodega || 
-            inc.origen_id_local === id_bodega
-          );
-        }
-        
-        this.incidenciasReclamadas = incidenciasFiltradas.filter(inc => 
-          inc.id_estado === 4
+        // Luego cargamos las incidencias
+        this._incidenciaService.getIncidencias(id_usuario).subscribe(
+          (incidencias) => {
+            const todasLasIncidencias = [...incidencias].sort((a, b) => (b.id || 0) - (a.id || 0));
+            let incidenciasFiltradas = [...todasLasIncidencias];
+            
+            if (localStorage.getItem('id_rol') == '2') {
+              incidenciasFiltradas = incidenciasFiltradas.filter((inc) => inc.destino_id_bodega == 'BDE-001');
+            } else if (localStorage.getItem('id_rol') == '4') {
+              const id_bodega = 'LO-' + (localStorage.getItem('id_bodega')!.padStart(3, '0'));
+              incidenciasFiltradas = incidenciasFiltradas.filter((inc) => 
+                inc.destino_id_bodega === id_bodega || 
+                inc.origen_id_local === id_bodega
+              );
+            }
+            
+            // Filtrar incidencias reclamadas (solo las que tienen reclamo)
+            this.incidenciasReclamadas = incidenciasFiltradas.filter(inc => {
+              // Verificar si la incidencia tiene un reclamo
+              const tieneReclamo = reclamos.some(reclamo => {
+                const coincide = reclamo.id_incidencia === inc.id;
+                if (coincide) {
+                  // Agregar el ID del reclamo, FDR y fecha de reclamo a la incidencia
+                  (inc as any).id_reclamo = reclamo.id;
+                  (inc as any).fdr_reclamo = reclamo.fdr;
+                  (inc as any).fecha_reclamo = reclamo.fecha_reclamo;
+                  console.log(`Incidencia ${inc.id} - FDR: ${reclamo.fdr}, Fecha: ${reclamo.fecha_reclamo}`);
+                }
+                return coincide;
+              });
+              
+              // Solo incluir si tiene reclamo
+              return inc.id_estado === 4 && tieneReclamo;
+            });
+            
+            // Filtrar incidencias para ingresar reclamo (estado 4 y que no tengan reclamo)
+            this.ingresarReclamo = incidenciasFiltradas.filter(inc => {
+              // Verificar si la incidencia ya tiene un reclamo
+              const tieneReclamo = reclamos.some(reclamo => 
+                reclamo.id_incidencia === inc.id
+              );
+              
+              // Solo incluir si no tiene reclamo y es estado 4
+              return inc.id_estado === 4 && !tieneReclamo;
+            });
+            
+            console.log('Incidencias con reclamo:', this.incidenciasReclamadas.map(i => ({id: i.id, id_reclamo: (i as any).id_reclamo})));
+            console.log('Incidencias para reclamo (sin reclamo):', this.ingresarReclamo.map(i => i.id));
+            
+            this.aplicarFiltros();
+            this.isLoading = false;
+          },
+          (error) => {
+            console.error('Error al cargar incidencias:', error);
+            this.isLoading = false;
+          }
         );
-        
-        this.ingresarReclamo = incidenciasFiltradas.filter(inc => 
-          inc.id_estado === 4
-        );
-        
-        this.aplicarFiltros();
-        this.isLoading = false;
       },
-      (error) => {
-        console.error('Error al cargar las incidencias:', error);
+      error: (error) => {
+        console.error('Error al cargar reclamos:', error);
         this.isLoading = false;
       }
-    );
+    });
   }
 
   verDetalle(incidencia: Incidencia) {
+    // Guardar la pestaña actual antes de navegar
+    localStorage.setItem('reclamoTransportista_activeTab', this.activeTab);
     // Guardar la incidencia en el servicio
     this._incidenciaService.setIncidenciaParcial(incidencia);
     console.log(incidencia)
@@ -482,12 +544,8 @@ getTipoIncidencia() {
   }
 
   // Método para obtener el número de reclamo
-  getNumeroReclamo(incidencia: Incidencia): string {
-    // Lógica temporal con valor fijo - reemplazar con lógica real cuando esté disponible
-    // Formato: R-{id_incidencia}
-    const idIncidencia = incidencia.id?.toString().padStart(4, '0') || '0000';
-    
-    return `R-${idIncidencia}`;
+  getNumeroReclamo(incidencia: any): string {
+    return incidencia.id_reclamo ? `REC${String(incidencia.id_reclamo).padStart(3, '0')}` : '';
   }
 
   // Método para obtener el estado del reclamo con formato
@@ -523,21 +581,43 @@ getTipoIncidencia() {
     return 0;
   }
 
-  getFDR(incidencia: Incidencia): string {
-    // Implement your FDR logic here
-    // For example, if FDR is a property of incidencia:
-    // return incidencia.fdr || 'N/A';
-    
-    // Or if you need to calculate it:
-    // return `FDR-${incidencia.id || '0000'}`;
-    
-    // For now, returning an empty string as a placeholder
+  getFDR(incidencia: any): string {
+    // Si la incidencia tiene un FDR de reclamo, lo devolvemos
+    if ((incidencia as any).fdr_reclamo) {
+      return (incidencia as any).fdr_reclamo;
+    }
+    // Si no tiene FDR de reclamo, buscamos en la lista de reclamos
+    const reclamo = this.reclamos.find(r => r.id_incidencia === incidencia.id);
+    if (reclamo && reclamo.fdr) {
+      // Guardamos el FDR en la incidencia para futuras referencias
+      (incidencia as any).fdr_reclamo = reclamo.fdr;
+      return reclamo.fdr;
+    }
+    // Si no encontramos el FDR, devolvemos una cadena vacía
     return '';
   }
 
-  getFechaReclamo(incidencia: Incidencia): string {
-    //Logica para obtener la fecha de reclamo
-    return '';
+  getFechaReclamo(incidencia: any): Date {
+    // Si la incidencia ya tiene un objeto Date asignado, lo devolvemos
+    if (incidencia.fecha_reclamo instanceof Date) {
+      return incidencia.fecha_reclamo;
+    }
+    
+    // Si la incidencia tiene una fecha como string, la convertimos a Date
+    if (typeof incidencia.fecha_reclamo === 'string') {
+      return new Date(incidencia.fecha_reclamo);
+    }
+    
+    // Si no tiene fecha de reclamo asignada, buscamos en la lista de reclamos
+    const reclamo = this.reclamos.find(r => r.id_incidencia === incidencia.id);
+    if (reclamo && reclamo.fecha_reclamo) {
+      // Guardamos la fecha en la incidencia para futuras referencias
+      incidencia.fecha_reclamo = reclamo.fecha_reclamo;
+      return reclamo.fecha_reclamo;
+    }
+    
+    // Si no encontramos la fecha, devolvemos la fecha actual
+    return new Date();
   }
 
   guardarReclamo() {
@@ -573,17 +653,31 @@ getTipoIncidencia() {
       id_estado: 1 // Siempre 1 según el requerimiento
     };
 
+    // Guardar la pestaña actual
+    const currentTab = this.activeTab;
+
     // Llamar al servicio para guardar el reclamo
     this.reclamoTransportistaService.createReclamoTransportista(nuevoReclamo).subscribe({
       next: (response) => {
         console.log('Reclamo guardado exitosamente', response);
         alert('Reclamo guardado correctamente');
+        
+        // Cerrar el modal
         this.closeIngresarReclamoModal();
-        // Aquí podrías recargar la lista de reclamos o actualizar la vista según sea necesario
+        
+        // Actualizar la lista de incidencias
+        const userIdString = localStorage.getItem('id_usuario');
+        const id_usuario = userIdString ? parseInt(userIdString, 10) : 0;
+        
+        // Mantener la pestaña actual después de actualizar
+        this.cargarIncidencias(id_usuario);
+        
+        // Mantener la pestaña actual
+        this.activeTab = currentTab;
       },
       error: (error) => {
         console.error('Error al guardar el reclamo', error);
-        alert('Error al guardar el reclamo. Por favor intente nuevamente.');
+        alert('Error al guardar el reclamo. Por favor, intente nuevamente.');
       }
     });
   }

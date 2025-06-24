@@ -125,7 +125,6 @@
     <div *ngIf="!isLoading" class="overflow-x-auto w-full">
         <table class="min-w-full divide-y divide-gray-200 table-fixed">
           <colgroup>
-            <col style="width: 40px;"> <!-- # -->
             <col style="width: 100px;"> <!-- N° Reclamo -->
             <col style="width: 100px;"> <!-- N° Incidencia -->
             <col style="width: 80px;">  <!-- FDR -->
@@ -143,7 +142,6 @@
           </colgroup>
           <thead class="bg-gray-100">
             <tr>
-              <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">#</th>
               <th (click)="sortTable('numero_reclamo')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
                 <div class="flex items-center justify-center">
                   <span>N° Reclamo</span>
@@ -223,11 +221,8 @@
             <tr *ngFor="let incidencia of paginatedIncidencias; let i = index" class="hover:bg-gray-50">
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  {{ (currentPage - 1) * itemsPerPage + i + 1 }}
+                  {{ getNumeroReclamo(incidencia) }}
                 </div>
-              </td>
-              <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
-                {{ getNumeroReclamo(incidencia) }}
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
@@ -267,7 +262,7 @@
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  {{ incidencia.ots || '' }}
+                  {{ incidencia.ots || '-' }}
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
@@ -566,7 +561,7 @@
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
                 <div class="flex items-center justify-center h-full">
-                  {{ incidencia.ots || '' }}
+                  {{ incidencia.ots || '-' }}
                 </div>
               </td>
               <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">
