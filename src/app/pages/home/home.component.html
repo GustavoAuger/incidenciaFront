@@ -51,7 +51,7 @@
   </div>
 
   <!-- Solo gestor, tienda y admin ven este panel -->
-  <div *ngIf="canAccessIncidenciasReclamo()" (click)="navigateTo('/reclamo-transportista')" class="card reclamos-transportista flex-grow">
+  <div *ngIf="canAccessIncidenciasReclamo()" (click)="onReclamoTransportistaClick()" class="card reclamos-transportista flex-grow">
     <div class="card-content">
       <span style="font-size: 5rem; color: rgba(255, 255, 255, 0.801);" class="material-symbols-outlined">
         delivery_truck_speed

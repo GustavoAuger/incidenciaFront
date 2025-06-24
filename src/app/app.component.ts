@@ -340,7 +340,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
-  openAdminModal(id_hideRole?: number) {
+  openAdminModal(id_hideRole?: number, id_hideRole2?: number) {
     // Mostrar el spinner de carga
     this.isNavbarLoading = true;
     
@@ -351,22 +351,22 @@ export class AppComponent implements OnInit, OnDestroy {
     
     // Si ya tenemos roles cargados, filtrarlos según sea necesario
     if (this.roles && this.roles.length > 0) {
-      this.filterAndShowRoles(id_hideRole);
+      this.filterAndShowRoles(id_hideRole, id_hideRole2);
     } else {
       // Si no hay roles cargados, cargarlos primero
       this.loadRolesForNavbar(() => {
-        this.filterAndShowRoles(id_hideRole);
+        this.filterAndShowRoles(id_hideRole, id_hideRole2);
       });
     }
   }
 
   // Nuevo método para filtrar roles y mostrar el modal
-  private filterAndShowRoles(id_hideRole?: number): void {
+  private filterAndShowRoles(id_hideRole?: number, id_hideRole2?: number): void {
     // Obtener el ID del rol actual del usuario desde localStorage
     const currentRoleId = parseInt(localStorage.getItem('id_rol') || '0', 10);
     
     // Filtrar roles para excluir el rol actual del usuario
-    this.modalRoles = this.roles.filter(rol => rol.id !== currentRoleId && rol.id !== id_hideRole);
+    this.modalRoles = this.roles.filter(rol => rol.id !== currentRoleId && rol.id !== id_hideRole && rol.id !== id_hideRole2);
     
     // Mostrar el modal
     const modal = document.getElementById('adminModal') as HTMLDialogElement;

@@ -110,6 +110,23 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  onReclamoTransportistaClick(): void {
+    const idRol = parseInt(localStorage.getItem('id_rol') || '0', 10);
+    
+    if (idRol === 1) {
+      // Si es administrador, mostrar el modal de cambio de rol
+      if (this.appComponent) {
+        this.appComponent.openAdminModal(2, 4);
+      } else {
+        console.error('No se pudo acceder al componente principal');
+        this.navigateTo('/reclamo-transportista');
+      }
+    } else {
+      // Si no es administrador, navegar normalmente
+      this.navigateTo('/reclamo-transportista');
+    }
+  }
+
   // Métodos auxiliares para verificar roles
   isAdmin(): boolean {
     return this.user.id_rol === 1;
