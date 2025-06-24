@@ -58,6 +58,11 @@ export class IncidenciaService {
     console.log('Incidencia parcial guardada:', this.incidenciaParcial);
   }
 
+  // Método para enviar correo
+  enviarCorreo(incidencia: Incidencia): Observable<boolean> {
+    return this.http.post<boolean>(this.apiUrl + '/enviar_correo_bodega2', { incidencia });
+  }
+
   // Método para obtener la incidencia parcial si la necesitas después
   getIncidenciaParcial(): Incidencia | null { // AQUI LA LLAMAMOS
     return this.incidenciaParcial; 
