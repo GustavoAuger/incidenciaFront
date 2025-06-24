@@ -18,7 +18,7 @@ import { EstadoIncidencia } from '../../interfaces/estado-incidencia';
   standalone: true,
   imports: [CommonModule, FormsModule, InitCapFirstPipe],
   templateUrl: './ver-incidencias.component.html',
-  styleUrl: './ver-incidencias.component.css'
+  styleUrls: ['./ver-incidencias.component.css']
 })
 export class VerIncidenciasComponent implements OnInit {
   incidencias: Incidencia[] = [];
@@ -391,9 +391,62 @@ getTipoIncidencia() {
   }
 // Método para exportar a Excel todas las incidencias
   exportToExcel(): void {
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.incidenciasFiltradas);
+    // Crear un array con solo las columnas necesarias y sus nombres
+    const columnas = [
+      { nombre: 'Número de incidencia', key: 'id' },
+      { nombre: 'Fecha de recepción', key: 'fecha_recepcion' },
+      { nombre: 'Fecha emisión', key: 'fecha_emision' },
+      { nombre: 'Estado', key: 'tipo_estado' },
+      { nombre: 'Transportista', key: 'transportista' },
+      { nombre: 'Código Bodega Origen', key: 'origen_id_local' },
+      { nombre: 'Código Bodega Destino', key: 'destino_id_bodega' },
+      { nombre: 'Bodega de destino', key: 'destino' },
+      { nombre: 'OTS', key: 'ots' },
+      { nombre: 'Valorizado', key: 'valorizado' },
+      { nombre: 'Total item', key: 'total_item' }
+    ];
+
+    // Crear un array de objetos con solo las columnas necesarias
+    const datosParaExcel = this.incidenciasFiltradas.map(incidencia => {
+      const obj: Record<string, string | number> = {};
+      columnas.forEach(col => {
+        const value = incidencia[col.key as keyof Incidencia];
+        
+        // Si es una fecha, formatearla a solo la parte de la fecha
+        if (col.nombre === 'Fecha de recepción' || col.nombre === 'Fecha emisión') {
+          const fecha = value as string;
+          if (fecha) {
+            // Extraer solo la fecha (YYYY-MM-DD) usando split
+            obj[col.nombre] = fecha.split('T')[0];
+          } else {
+            obj[col.nombre] = '';
+          }
+        } else if (col.nombre === 'Estado' || col.nombre === 'Transportista' || col.nombre === 'Bodega de destino') {
+          // Si es Estado, Transportista o Bodega de destino, aplicar toInitCap
+          obj[col.nombre] = this.toInitCap(value as string);
+        } else {
+          obj[col.nombre] = value !== undefined ? value : '';
+        }
+      });
+      return obj;
+    });
+
+    // Crear la hoja de Excel
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(datosParaExcel);
+    
+    // Ajustar el ancho de las columnas
+    worksheet['!cols'] = Array(columnas.length).fill({ wch: 20 });
+    
     const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
     XLSX.writeFile(workbook, 'Incidencias.xlsx');
+  }
+
+  // Función auxiliar para convertir cada palabra en mayúscula
+  private toInitCap(str: string): string {
+    if (!str) return '';
+    return str.split(' ').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
   }
 
   exportToExcel2(): void {
@@ -420,16 +473,29 @@ getTipoIncidencia() {
             incidenciasExpandidas.push(incidencia);
           } else {
             detalles.forEach(detalle => {
-              incidenciasExpandidas.push({
-                ...incidencia,
-                sku: detalle.sku,
-                cantidad: detalle.cantidad,
-                guia: detalle.numGuia,
-                tipo_diferencia: detalle.tipoDiferencia,
-                nro_bulto: detalle.numBulto,
-                peso_origen: detalle.pesoOrigen,
-                peso_recepcion: detalle.pesoRecepcion
-              });
+            // Crear un objeto con todas las columnas necesarias
+            const obj: Record<string, string | number> = {
+              'Número de incidencia': incidencia.id || '',
+              'Fecha de recepción': incidencia.fecha_recepcion ? incidencia.fecha_recepcion.split('T')[0] : '',
+              'Fecha emisión': incidencia.fecha_emision ? incidencia.fecha_emision.split('T')[0] : '',
+              'Estado': this.toInitCap(incidencia.tipo_estado || ''),
+              'OTS': incidencia.ots || '',
+              'Transportista': this.toInitCap(incidencia.transportista || ''),
+              'Código Bodega Origen': incidencia.origen_id_local || '',
+              'Código Bodega Destino': incidencia.destino_id_bodega || '',
+              'Bodega de destino': this.toInitCap(incidencia.destino || ''),
+              'Valorizado': incidencia.valorizado || '',
+              'Total item': incidencia.total_item || '',
+              'SKU': detalle.sku || '',
+              'Cantidad': detalle.cantidad || '',
+              'Guía': detalle.numGuia || '',
+              'Tipo de diferencia': this.toInitCap(detalle.tipoDiferencia || ''),
+              'Número de bulto': detalle.numBulto || '',
+              'Peso de origen': detalle.pesoOrigen || '',
+              'Peso de recepción': detalle.pesoRecepcion || ''
+            };
+            
+            incidenciasExpandidas.push(obj);
             });
           }
           
