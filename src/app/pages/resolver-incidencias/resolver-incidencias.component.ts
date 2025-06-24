@@ -56,7 +56,8 @@ export class ResolverIncidenciasComponent implements OnInit {
   showResolveModal: boolean = false;
   selectedIncidencia: any = null;
   selectedEstado: number | null = null;
-  isUpdating: boolean = false;
+  observaciones: string = ''; // Nueva propiedad para las observaciones
+  isUpdating = false;
 
   constructor(
     private router: Router,
@@ -289,8 +290,9 @@ export class ResolverIncidenciasComponent implements OnInit {
           tipo_estado: incidencia.tipo_estado,
           bodDestino: incidencia.destino_id_bodega || '',
           id_bodega: incidencia.d_id_bodega,
+          ruta: incidencia.ruta || '',
+          observaciones: incidencia.observaciones || ''
         },
-        // Agregar información de la ruta de origen
         fromRoute: 'resolver-incidencias'
       }
     };
@@ -327,6 +329,7 @@ export class ResolverIncidenciasComponent implements OnInit {
 
   resolverIncidencia(incidencia: any) {
     this.selectedIncidencia = { ...incidencia };
+    this.observaciones = ''; // Limpiar observaciones al abrir el modal
     
     // Si el estado actual es 'Nuevo' (id 1), cambiar a 'En Revisión' (id 2) sin mostrar alertas
     if (this.selectedIncidencia.id_estado === 1) {
@@ -362,39 +365,44 @@ export class ResolverIncidenciasComponent implements OnInit {
   closeResolveModal() {
     this.showResolveModal = false;
     this.selectedEstado = null;
+    this.observaciones = ''; // Limpiar observaciones al cerrar el modal
     this.selectedIncidencia = null;
   }
 
   confirmarResolucion() {
     if (this.selectedEstado && this.selectedIncidencia) {
-      this.actualizarEstadoIncidencia(this.selectedEstado);
+      // Pasar las observaciones al método de actualización
+      this.actualizarEstadoIncidencia(this.selectedEstado, this.observaciones);
     }
   }
 
-  private actualizarEstadoIncidencia(nuevoEstadoId: number) {
+  private actualizarEstadoIncidencia(nuevoEstadoId: number, observaciones: string = '') {
     if (!this.selectedIncidencia) return;
     
     this.isUpdating = true;
     const userIdString = localStorage.getItem('id_usuario');
     const id_usuario = userIdString ? parseInt(userIdString, 10) : 0;
     
+    // Datos a enviar al backend
+    const datosActualizacion = {
+      id_incidencia: this.selectedIncidencia.id,
+      id_estado: nuevoEstadoId,
+      observaciones: observaciones // Incluir las observaciones en los datos
+    };
+    
     // Primero generar el movimiento
     this._incidenciaService.generarMovimiento(this.selectedIncidencia.id).subscribe({
       next: (movimientoResponse) => {
         if (movimientoResponse) {
           // Si el movimiento se generó correctamente, proceder con la actualización del estado
-          // Llamar al servicio para actualizar el estado de la incidencia
-          this._incidenciaService.updateEstadoIncidencia({
-            id_incidencia: this.selectedIncidencia.id,
-            id_estado: nuevoEstadoId
-          }).subscribe({
+          this._incidenciaService.updateEstadoIncidencia(datosActualizacion).subscribe({
             next: (response) => {
               if (response) {
                 // Actualizar el estado de la incidencia antes de enviar correo
                 this.selectedIncidencia.id_estado = nuevoEstadoId;
+                this.selectedIncidencia.observaciones = observaciones; // Actualizar observaciones localmente
                 
                 // Enviar correo con la incidencia actualizada
-                console.log("Enviando correo con incidencia:", this.selectedIncidencia);
                 this._incidenciaService.enviarCorreo(this.selectedIncidencia).subscribe({
                   next: (correoResponse) => {
                     if (correoResponse) {
@@ -411,52 +419,21 @@ export class ResolverIncidenciasComponent implements OnInit {
                 // Cerrar el modal y resetear el estado
                 this.showResolveModal = false;
                 this.selectedEstado = null;
+                this.observaciones = ''; // Limpiar observaciones después de guardar
                 
-                // Guardar el estado actual de paginación y ordenamiento
-                const currentPage = this.currentPage;
-                const currentSortColumn = this.sortColumn;
-                const currentSortDirection = this.sortDirection;
-                
-                alert('Incidencia actualizada correctamente');
-                
-                // Recargar las incidencias
+                // Actualizar la lista de incidencias
                 this.cargarIncidencias(id_usuario);
               }
             },
             error: (error) => {
-              console.error('Error al actualizar la incidencia:', error);
-              alert('Ocurrió un error al actualizar la incidencia. Por favor, intente nuevamente.');
-              this.isUpdating = false;
-            },
-            complete: () => {
+              console.error('Error al actualizar el estado de la incidencia:', error);
               this.isUpdating = false;
             }
           });
-        } else {
-          console.error('No se pudo generar el movimiento');
-          alert('No se pudo generar el movimiento. Por favor, intente nuevamente.');
-          this.isUpdating = false;
-          // Cerrar el modal y resetear el estado
-          this.showResolveModal = false;
-          this.selectedEstado = null;
-          
-          // Guardar el estado actual de paginación y ordenamiento
-          const currentPage = this.currentPage;
-          const currentSortColumn = this.sortColumn;
-          const currentSortDirection = this.sortDirection;
-          
-        
-          
-          // Recargar las incidencias
-          this.cargarIncidencias(id_usuario);
         }
       },
       error: (error) => {
-        console.error('Error al actualizar la incidencia:', error);
-        alert('Ocurrió un error al actualizar la incidencia. Por favor, intente nuevamente.');
-        this.isUpdating = false;
-      },
-      complete: () => {
+        console.error('Error al generar movimiento:', error);
         this.isUpdating = false;
       }
     });

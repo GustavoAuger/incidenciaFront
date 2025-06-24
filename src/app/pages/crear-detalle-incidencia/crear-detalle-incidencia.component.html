@@ -192,14 +192,49 @@
         </table>
         </div>
     </div>
-    <!-- Imagen de la incidencia (si hay) -->
-    <div *ngIf="incidencia.ruta" class="mb-6 mt-8 w-1/3">
-      <div class="rounded-lg overflow-hidden shadow-lg bg-white">
-        <div class="p-3 border-b border-gray-200">
-          <p class="font-bold text-gray-800">Evidencia de la incidencia</p>
+
+    <!-- Sección de Imagen y Observaciones -->
+    <div class="flex flex-col md:flex-row gap-6 mt-8 mb-6">
+      <!-- Cuadro de Imagen -->
+      <div class="w-full md:w-1/2">
+        <div class="rounded-lg overflow-hidden shadow-lg bg-white h-full">
+          <div class="p-3 border-b border-gray-200">
+            <p class="font-bold text-gray-800">Evidencia de la incidencia</p>
+          </div>
+          <div class="p-4 flex items-center justify-center h-64">
+            <div class="text-center">
+              <ng-container *ngIf="incidencia.ruta; else noImagen">
+                <div class="cursor-pointer hover:opacity-90 transition-opacity" (click)="openImageModal(incidencia.ruta)">
+                  <img [src]="incidencia.ruta" alt="Evidencia de la incidencia" class="max-h-56 mx-auto object-contain">
+                </div>
+              </ng-container>
+              <ng-template #noImagen>
+                <div class="text-gray-400 h-full flex flex-col items-center justify-center">
+                  <span class="material-symbols-outlined text-5xl mb-2">image_not_supported</span>
+                  <p>No se ingresó evidencia</p>
+                </div>
+              </ng-template>
+            </div>
+          </div>
         </div>
-        <div class="cursor-pointer hover:opacity-90 transition-opacity" (click)="openImageModal(incidencia.ruta)">
-          <img [src]="incidencia.ruta" alt="Evidencia de la incidencia" class="w-full h-64 object-cover">
+      </div>
+
+      <!-- Cuadro de Observaciones -->
+      <div class="w-full md:w-1/2">
+        <div class="rounded-lg overflow-hidden shadow-lg bg-white h-full">
+          <div class="p-3 border-b border-gray-200">
+            <p class="font-bold text-gray-800">Observaciones</p>
+          </div>
+          <div class="p-4 h-64 overflow-y-auto">
+            <ng-container *ngIf="incidencia.observaciones; else sinObservaciones">
+              <p class="text-gray-700 whitespace-pre-line">{{ incidencia.observaciones }}</p>
+            </ng-container>
+            <ng-template #sinObservaciones>
+              <div class="text-gray-400 h-full flex items-center justify-center">
+                <p>No se ingresaron observaciones</p>
+              </div>
+            </ng-template>
+          </div>
         </div>
       </div>
     </div>

@@ -39,7 +39,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     destino_id_bodega: 0,
     d_id_bodega: 0,
     ruta: '',
-    file: null
+    file: null,
+    observaciones: ''
   };
 
   detalleIncidencia: any = {
@@ -105,7 +106,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
           d_id_bodega: incidenciaData?.d_id_bodega || 0,
           bodDestino: incidenciaData?.bodDestino || '',
           file: incidenciaData?.file || null,
-          ruta: incidenciaData?.ruta || ''
+          ruta: incidenciaData?.ruta || '',
+          observaciones: incidenciaData?.observaciones || ''
         };
       }
       // Obtener la ruta de origen del estado de navegación

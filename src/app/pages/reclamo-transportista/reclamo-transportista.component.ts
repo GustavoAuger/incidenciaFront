@@ -487,10 +487,10 @@ export class ReclamoTransportistaComponent implements OnInit {
     // Guardar la incidencia en el servicio
     this._incidenciaService.setIncidenciaParcial(incidencia);
     console.log(incidencia)
+    
     // Preparar los datos para la navegación
     const navigationExtras = {
       state: {
-        fromRoute: 'reclamo-transportista', 
         incidencia: {
           bodOrigen: incidencia.id_bodega,
           bodOrigenNombre: incidencia.origen_id_local || 'Origen no disponible',
@@ -499,10 +499,12 @@ export class ReclamoTransportistaComponent implements OnInit {
           ots: incidencia.ots,
           fechaRecepcion: incidencia.fecha_recepcion,
           tipo_estado: incidencia.tipo_estado,
-          bodDestino: incidencia.destino_id_bodega || '',      
+          bodDestino: incidencia.destino_id_bodega || '',
           id_bodega: incidencia.d_id_bodega,
-          ruta: incidencia.ruta || ''     
-        }
+          ruta: incidencia.ruta || '',
+          observaciones: incidencia.observaciones || '' 
+        },
+        fromRoute: 'reclamo-transportista'
       }
     };
     
@@ -511,7 +513,8 @@ export class ReclamoTransportistaComponent implements OnInit {
       ...navigationExtras,
       queryParams: {
         modo: 'visualizacion',
-        id: incidencia.id
+        id: incidencia.id,
+        from: 'reclamo-transportista' 
       }
     });
   }

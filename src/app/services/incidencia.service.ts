@@ -143,11 +143,12 @@ export class IncidenciaService {
     return this.http.post<{ urls: string[] }>(this.apiUrl + '/upload-image', formData);
   }
 
-  updateEstadoIncidencia(data: {id_incidencia: number, id_estado: number}): Observable<boolean> {
+  updateEstadoIncidencia(data: {id_incidencia: number, id_estado: number, observaciones?: string}): Observable<boolean> {
     const body = {
       id_incidencia: data.id_incidencia,
-      id_estado: data.id_estado
-    }
+      id_estado: data.id_estado,
+      observaciones: data.observaciones || '' // Incluir las observaciones en el cuerpo de la petición
+    };
     return this.http.post<boolean>(this.apiUrl + '/update-estado-incidencia', body);
   }
 }

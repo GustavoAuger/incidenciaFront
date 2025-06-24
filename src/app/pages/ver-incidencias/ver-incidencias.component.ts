@@ -276,7 +276,8 @@ getTipoIncidencia() {
           tipo_estado: incidencia.tipo_estado,
           bodDestino: incidencia.destino_id_bodega || '',      
           id_bodega: incidencia.d_id_bodega,     
-          ruta: incidencia.ruta
+          ruta: incidencia.ruta,
+          observaciones: incidencia.observaciones
         }
       }
     };
@@ -289,7 +290,7 @@ getTipoIncidencia() {
         id: incidencia.id
       }
     });
-}
+  }
  
   // Getter para obtener las incidencias paginadas
   get paginatedIncidencias(): Incidencia[] {
