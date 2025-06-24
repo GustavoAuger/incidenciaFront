@@ -653,17 +653,6 @@
           required
         >
       </div>
-
-      <!-- Observación -->
-      <div class="form-control w-full">
-        <label class="label">
-          <span class="label-text font-medium">Observación</span>
-        </label>
-        <textarea 
-          class="textarea textarea-bordered h-24" 
-          [(ngModel)]="reclamoForm.observacion"
-        ></textarea>
-      </div>
     </div>
 
     <div class="modal-action">
@@ -716,14 +705,6 @@
         <select class="select select-bordered w-full" [(ngModel)]="editarReclamoForm.id_estado">
           <option *ngFor="let estado of estadosReclamo" [value]="estado.id">{{ estado.nombre | initCapFirst}}</option>
         </select>
-      </div>
-      
-      <!-- Observación -->
-      <div class="form-control md:col-span-2">
-        <label class="label">
-          <span class="label-text">Observación</span>
-        </label>
-        <textarea class="textarea textarea-bordered h-24" [(ngModel)]="editarReclamoForm.observacion" placeholder="Ingrese una observación (opcional)"></textarea>
       </div>
     </div>
     
