@@ -103,6 +103,14 @@ export class IncidenciaService {
     return this.http.post<boolean>(this.apiUrl + '/post-movimientos', { id_incidencia });
   }
 
+  getMovimiento(id_incidencia: number): Observable<any> {
+    // Ensure the id_incidencia is sent as a number
+    const body = {
+      id_incidencia: Number(id_incidencia)
+    };
+    return this.http.post<any>(this.apiUrl + '/getMovimientos', body);
+  }
+
   // Método para calcular el total de items
   calcularTotalItems(detalles: DetalleIncidencia[]): number {
     return detalles.reduce((total, detalle) => {

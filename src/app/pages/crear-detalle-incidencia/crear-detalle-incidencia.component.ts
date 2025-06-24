@@ -23,6 +23,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
   originalIdBodega: string = '';
   fromRoute: string = 'ver-incidencias'; // Valor por defecto
   isLoading: boolean = true;
+  movimientoNumero: string | null = null;
   
   incidencia: any = {
     bodOrigen: '',
@@ -97,18 +98,32 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
 
   ngOnInit() {
     this.originalIdBodega = localStorage.getItem('id_bodega') ?? '';
-    console.log(this.originalIdBodega);
-    console.log(this.incidencia.destino_id_bodega);
-    console.log(this.incidencia.bodDestino);
-    console.log(typeof this.originalIdBodega, typeof this.incidencia.destino_id_bodega);
+    console.log('Original bodega ID:', this.originalIdBodega);
 
+    // Subscribe to queryParams once
     this.route.queryParams.subscribe(params => {
       this.modoVisualizacion = params['modo'] === 'visualizacion';
-      const idIncidencia = params['id'];
-      
-      // Set loading to true when starting to load data
+      this.incidenciaId = params['id'] ? Number(params['id']) : 0;
       this.isLoading = true;
-      
+      // solo se  muestra si esta en modo visluazacion
+      if (this.incidenciaId && this.modoVisualizacion) {
+        console.log('numero de incidencia', this.incidenciaId);
+        this.incidenciaService.getMovimiento(this.incidenciaId).subscribe({
+          next: (response: any) => {
+            console.log('Movement number response:', response);
+            if (response) {
+              this.movimientoNumero = response;
+              console.log('movimiento', this.movimientoNumero);
+            }
+          },
+          error: (error: any) => {
+            console.error('Error al obtener el número de movimiento:', error);
+          }
+        });
+      } else {
+        console.log('no esta en modo visualizacion');
+      }
+
       // Cargar las guías al iniciar el componente
       this.incidenciaService.getGuias().subscribe({
         next: (guias) => {
@@ -126,8 +141,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit {
       });
       
       // si estamos en modo visualización, cargar los detalles de la incidencia
-      if (this.modoVisualizacion && idIncidencia) {
-        this.incidenciaService.getDetallesIncidencia(idIncidencia).subscribe({
+      if (this.modoVisualizacion && this.incidenciaId) {
+        this.incidenciaService.getDetallesIncidencia(this.incidenciaId).subscribe({
           next: (detalles) => {
             this.detalles = detalles;
           },
