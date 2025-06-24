@@ -701,7 +701,14 @@
         <label class="label">
           <span class="label-text">Monto Pagado</span>
         </label>
-        <input type="number" class="input input-bordered w-full" [(ngModel)]="editarReclamoForm.monto_pagado" min="0" step="0.01">
+        <input 
+          type="number" 
+          class="input input-bordered w-full" 
+          [(ngModel)]="editarReclamoForm.monto_pagado" 
+          min="0" 
+          step="1"
+          onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+          oninput="this.value = Math.abs(parseInt(this.value)) || 0">
       </div>
     </div>
     
@@ -726,7 +733,7 @@
     <div class="modal-action">
       <button class="btn btn-ghost" (click)="cerrarEditarReclamo()">Cancelar</button>
       <button 
-        class="btn btn-primary" 
+        class="btn bg-cyan-500 hover:bg-cyan-600 text-white border-0" 
         [class.btn-disabled]="!hayCambiosEnFormulario()"
         [disabled]="!hayCambiosEnFormulario()"
         (click)="guardarCambiosReclamo()">
