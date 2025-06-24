@@ -151,6 +151,7 @@ export class ResolverIncidenciasComponent implements OnInit {
             const cumpleFiltro = (incidencia.id_estado === 1 || incidencia.id_estado === 2) &&
                              incidencia.origen_id_local === userBodegaId;
             console.log('Incidencia:', incidencia.id, 'cumple filtro:', cumpleFiltro, 'origen_id_local:', incidencia.origen_id_local, 'userBodegaId:', userBodegaId);
+            console.log(cumpleFiltro);
             return cumpleFiltro;
           });
 
@@ -389,6 +390,24 @@ export class ResolverIncidenciasComponent implements OnInit {
           }).subscribe({
             next: (response) => {
               if (response) {
+                // Actualizar el estado de la incidencia antes de enviar correo
+                this.selectedIncidencia.id_estado = nuevoEstadoId;
+                
+                // Enviar correo con la incidencia actualizada
+                console.log("Enviando correo con incidencia:", this.selectedIncidencia);
+                this._incidenciaService.enviarCorreo(this.selectedIncidencia).subscribe({
+                  next: (correoResponse) => {
+                    if (correoResponse) {
+                      console.log('Correo enviado exitosamente');
+                    } else {
+                      console.error('Error al enviar correo');
+                    }
+                  },
+                  error: (error) => {
+                    console.error('Error al enviar correo:', error);
+                  }
+                });
+
                 // Cerrar el modal y resetear el estado
                 this.showResolveModal = false;
                 this.selectedEstado = null;

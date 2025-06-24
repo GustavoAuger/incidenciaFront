@@ -58,6 +58,11 @@ export class IncidenciaService {
     console.log('Incidencia parcial guardada:', this.incidenciaParcial);
   }
 
+  // Método para enviar correo
+  enviarCorreo(incidencia: Incidencia): Observable<boolean> {
+    return this.http.post<boolean>(this.apiUrl + '/enviar_correo_bodega2', { incidencia });
+  }
+
   // Método para obtener la incidencia parcial si la necesitas después
   getIncidenciaParcial(): Incidencia | null { // AQUI LA LLAMAMOS
     return this.incidenciaParcial; 
@@ -101,6 +106,14 @@ export class IncidenciaService {
 
   generarMovimiento(id_incidencia: number): Observable<boolean> {
     return this.http.post<boolean>(this.apiUrl + '/post-movimientos', { id_incidencia });
+  }
+
+  getMovimiento(id_incidencia: number): Observable<any> {
+    // Ensure the id_incidencia is sent as a number
+    const body = {
+      id_incidencia: Number(id_incidencia)
+    };
+    return this.http.post<any>(this.apiUrl + '/getMovimientos', body);
   }
 
   // Método para calcular el total de items

@@ -13,7 +13,10 @@
     <div class="mb-6">
       <h2 class="text-xl font-semibold">Detalle de Incidencia <span class="text-gray-500 font-normal">({{ incidencia.tipo_estado | initCapFirst }})</span></h2>
     </div>
-    
+    <!-- Número de Movimiento (si hay)-->
+    <div *ngIf="movimientoNumero" class="text-sm text-gray-600 font-semibold">
+      <span class="text-orange-500">Nro Movimiento: {{movimientoNumero}}</span> 
+    </div>
     <!-- Contenedor blanco -->
     <div class="bg-white rounded-xl shadow-xl overflow-hidden">
       <!-- Información de cabecera -->
@@ -160,9 +163,18 @@
         </table>
         </div>
     </div>
-
+    <!-- Imagen de la incidencia (si hay) -->
+    <div *ngIf="incidencia.ruta" class="mb-6">
+      <div class="rounded-lg overflow-hidden shadow-lg">
+        <img [src]="incidencia.ruta" alt="Evidencia de la incidencia" class="w-full h-64 object-cover">
+        <div class="p-4 bg-white">
+          <p class="text-sm text-gray-600">Evidencia de la incidencia</p>
+        </div>
+      </div>
+    </div>
     <!-- Botones de acción -->
     <div class="px-8 py-6 bg-[#f5f5f5] -mx-8 mt-8 flex justify-between items-center">
+
       <!-- Botón Volver -->
       <button type="button" 
               class="btn btn-sm flex items-center space-x-2 bg-gray-400 hover:bg-gray-500 text-white h-10 px-4" 
