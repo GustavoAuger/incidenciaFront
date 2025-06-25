@@ -28,6 +28,11 @@ export class CrearIncidenciaComponent {
   lista_transportistas: Transportista[] = [];
   lista_tipo_incidencia: Tipo_incidencia[] = [];
   isLoading: boolean = true;
+  // Constantes para validación de imágenes
+  private readonly MAX_FILE_SIZE = 1024 * 1024; // 1MB
+  private readonly MAX_WIDTH = 1080;
+  private readonly MAX_HEIGHT = 720;
+  private readonly ALLOWED_TYPES = ['image/jpeg', 'image/png'];
 
   // Modelo para el formulario de incidencia
   incidencia: Incidencia = {
@@ -171,25 +176,42 @@ export class CrearIncidenciaComponent {
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
-  
+    
     const file = input.files[0]; // solo la primera imagen
-  
-    if (!file.type.startsWith('image/')) {
-      alert('El archivo seleccionado no es una imagen válida.');
-      input.value = ''; // limpiar input
+    
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/') || !this.ALLOWED_TYPES.includes(file.type)) {
+      alert('Solo se permiten archivos JPG y PNG');
+      input.value = '';
       return;
     }
-  
+
+    // Validar tamaño del archivo
+    if (file.size > this.MAX_FILE_SIZE) {
+      alert('El archivo no debe superar los 1MB');
+      input.value = '';
+      return;
+    }
+
+    // Validar dimensiones
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
-      // Actualizar selectedImages
-      this.selectedImages = [{
-        file,
-        preview: e.target?.result as string
-      }];
-      
-      // Actualizar ruta en el objeto incidencia
-      this.incidencia.ruta = e.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        if (img.width > this.MAX_WIDTH || img.height > this.MAX_HEIGHT) {
+          alert('Las dimensiones máximas son 1080x720');
+          input.value = '';
+          return;
+        }
+
+        // Si todo está bien, actualizar selectedImages y ruta
+        this.selectedImages = [{
+          file,
+          preview: e.target?.result as string
+        }];
+        this.incidencia.ruta = e.target?.result as string;
+      };
+      img.src = e.target?.result as string;
     };
     reader.readAsDataURL(file);
   }
