@@ -56,7 +56,6 @@ export class ResolverIncidenciasComponent implements OnInit {
   showResolveModal: boolean = false;
   selectedIncidencia: any = null;
   selectedEstado: number | null = null;
-  observaciones: string = ''; // Nueva propiedad para las observaciones
   isUpdating = false;
 
   constructor(
@@ -329,7 +328,6 @@ export class ResolverIncidenciasComponent implements OnInit {
 
   resolverIncidencia(incidencia: any) {
     this.selectedIncidencia = { ...incidencia };
-    this.observaciones = ''; // Limpiar observaciones al abrir el modal
     
     // Si el estado actual es 'Nuevo' (id 1), cambiar a 'En Revisión' (id 2) sin mostrar alertas
     if (this.selectedIncidencia.id_estado === 1) {
@@ -365,18 +363,16 @@ export class ResolverIncidenciasComponent implements OnInit {
   closeResolveModal() {
     this.showResolveModal = false;
     this.selectedEstado = null;
-    this.observaciones = ''; // Limpiar observaciones al cerrar el modal
     this.selectedIncidencia = null;
   }
 
   confirmarResolucion() {
     if (this.selectedEstado && this.selectedIncidencia) {
-      // Pasar las observaciones al método de actualización
-      this.actualizarEstadoIncidencia(this.selectedEstado, this.observaciones);
+      this.actualizarEstadoIncidencia(this.selectedEstado);
     }
   }
 
-  private actualizarEstadoIncidencia(nuevoEstadoId: number, observaciones: string = '') {
+  private actualizarEstadoIncidencia(nuevoEstadoId: number) {
     if (!this.selectedIncidencia) return;
     
     this.isUpdating = true;
@@ -387,7 +383,7 @@ export class ResolverIncidenciasComponent implements OnInit {
     const datosActualizacion = {
       id_incidencia: this.selectedIncidencia.id,
       id_estado: nuevoEstadoId,
-      observaciones: observaciones // Incluir las observaciones en los datos
+      observaciones: '' // Enviar string vacío como valor por defecto
     };
     
     // Primero generar el movimiento
@@ -400,7 +396,6 @@ export class ResolverIncidenciasComponent implements OnInit {
               if (response) {
                 // Actualizar el estado de la incidencia antes de enviar correo
                 this.selectedIncidencia.id_estado = nuevoEstadoId;
-                this.selectedIncidencia.observaciones = observaciones; // Actualizar observaciones localmente
                 
                 // Enviar correo con la incidencia actualizada
                 this._incidenciaService.enviarCorreo(this.selectedIncidencia).subscribe({
@@ -419,7 +414,6 @@ export class ResolverIncidenciasComponent implements OnInit {
                 // Cerrar el modal y resetear el estado
                 this.showResolveModal = false;
                 this.selectedEstado = null;
-                this.observaciones = ''; // Limpiar observaciones después de guardar
                 
                 // Actualizar la lista de incidencias
                 this.cargarIncidencias(id_usuario);
