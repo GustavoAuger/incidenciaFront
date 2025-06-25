@@ -158,7 +158,7 @@ export class HomeComponent implements OnInit {
   }
 
   canAccessIncidenciasReclamo(): boolean {
-    return this.isAdmin() || this.isGestor() || this.isTienda();
+    return this.isAdmin() || this.isGestor();
   }
 
   canAccessAdministrarUsuarios(): boolean {
