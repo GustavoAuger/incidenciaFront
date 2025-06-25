@@ -1,5 +1,5 @@
 <!-- Contenedor principal -->
-<div class="min-h-screen bg-[#f5f5f5] px-4 py-6">
+<div class="resumen-incidencias">
   <!-- Indicador de carga -->
   <div *ngIf="isLoading" class="fixed inset-0 bg-[#f5f5f5] bg-opacity-90 flex items-center justify-center z-50">
     <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
@@ -11,99 +11,159 @@
     <p>{{ error }}</p>
   </div>
 
-  <!-- Contenido principal -->
-  <div [class.opacity-0]="isLoading" [class.invisible]="isLoading" class="w-full max-w-7xl mx-auto">
-    <!-- Título y contador -->
+  <div class="container mx-auto px-4 py-6">
+    <!-- Título -->
     <div class="flex justify-between items-center mb-6">
       <h3 class="text-lg font-semibold">Reportes de Incidencias</h3>
       <span class="px-3 py-1 bg-[#00bcd4] text-white text-sm font-medium rounded-full">
         Total: {{ metricas.total }} incidencias
       </span>
     </div>
+    
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <!-- Pestañas -->
+      <div class="tab-header px-6 pt-4">
+        <button 
+          (click)="cambiarTab('resumen')" 
+          class="tab-button resumen"
+          [class.active]="activeTab === 'resumen'"
+        >
+          <i class="fas fa-chart-pie mr-2"></i>
+          Resumen incidencias
+        </button>
+        
+        <button 
+          (click)="cambiarTab('detalle')" 
+          class="tab-button detalle"
+          [class.active]="activeTab === 'detalle'"
+        >
+          <i class="fas fa-list-ul mr-2"></i>
+          Incidencias por bodega
+        </button>
 
-    <!-- Contenedor de métricas y gráfico -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Tarjetas de métricas -->
-      <div class="lg:col-span-2 space-y-4">
-        <!-- Fila 1: Nuevas y En Revisión -->
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Tarjeta de Incidencias Nuevas -->
-          <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-blue-500 flex flex-col h-40">
-            <div class="flex-1">
-              <p class="text-sm font-medium text-gray-500">Nuevas</p>
-              <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricas.nuevas }}</h3>
-              <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricas.nuevasValorizado) }}</p>
-              <p class="text-xs text-gray-500 mt-1">{{ metricas.porcentajeNuevas }}% del total</p>
-            </div>
-            <div class="mt-2">
-              <div class="w-full bg-gray-200 rounded-full h-1.5">
-                <div class="bg-blue-500 h-1.5 rounded-full" [style.width.%]="metricas.porcentajeNuevas"></div>
-              </div>
-            </div>
-          </div>
+        <button 
+          (click)="cambiarTab('graficos')" 
+          class="tab-button graficos"
+          [class.active]="activeTab === 'graficos'"
+        >
+          <i class="fas fa-chart-line mr-2"></i>
+          Desempeño bodegas
+        </button>
 
-          <!-- Tarjeta de Incidencias en Revisión -->
-          <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-yellow-500 flex flex-col h-40">
-            <div class="flex-1">
-              <p class="text-sm font-medium text-gray-500">En Revisión</p>
-              <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricas.enRevision }}</h3>
-              <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricas.enRevisionValorizado) }}</p>
-              <p class="text-xs text-gray-500 mt-1">{{ metricas.porcentajeEnRevision }}% del total</p>
-            </div>
-            <div class="mt-2">
-              <div class="w-full bg-gray-200 rounded-full h-1.5">
-                <div class="bg-yellow-500 h-1.5 rounded-full" [style.width.%]="metricas.porcentajeEnRevision"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Fila 2: Aprobadas y Rechazadas -->
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Tarjeta de Incidencias Aprobadas -->
-          <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-green-500 flex flex-col h-40">
-            <div class="flex-1">
-              <p class="text-sm font-medium text-gray-500">Aprobadas</p>
-              <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricas.aprobadas }}</h3>
-              <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricas.aprobadasValorizado) }}</p>
-              <p class="text-xs text-gray-500 mt-1">{{ metricas.porcentajeAprobadas }}% del total</p>
-            </div>
-            <div class="mt-2">
-              <div class="w-full bg-gray-200 rounded-full h-1.5">
-                <div class="bg-green-500 h-1.5 rounded-full" [style.width.%]="metricas.porcentajeAprobadas"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tarjeta de Incidencias Rechazadas -->
-          <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-red-500 flex flex-col h-40">
-            <div class="flex-1">
-              <p class="text-sm font-medium text-gray-500">Rechazadas</p>
-              <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricas.rechazadas }}</h3>
-              <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricas.rechazadasValorizado) }}</p>
-              <p class="text-xs text-gray-500 mt-1">{{ metricas.porcentajeRechazadas }}% del total</p>
-            </div>
-            <div class="mt-2">
-              <div class="w-full bg-gray-200 rounded-full h-1.5">
-                <div class="bg-red-500 h-1.5 rounded-full" [style.width.%]="metricas.porcentajeRechazadas"></div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <button 
+          (click)="cambiarTab('exportar')" 
+          class="tab-button exportar"
+          [class.active]="activeTab === 'exportar'"
+        >
+          <i class="fas fa-truck mr-2"></i>
+          Desempeño transportistas
+        </button>
       </div>
 
-      <!-- Gráfico -->
-      <div class="lg:col-span-1 bg-white rounded-lg shadow-sm p-4 h-[calc(20rem+2rem)] relative">
-        <h3 class="text-lg font-semibold h-6">Distribución de Incidencias</h3>
-        <div class="absolute inset-0 pt-2 pb-2 px-4">
-          <div class="w-full h-full">
-            <canvas baseChart
-              [data]="pieChartData"
-              [type]="pieChartType"
-              [options]="pieChartOptions"
-              class="w-full h-full">
-            </canvas>
+      <!-- Contenido de las pestañas -->
+      <div class="tab-content">
+        <!-- Pestaña Resumen -->
+        <div *ngIf="activeTab === 'resumen'" class="p-6">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Tarjetas de métricas -->
+            <div class="lg:col-span-2 space-y-4">
+              <!-- Fila 1: Nuevas y En Revisión -->
+              <div class="grid grid-cols-2 gap-4">
+                <!-- Tarjeta de Incidencias Nuevas -->
+                <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-blue-500 flex flex-col h-40">
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-500">Nuevas</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricas.nuevas }}</h3>
+                    <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricas.nuevasValorizado) }}</p>
+                    <p class="text-xs text-gray-500 mt-1">{{ metricas.porcentajeNuevas }}% del total</p>
+                  </div>
+                  <div class="mt-2">
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                      <div class="bg-blue-500 h-1.5 rounded-full" [style.width.%]="metricas.porcentajeNuevas"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tarjeta de Incidencias en Revisión -->
+                <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-yellow-500 flex flex-col h-40">
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-500">En Revisión</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricas.enRevision }}</h3>
+                    <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricas.enRevisionValorizado) }}</p>
+                    <p class="text-xs text-gray-500 mt-1">{{ metricas.porcentajeEnRevision }}% del total</p>
+                  </div>
+                  <div class="mt-2">
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                      <div class="bg-yellow-500 h-1.5 rounded-full" [style.width.%]="metricas.porcentajeEnRevision"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fila 2: Aprobadas y Rechazadas -->
+              <div class="grid grid-cols-2 gap-4">
+                <!-- Tarjeta de Incidencias Aprobadas -->
+                <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-green-500 flex flex-col h-40">
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-500">Aprobadas</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricas.aprobadas }}</h3>
+                    <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricas.aprobadasValorizado) }}</p>
+                    <p class="text-xs text-gray-500 mt-1">{{ metricas.porcentajeAprobadas }}% del total</p>
+                  </div>
+                  <div class="mt-2">
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                      <div class="bg-green-500 h-1.5 rounded-full" [style.width.%]="metricas.porcentajeAprobadas"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tarjeta de Incidencias Rechazadas -->
+                <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-red-500 flex flex-col h-40">
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-500">Rechazadas</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricas.rechazadas }}</h3>
+                    <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricas.rechazadasValorizado) }}</p>
+                    <p class="text-xs text-gray-500 mt-1">{{ metricas.porcentajeRechazadas }}% del total</p>
+                  </div>
+                  <div class="mt-2">
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                      <div class="bg-red-500 h-1.5 rounded-full" [style.width.%]="metricas.porcentajeRechazadas"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gráfico -->
+            <div class="lg:col-span-1 bg-white rounded-lg shadow-sm p-4 h-[calc(20rem+2rem)] relative">
+              <h3 class="text-lg font-semibold h-6">Distribución de Incidencias</h3>
+              <div class="absolute inset-0 pt-2 pb-2 px-4">
+                <div class="w-full h-full">
+                  <canvas baseChart
+                    [data]="pieChartData"
+                    [type]="pieChartType"
+                    [options]="pieChartOptions"
+                    class="w-full h-full">
+                  </canvas>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <!-- Pestaña Detalle -->
+        <div *ngIf="activeTab === 'detalle'" class="p-6">
+          <p class="text-gray-500">Contenido de Incidencias por bodega</p>
+        </div>
+
+        <!-- Pestaña Gráficos -->
+        <div *ngIf="activeTab === 'graficos'" class="p-6">
+          <p class="text-gray-500">Contenido de Desempeño bodegas</p>
+        </div>
+
+        <!-- Pestaña Exportar -->
+        <div *ngIf="activeTab === 'exportar'" class="p-6">
+          <p class="text-gray-500">Contenido de Desempeño transportistas</p>
         </div>
       </div>
     </div>

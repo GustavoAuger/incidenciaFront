@@ -1,0 +1,126 @@
+/* Estilos para las pestañas */
+.tab-button {
+  position: relative;
+  padding: 0.5rem 1.25rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: 1px solid #e5e7eb;
+  border-bottom: none;
+  cursor: pointer;
+  outline: none;
+  color: #4b5563;
+  background-color: white;
+  border-radius: 0.5rem 0.5rem 0 0;
+  margin-right: 0.25rem;
+  box-shadow: 0 -2px 4px -2px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+}
+
+/* Estilos para pestañas activas */
+.tab-button.active {
+  background-color: #f5f5f5;
+  color: #00bcd4;
+  border-color: #e5e7eb;
+  border-bottom-color: transparent;
+  font-weight: 600;
+}
+
+/* Estilos específicos para cada pestaña */
+.tab-button.resumen.active {
+  border-top-color: #00bcd4;
+  border-top-width: 3px;
+  color: #00bcd4;
+}
+
+.tab-button.detalle.active {
+  border-top-color: #4caf50;
+  border-top-width: 3px;
+  color: #4caf50;
+}
+
+.tab-button.graficos.active {
+  border-top-color: #9c27b0;
+  border-top-width: 3px;
+  color: #9c27b0;
+}
+
+.tab-button.exportar.active {
+  border-top-color: #ff9800;
+  border-top-width: 3px;
+  color: #ff9800;
+}
+
+/* Efecto hover para pestañas inactivas */
+.tab-button:not(.active):hover {
+  background-color: #f9fafb;
+  color: #374151;
+}
+
+/* Estilos para los iconos de las pestañas */
+.tab-button i {
+  margin-right: 0.5rem;
+  font-size: 1rem;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 640px) {
+  .tab-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .tab-button i {
+    margin-right: 0.25rem;
+  }
+}
+
+/* Estilo para el contenedor de las pestañas */
+.tab-header {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Ocultar la barra de desplazamiento en navegadores WebKit */
+.tab-header::-webkit-scrollbar {
+  display: none;
+}
+
+/* Estilos para el contenido de las pestañas */
+.tab-content {
+  display: block;
+  width: 100%;
+}
+
+/* Asegurar que el contenido de las pestañas tenga un fondo blanco */
+:host ::ng-deep .tab-content {
+  background-color: white;
+  border-radius: 0 0 0.5rem 0.5rem;
+  padding: 1.5rem;
+}
+
+/* Asegurar que el contenido de las pestañas ocupe el ancho completo */
+.bg-white.rounded-lg.shadow {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Asegurar que el contenido de las pestañas no tenga márgenes que lo oculten */
+.p-6 {
+  padding: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Estilos para el contenedor principal */
+.resumen-incidencias {
+  padding: 0;
+  margin: 0;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}

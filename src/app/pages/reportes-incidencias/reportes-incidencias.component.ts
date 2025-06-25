@@ -33,6 +33,9 @@ interface MetricasIncidencia {
 export class ReportesIncidenciasComponent implements OnInit {
   @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
   
+  // Gestión de pestañas
+  activeTab: string = 'resumen';
+  
   metricas: MetricasIncidencia = {
     total: 0,
     totalValorizado: 0,
@@ -49,6 +52,7 @@ export class ReportesIncidenciasComponent implements OnInit {
     porcentajeAprobadas: 0,
     porcentajeRechazadas: 0
   };
+  
   isLoading = true;
   error: string | null = null;
 
@@ -61,16 +65,16 @@ export class ReportesIncidenciasComponent implements OnInit {
         position: 'right',
       },
       tooltip: {
-  callbacks: {
-    label: (context) => {
-      const label = context.label || '';
-      const value = context.raw as number;
-      const total = (context.dataset.data as number[]).reduce((a, b) => (a || 0) + (b || 0), 0);
-      const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-      return `${label}: ${value} (${percentage}%)`;
-    }
-  }
-}
+        callbacks: {
+          label: (context) => {
+            const label = context.label || '';
+            const value = context.raw as number;
+            const total = (context.dataset.data as number[]).reduce((a, b) => (a || 0) + (b || 0), 0);
+            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+            return `${label}: ${value} (${percentage}%)`;
+          }
+        }
+      }
     },
   };
 
@@ -105,6 +109,18 @@ export class ReportesIncidenciasComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarMetricas();
+    // Cargar la pestaña activa guardada o usar 'resumen' por defecto
+    const savedTab = localStorage.getItem('reportesIncidencias_activeTab');
+    if (savedTab) {
+      this.activeTab = savedTab;
+    }
+  }
+
+  // Método para cambiar de pestaña
+  cambiarTab(tab: string): void {
+    this.activeTab = tab;
+    // Guardar la pestaña activa
+    localStorage.setItem('reportesIncidencias_activeTab', tab);
   }
 
   private cargarMetricas(): void {
