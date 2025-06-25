@@ -366,7 +366,11 @@ export class AppComponent implements OnInit, OnDestroy {
     const currentRoleId = parseInt(localStorage.getItem('id_rol') || '0', 10);
     
     // Filtrar roles para excluir el rol actual del usuario
-    this.modalRoles = this.roles.filter(rol => rol.id !== currentRoleId && rol.id !== id_hideRole && rol.id !== id_hideRole2);
+    if (currentRoleId == 4){
+      this.modalRoles = this.roles.filter(rol => rol.id !== id_hideRole && rol.id !== id_hideRole2);
+    }else{
+      this.modalRoles = this.roles.filter(rol => rol.id !== currentRoleId && rol.id !== id_hideRole && rol.id !== id_hideRole2);
+    }
     
     // Mostrar el modal
     const modal = document.getElementById('adminModal') as HTMLDialogElement;
