@@ -196,7 +196,7 @@
     <!-- Sección de Imagen y Observaciones -->
     <div class="flex flex-col md:flex-row gap-6 mt-8 mb-6">
       <!-- Cuadro de Imagen -->
-      <div class="w-full md:w-1/2">
+      <div class="w-full md:w-1/2" *ngIf="modoVisualizacion">
         <div class="rounded-lg overflow-hidden shadow-lg bg-white h-full">
           <div class="p-3 border-b border-gray-200">
             <p class="font-bold text-gray-800">Evidencia de la incidencia</p>
@@ -220,7 +220,7 @@
       </div>
 
       <!-- Cuadro de Observaciones -->
-      <div class="w-full md:w-1/2">
+      <div class="w-full md:w-1/2" *ngIf="modoVisualizacion">
         <div class="rounded-lg overflow-hidden shadow-lg bg-white h-full">
           <div class="p-3 border-b border-gray-200">
             <p class="font-bold text-gray-800">Observaciones</p>
@@ -262,11 +262,19 @@
     <div class="px-8 py-6 bg-[#f5f5f5] -mx-8 mt-8 flex justify-between items-center">
 
       <!-- Botón Volver -->
-      <button type="button" 
+      <button type="button"
+      *ngIf="!modoVisualizacion" 
               class="btn btn-sm flex items-center space-x-2 bg-gray-400 hover:bg-gray-500 text-white h-10 px-4" 
-              (click)="navigateTo(fromRoute)">
+              (click)="navigateTo('/crear-incidencia')">
         <i class="fas fa-arrow-left"></i>
         <span>Volver</span>
+      </button>
+      <button type="button" 
+      *ngIf="modoVisualizacion" 
+            class="btn btn-sm flex items-center space-x-2 bg-gray-400 hover:bg-gray-500 text-white h-10 px-4" 
+            (click)="navigateTo('/ver-incidencias')">
+      <i class="fas fa-arrow-left"></i>
+      <span>Volver</span>
       </button>
 
       <!-- Botón Actualizar Detalle -->
@@ -276,10 +284,8 @@
               (click)="actualizarIncidencia()">
         <span>Actualizar detalle</span>
       </button>
-    </div>
 
-    <!-- Botón Generar Incidencia -->
-    <div class="mt-8 flex justify-end px-4">
+          <!-- Botón Generar Incidencia -->
       <button type="button" 
               *ngIf="!modoVisualizacion"
               class="btn btn-sm flex items-center space-x-2 bg-[#00AFD7] hover:bg-[#00AFD7]/90 text-white h-10 px-6" 

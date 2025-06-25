@@ -273,6 +273,7 @@ export class CrearIncidenciaComponent {
           fechaRecepcion: this.incidencia.fecha,
           bodDestino: bodegaUsuario? bodegaUsuario.id_bodega : '',        
           tipo_estado: "nuevo",
+          observaciones: this.incidencia.observaciones,
           file: this.selectedImages.length > 0 ? this.selectedImages[0].file : null
         }
       }
