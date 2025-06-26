@@ -81,9 +81,10 @@
 
 .export-buttons {
     display: flex;
-    height: 25px;
+    align-items: center;
     gap: 10px;
-    justify-content: flex-end;
+    justify-content: space-between;
+    height: 40px;
 }
 
 .export-btn {
@@ -94,9 +95,11 @@
     color: white;
     border: none;
     border-radius: 4px;
-    padding: 8px 16px;
+    padding: 7px 16px;
     cursor: pointer;
     font-size: 14px;
+    height: 100%;
+    min-height: 40px;
 }
 
 .export-btn img {

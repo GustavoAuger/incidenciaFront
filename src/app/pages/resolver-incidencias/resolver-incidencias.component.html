@@ -35,13 +35,15 @@
             </div>
         </div>
 
-        <div class="export-buttons">
-            <button class="export-btn" (click)="limpiarFiltros()"> 
-              LIMPIAR FILTROS
-              <span class="material-symbols-outlined">
-                delete_sweep
-              </span>
-            </button>
+        <div class="export-buttons flex flex-row justify-between">
+            <div class="flex-1">
+                <button class="export-btn w-[200px] flex items-center justify-center gap-2" (click)="limpiarFiltros()"> 
+                  LIMPIAR FILTROS
+                  <span class="material-symbols-outlined">
+                    delete_sweep
+                  </span>
+                </button>
+            </div>
         </div>
     </div>
 
