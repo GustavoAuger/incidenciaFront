@@ -382,10 +382,32 @@ getTipoIncidencia() {
     this.updatePagination();
   }
 
+  getTodayDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  getThirtyDaysAgoDate(): string {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    
+    const year = thirtyDaysAgo.getFullYear();
+    const month = String(thirtyDaysAgo.getMonth() + 1).padStart(2, '0');
+    const day = String(thirtyDaysAgo.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   limpiarFiltros() {
+    // Obtener las fechas por defecto
+    const today = this.getTodayDate();
+    const thirtyDaysAgo = this.getThirtyDaysAgoDate();
     this.filtros = {
-      fechaDesde: '',
-      fechaHasta: '',
+      fechaDesde: thirtyDaysAgo,
+      fechaHasta: today,
       numeroIncidencia: '',
       tipoIncidencia: '',
       origen:'',
