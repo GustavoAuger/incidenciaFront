@@ -446,17 +446,48 @@ export class ResolverIncidenciasComponent implements OnInit {
     });
   }
 
+  // Variable para el toast
+  toast: any = null;
+
+  // Método para mostrar toast
+  mostrarToast(mensaje: string, tipo: 'success' | 'error' | 'warning') {
+    this.toast = {
+      mensaje: mensaje,
+      tipo: tipo,
+      visible: true
+    };
+    
+    // Ocultar después de 5 segundos
+    setTimeout(() => {
+      this.toast = null;
+    }, 5000);
+  }
+
+  // Método para obtener la clase del toast según el tipo
+  getToastClass(tipo: 'success' | 'error' | 'warning'): string {
+    switch (tipo) {
+      case 'success':
+        return 'alert-success';
+      case 'error':
+        return 'alert-error';
+      case 'warning':
+        return 'alert-warning';
+      default:
+        return 'alert-info';
+    }
+  }
+
   private finalizarProceso(movimientoGenerado: boolean, estadoActualizado: boolean, correoEnviado: boolean) {
     this.isUpdating = false;
-  
+    
     // Si las 2 primeras llamadas fueron exitosas pero no el correo
     if (movimientoGenerado && estadoActualizado && !correoEnviado) {
-      alert('Movimiento generado correctamente y estado actualizado. Pero no se pudo enviar el correo de notificación.');
+      this.mostrarToast('Movimiento generado correctamente y estado actualizado. Pero no se pudo enviar el correo de notificación.', 'warning');
     }
     
     // Si las 3 llamadas fueron exitosas
     if (movimientoGenerado && estadoActualizado && correoEnviado) {
-      alert('Movimiento generado correctamente, estado actualizado, y correo enviado a la bodega de destino.');
+      this.mostrarToast('Movimiento generado correctamente, estado actualizado, y correo enviado a la bodega de destino.', 'success');
     }
   
     // Cerrar el modal y resetear el estado
