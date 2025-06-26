@@ -61,8 +61,9 @@ export class ReportesIncidenciasComponent implements OnInit {
     },
   };
 
-  public pieChartData: ChartData<'pie', number[], string | string[]> = {
-    labels: ['Nuevas', 'En Revisión', 'Aprobadas', 'Rechazadas'],
+  public pieChartLabels: string[] = ['Nuevas', 'En Revisión', 'Aprobadas', 'Rechazadas'];
+  public pieChartData: ChartData<'pie'> = {
+    labels: this.pieChartLabels,
     datasets: [{
       data: [
         this.metricasResumen.nuevasResumen,
@@ -71,18 +72,31 @@ export class ReportesIncidenciasComponent implements OnInit {
         this.metricasResumen.rechazadasResumen
       ],
       backgroundColor: [
-        'rgb(59, 130, 246)',    // Azul 500 (bg-blue-500)
-        'rgb(234, 179, 8)',     // Amarillo 500 (bg-yellow-500)
-        'rgb(34, 197, 94)',     // Verde 500 (bg-green-500)
-        'rgb(239, 68, 68)'      // Rojo 500 (bg-red-500)
+        'rgba(126, 34, 206, 1)',   // Morado sólido
+        'rgba(251, 146, 60, 1)',  // Naranja sólido
+        'rgba(20, 184, 166, 1)',  // Turquesa sólido
+        'rgba(248, 56, 56, 1)'  // Rojo sólido
       ],
       borderColor: [
-        'rgb(59, 130, 246)',
-        'rgb(234, 179, 8)',
-        'rgb(34, 197, 94)',
-        'rgb(239, 68, 68)'
+        'rgba(126, 34, 206, 1)',    // Borde morado sólido
+        'rgba(251, 146, 60, 1)',    // Borde naranja sólido
+        'rgba(20, 184, 166, 1)',    // Borde turquesa sólido
+        'rgba(248, 56, 56, 1)'    // Borde rojo sólido
       ],
-      borderWidth: 1
+      borderWidth: 2,
+      hoverBackgroundColor: [
+        'rgba(126, 34, 206, 0.8)',    // Morado con opacidad
+        'rgba(251, 146, 60, 0.8)',    // Naranja con opacidad
+        'rgba(20, 184, 166, 0.8)',    // Turquesa con opacidad
+        'rgba(248, 113, 113, 0.8)'    // Rojo con opacidad
+      ],
+      hoverBorderWidth: 3,
+      hoverBorderColor: [
+        'rgba(126, 34, 206, 0.8)',    // Borde morado en hover
+        'rgba(251, 146, 60, 0.8)',    // Borde naranja en hover
+        'rgba(20, 184, 166, 0.8)',    // Borde turquesa en hover
+        'rgba(248, 113, 113, 0.8)'       // Borde rojo en hover
+      ]
     }]
   };
 

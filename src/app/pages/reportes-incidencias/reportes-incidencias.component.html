@@ -73,64 +73,124 @@
               <!-- Tarjetas de métricas -->
               <div class="lg:col-span-2 space-y-4">
                 <!-- Fila 1: Nuevas y En Revisión -->
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <!-- Tarjeta de Incidencias Nuevas -->
-                  <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-blue-500 flex flex-col h-40">
-                    <div class="flex-1">
-                      <p class="text-sm font-medium text-gray-500">Nuevas</p>
-                      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricasResumen.nuevasResumen }}</h3>
-                      <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricasResumen.nuevasValorizadoResumen) }}</p>
-                      <p class="text-xs text-gray-500 mt-1">{{ metricasResumen.porcentajeNuevasResumen }}% del total</p>
+                  <div class="bg-purple-100 rounded-lg shadow-sm p-4 border-t-4 border-purple-700 flex flex-col h-48">
+                    <div class="flex justify-between items-start mb-2">
+                      <p class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-plus-circle text-purple-700 mr-2"></i>
+                        Nuevas
+                      </p>
+                      <span class="px-2 py-1 bg-purple-200 text-purple-900 text-xs font-medium rounded-full">
+                        {{ metricasResumen.porcentajeNuevasResumen }}% del total
+                      </span>
                     </div>
-                    <div class="mt-2">
+                    <div class="flex flex-col justify-between flex-1">
+                      <div class="flex items-end justify-between">
+                        <div>
+                          <div class="text-4xl font-bold text-gray-900">{{ metricasResumen.nuevasResumen }}</div>
+                          <p class="text-xs text-gray-600">Incidencias</p>
+                        </div>
+                        <div class="text-right">
+                          <p class="text-2xl font-bold text-purple-800">{{ formatCurrency(metricasResumen.nuevasValorizadoResumen) }}</p>
+                          <p class="text-xs text-gray-600">Total valorizado</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mt-4">
                       <div class="w-full bg-gray-200 rounded-full h-1.5">
-                        <div class="bg-blue-500 h-1.5 rounded-full" [style.width.%]="metricasResumen.porcentajeNuevasResumen"></div>
+                        <div class="bg-purple-700 h-1.5 rounded-full" [style.width.%]="metricasResumen.porcentajeNuevasResumen"></div>
                       </div>
                     </div>
                   </div>
 
                   <!-- Tarjeta de Incidencias en Revisión -->
-                  <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-yellow-500 flex flex-col h-40">
-                    <div class="flex-1">
-                      <p class="text-sm font-medium text-gray-500">En Revisión</p>
-                      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricasResumen.enRevisionResumen }}</h3>
-                      <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricasResumen.enRevisionValorizadoResumen) }}</p>
-                      <p class="text-xs text-gray-500 mt-1">{{ metricasResumen.porcentajeEnRevisionResumen }}% del total</p>
+                  <div class="bg-orange-50 rounded-lg shadow-sm p-4 border-t-4 border-orange-400 flex flex-col h-48">
+                    <div class="flex justify-between items-start mb-2">
+                      <p class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-search text-orange-500 mr-2"></i>
+                        En Revisión
+                      </p>
+                      <span class="px-2 py-1 bg-orange-100 text-orange-900 text-xs font-medium rounded-full">
+                        {{ metricasResumen.porcentajeEnRevisionResumen }}% del total
+                      </span>
                     </div>
-                    <div class="mt-2">
+                    <div class="flex flex-col justify-between flex-1">
+                      <div class="flex items-end justify-between">
+                        <div>
+                          <div class="text-4xl font-bold text-gray-900">{{ metricasResumen.enRevisionResumen }}</div>
+                          <p class="text-xs text-gray-600">Incidencias</p>
+                        </div>
+                        <div class="text-right">
+                          <p class="text-2xl font-bold text-orange-500">{{ formatCurrency(metricasResumen.enRevisionValorizadoResumen) }}</p>
+                          <p class="text-xs text-gray-600">Total valorizado</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mt-4">
                       <div class="w-full bg-gray-200 rounded-full h-1.5">
-                        <div class="bg-yellow-500 h-1.5 rounded-full" [style.width.%]="metricasResumen.porcentajeEnRevisionResumen"></div>
+                        <div class="bg-orange-400 h-1.5 rounded-full" [style.width.%]="metricasResumen.porcentajeEnRevisionResumen"></div>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <!-- Fila 2: Aprobadas y Rechazadas -->
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <!-- Tarjeta de Incidencias Aprobadas -->
-                  <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-green-500 flex flex-col h-40">
-                    <div class="flex-1">
-                      <p class="text-sm font-medium text-gray-500">Aprobadas</p>
-                      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricasResumen.aprobadasResumen }}</h3>
-                      <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricasResumen.aprobadasValorizadoResumen) }}</p>
-                      <p class="text-xs text-gray-500 mt-1">{{ metricasResumen.porcentajeAprobadasResumen }}% del total</p>
+                  <div class="bg-teal-100 rounded-lg shadow-sm p-4 border-t-4 border-teal-600 flex flex-col h-48">
+                    <div class="flex justify-between items-start mb-2">
+                      <p class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-check-circle text-teal-600 mr-2"></i>
+                        Aprobadas
+                      </p>
+                      <span class="px-2 py-1 bg-teal-200 text-teal-900 text-xs font-medium rounded-full">
+                        {{ metricasResumen.porcentajeAprobadasResumen }}% del total
+                      </span>
                     </div>
-                    <div class="mt-2">
+                    <div class="flex flex-col justify-between flex-1">
+                      <div class="flex items-end justify-between">
+                        <div>
+                          <div class="text-4xl font-bold text-gray-900">{{ metricasResumen.aprobadasResumen }}</div>
+                          <p class="text-xs text-gray-600">Incidencias</p>
+                        </div>
+                        <div class="text-right">
+                          <p class="text-2xl font-bold text-teal-700">{{ formatCurrency(metricasResumen.aprobadasValorizadoResumen) }}</p>
+                          <p class="text-xs text-gray-600">Total valorizado</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mt-4">
                       <div class="w-full bg-gray-200 rounded-full h-1.5">
-                        <div class="bg-green-500 h-1.5 rounded-full" [style.width.%]="metricasResumen.porcentajeAprobadasResumen"></div>
+                        <div class="bg-teal-600 h-1.5 rounded-full" [style.width.%]="metricasResumen.porcentajeAprobadasResumen"></div>
                       </div>
                     </div>
                   </div>
 
                   <!-- Tarjeta de Incidencias Rechazadas -->
-                  <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-red-500 flex flex-col h-40">
-                    <div class="flex-1">
-                      <p class="text-sm font-medium text-gray-500">Rechazadas</p>
-                      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricasResumen.rechazadasResumen }}</h3>
-                      <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricasResumen.rechazadasValorizadoResumen) }}</p>
-                      <p class="text-xs text-gray-500 mt-1">{{ metricasResumen.porcentajeRechazadasResumen }}% del total</p>
+                  <div class="bg-red-50 rounded-lg shadow-sm p-4 border-t-4 border-red-500 flex flex-col h-48">
+                    <div class="flex justify-between items-start mb-2">
+                      <p class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-times-circle text-red-500 mr-2"></i>
+                        Rechazadas
+                      </p>
+                      <span class="px-2 py-1 bg-red-100 text-red-900 text-xs font-medium rounded-full">
+                        {{ metricasResumen.porcentajeRechazadasResumen }}% del total
+                      </span>
                     </div>
-                    <div class="mt-2">
+                    <div class="flex flex-col justify-between flex-1">
+                      <div class="flex items-end justify-between">
+                        <div>
+                          <div class="text-4xl font-bold text-gray-900">{{ metricasResumen.rechazadasResumen }}</div>
+                          <p class="text-xs text-gray-600">Incidencias</p>
+                        </div>
+                        <div class="text-right">
+                          <p class="text-2xl font-bold text-red-600">{{ formatCurrency(metricasResumen.rechazadasValorizadoResumen) }}</p>
+                          <p class="text-xs text-gray-600">Total valorizado</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mt-4">
                       <div class="w-full bg-gray-200 rounded-full h-1.5">
                         <div class="bg-red-500 h-1.5 rounded-full" [style.width.%]="metricasResumen.porcentajeRechazadasResumen"></div>
                       </div>
