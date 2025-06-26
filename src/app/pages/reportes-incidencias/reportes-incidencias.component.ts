@@ -5,11 +5,12 @@ import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { IncidenciaService } from '../../services/incidencia.service';
 import { Incidencia } from '../../interfaces/incidencia';
 import { MetricasResumenIncidencia } from '../../interfaces/metricas-resumen-incidencia';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-reportes-incidencias',
   standalone: true,
-  imports: [CommonModule, NgChartsModule],
+  imports: [CommonModule, NgChartsModule, FormsModule],
   templateUrl: './reportes-incidencias.component.html',
   styleUrls: ['./reportes-incidencias.component.css']
 })
@@ -18,6 +19,9 @@ export class ReportesIncidenciasComponent implements OnInit {
   
   // Gestión de pestañas
   activeTab: string = 'resumen';
+  
+  // Fecha actual para el input date
+  todayDate: string;
   
   metricasResumen: MetricasResumenIncidencia = {
     totalResumen: 0,
@@ -102,7 +106,22 @@ export class ReportesIncidenciasComponent implements OnInit {
 
   public pieChartType: ChartType = 'pie';
 
-  constructor(private incidenciaService: IncidenciaService) {}
+  // Filtros de fecha para el resumen
+  public fechaDesdeResumen: string;
+  public fechaHastaResumen: string;
+  public cargandoResumen: boolean = false;
+
+  constructor(private incidenciaService: IncidenciaService) {
+    // Establecer fechas por defecto (últimos 30 días)
+    const fechaHasta = new Date();
+    const fechaDesde = new Date();
+    fechaDesde.setDate(fechaDesde.getDate() - 30);
+    
+    this.fechaHastaResumen = fechaHasta.toISOString().split('T')[0];
+    this.fechaDesdeResumen = fechaDesde.toISOString().split('T')[0];
+    // Inicializar la fecha actual en formato YYYY-MM-DD
+    this.todayDate = new Date().toISOString().split('T')[0];
+  }
 
   ngOnInit(): void {
     this.cargarMetricas();
@@ -238,5 +257,59 @@ export class ReportesIncidenciasComponent implements OnInit {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(value);
+  }
+
+  // Método para cargar datos con filtros
+  cargarDatosResumen(): void {
+    this.cargandoResumen = true;
+    
+    // Primero obtenemos todas las incidencias
+    this.incidenciaService.getIncidencias(parseInt(localStorage.getItem('id_usuario') || '0', 10)).subscribe({
+      next: (incidencias) => {
+        // Aplicar filtros manualmente
+        let incidenciasFiltradas = [...incidencias];
+
+        // Filtrar por fechas si están definidas
+        if (this.fechaDesdeResumen) {
+          const fechaDesde = new Date(this.fechaDesdeResumen);
+          incidenciasFiltradas = incidenciasFiltradas.filter(incidencia => 
+            new Date(incidencia.fecha_recepcion!) >= fechaDesde
+          );
+        }
+
+        if (this.fechaHastaResumen) {
+          const fechaHasta = new Date(this.fechaHastaResumen);
+          fechaHasta.setHours(23, 59, 59, 999); // Para incluir todo el día
+          incidenciasFiltradas = incidenciasFiltradas.filter(incidencia => 
+            new Date(incidencia.fecha_recepcion!) <= fechaHasta
+          );
+        }
+
+        // Aquí puedes agregar más filtros según sea necesario
+        // Por ejemplo, para tipo_incidencia:
+        // if (this.tipoIncidenciaFiltro) {
+        //   incidenciasFiltradas = incidenciasFiltradas.filter(
+        //     incidencia => incidencia.id_tipo_incidencia === this.tipoIncidenciaFiltro
+        //   );
+        // }
+
+
+        // Procesar las incidencias filtradas
+        this.calcularMetricas(incidenciasFiltradas);
+        this.cargandoResumen = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar las incidencias:', error);
+        this.error = 'Error al cargar los datos del resumen';
+        this.cargandoResumen = false;
+      }
+    });
+  }
+
+  // Método para manejar el cambio de fechas
+  onFiltroFechaCambiado(): void {
+    if (this.fechaDesdeResumen && this.fechaHastaResumen) {
+      this.cargarDatosResumen();
+    }
   }
 }
