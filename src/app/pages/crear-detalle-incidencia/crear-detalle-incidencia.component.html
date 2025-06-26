@@ -73,7 +73,8 @@
         <form #detalleForm="ngForm">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="form-control"> 
-              <label class="label font-semibold text-gray-700">Tipo de Diferencia (*)</label><br> 
+              <label class="label font-semibold text-gray-700">Tipo de Diferencia </label>
+              <span class="label-text-alt text-error"> * </span><br> 
               <select class="select select-bordered w-full bg-white tipoDiferencia" [(ngModel)]="detalleIncidencia.tipoDiferencia" name="tipoDiferencia" required> 
                 <option value="" disabled selected>Seleccione tipo</option> 
                 <option *ngFor="let tipo of tiposDiferencia" [value]="tipo">{{tipo | initCapFirst}}</option> 
@@ -81,14 +82,16 @@
             </div>
             <div class="form-control">
               
-              <label class="label font-semibold text-gray-700">N° Guía (*)</label><br>
+              <label class="label font-semibold text-gray-700">N° Guía </label>
+              <span class="label-text-alt text-error"> * </span><br>
               <input type="text" 
                      (keydown)="validateNumberInput($event)"
                      class="input input-bordered w-full bg-white numGuia" [(ngModel)]="detalleIncidencia.numGuia" name="numGuia" min="1" placeholder="Ingrese N° documento" (change)="onGuiaChange()" />
             </div>
 
             <div class="form-control">
-              <label class="label font-semibold text-gray-700">SKU (*)</label><br>
+              <label class="label font-semibold text-gray-700">SKU </label>
+              <span class="label-text-alt text-error"> * </span><br>
               <div class="flex gap-4">
                 <input type="text" 
                        (keydown)="validateNumberInput($event)"
@@ -104,7 +107,8 @@
             
 
             <div class="form-control">
-              <label class="label font-semibold text-gray-700">Cantidad (*)</label><br>
+              <label class="label font-semibold text-gray-700">Cantidad </label>
+              <span class="label-text-alt text-error"> * </span><br>
               <input type="text" (keydown)="validateNumberInput($event)" class="input input-bordered w-full bg-white cantidad" [(ngModel)]="detalleIncidencia.cantidad" name="cantidad" required min="1" step="1" placeholder="Ingrese cantidad" (change)="validarCantidad()" [disabled]="!fieldsEnabled" />
             </div>
 
