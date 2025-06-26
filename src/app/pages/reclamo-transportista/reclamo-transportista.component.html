@@ -216,11 +216,17 @@
                   <i class="fas {{ getSortIcon('transportista')}} ml-1"></i>
                 </div>
               </th>
-              <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">
-                Monto Pagado
+              <th (click)="sortTable('monto_pagado')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+                <div class="flex items-center justify-center">
+                  <span>Monto Pagado</span>
+                  <i class="fas {{ getSortIcon('monto_pagado') }} ml-1"></i>
+                </div>
               </th>
-              <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">
-                Estado Reclamo
+              <th (click)="sortTable('estado_reclamo')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+                <div class="flex items-center justify-center">
+                  <span>Estado Reclamo</span>
+                  <i class="fas {{ getSortIcon('estado_reclamo') }} ml-1"></i>
+                </div>
               </th>
               <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">Acción</th>
             </tr>

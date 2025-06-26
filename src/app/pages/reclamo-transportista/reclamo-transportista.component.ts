@@ -798,19 +798,57 @@ export class ReclamoTransportistaComponent implements OnInit {
           aValue = a.fecha ? new Date(a.fecha).getTime() : 0;
           bValue = b.fecha ? new Date(b.fecha).getTime() : 0;
           break;
-        case 'origen':
-          aValue = a.origen_id_local || '';
-          bValue = a.origen_id_local || '';
+        case 'numero_reclamo':
+          aValue = this.getNumeroReclamo(a) || '';
+          bValue = this.getNumeroReclamo(b) || '';
+          break;
+        case 'fdr':
+          aValue = this.getFDR(a) || '';
+          bValue = this.getFDR(b) || '';
+          break;
+        case 'fecha_reclamo':
+          const fechaReclamoA = this.getFechaReclamo(a);
+          const fechaReclamoB = this.getFechaReclamo(b);
+          aValue = fechaReclamoA ? fechaReclamoA.getTime() : 0;
+          bValue = fechaReclamoB ? fechaReclamoB.getTime() : 0;
+          break;
+        case 'fecha_recepcion':
+          aValue = a.fecha_recepcion ? new Date(a.fecha_recepcion).getTime() : 0;
+          bValue = b.fecha_recepcion ? new Date(b.fecha_recepcion).getTime() : 0;
           break;
         case 'destino':
+          aValue = a.destino || '';
+          bValue = b.destino || '';
+          break;
+        case 'destino_id_bodega':
           aValue = a.destino_id_bodega || '';
-          bValue = a.destino_id_bodega || '';
+          bValue = b.destino_id_bodega || '';
           break;
-        case 'transporte':
+        case 'nombreDestino':
+          aValue = a.destino || '';
+          bValue = b.destino || '';
+          break;
+        case 'total_item':
+          aValue = a.total_item || 0;
+          bValue = b.total_item || 0;
+          break;
+        case 'valorizado':
+          aValue = a.valorizado || 0;
+          bValue = b.valorizado || 0;
+          break;
+        case 'ots':
+          aValue = a.ots || '';
+          bValue = b.ots || '';
+          break;
+        case 'transportista':
           aValue = a.transportista || '';
-          bValue = a.transportista || '';
+          bValue = b.transportista || '';
           break;
-        case 'estado':
+        case 'monto_pagado':
+          aValue = this.getMontoPagado(a) || 0;
+          bValue = this.getMontoPagado(b) || 0;
+          break;
+        case 'estado_reclamo':
           aValue = this.getEstadoReclamo(a);
           bValue = this.getEstadoReclamo(b);
           break;
