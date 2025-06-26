@@ -143,7 +143,14 @@
         </form>
       </div>
     </div>
-
+    <!-- Toast -->
+    <div class="toast toast-center toast-middle" *ngIf="toast?.visible">
+      <div class="alert" [ngClass]="getToastClass(toast.tipo)">
+        <div class="flex-1">
+          <label>{{ toast.mensaje }}</label>
+        </div>
+      </div>
+    </div>
     <!-- Tabla con mejor diseño -->
     <div class="mt-8 bg-white rounded-xl shadow-xl overflow-hidden">
       <div class="overflow-x-auto p-6">
