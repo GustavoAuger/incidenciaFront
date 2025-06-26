@@ -79,6 +79,10 @@ export class ReclamoTransportistaComponent implements OnInit {
     id_estado: 1
   };
 
+  // Propiedades para el modal de confirmación
+  confirmarModal = false;
+  mensajeConfirmacion = '';
+
   // Función para controlar la apertura de los selects
   onSelectOpen(select: string) {
     switch(select) {
@@ -332,6 +336,21 @@ export class ReclamoTransportistaComponent implements OnInit {
     };
   }
 
+  // Método para mostrar el modal de confirmación
+  mostrarConfirmacion() {
+    this.confirmarModal = true;
+  }
+
+  // Método para cerrar el modal de confirmación
+  cerrarConfirmacion() {
+    this.confirmarModal = false;
+  }
+
+  // Método para obtener el estado seleccionado
+  getEstadoSeleccionado(): EstadoReclamo | undefined {
+    return this.estadosReclamo.find(estado => estado.id === Number(this.editarReclamoForm.id_estado));
+  }
+
   // Método para guardar los cambios del reclamo
   guardarCambiosReclamo() {
     // Verificar si hay cambios en el formulario
@@ -341,6 +360,22 @@ export class ReclamoTransportistaComponent implements OnInit {
       return;
     }
 
+    // Obtener el estado seleccionado
+    const estadoSeleccionado = this.getEstadoSeleccionado();
+    
+    // Si el estado es pagado, mostrar confirmación
+    if (estadoSeleccionado?.nombre?.toLowerCase() === 'pagado') {
+      this.mensajeConfirmacion = '¿Estás seguro de marcar este reclamo como pagado? Una vez realizado este cambio, no podrás modificarlo.';
+      this.mostrarConfirmacion();
+      return;
+    }
+
+    // Para otros estados, guardar directamente
+    this.guardarCambiosReclamoConfirmado();
+  }
+
+  // Método para guardar cambios después de confirmación
+  guardarCambiosReclamoConfirmado() {
     // Mostrar mensaje de carga
     this.isLoading = true;
 
@@ -363,7 +398,8 @@ export class ReclamoTransportistaComponent implements OnInit {
         console.log('Reclamo actualizado exitosamente', response);
         alert('Los cambios se han guardado correctamente');
         
-        // Cerrar el modal
+        // Cerrar los modales
+        this.cerrarConfirmacion();
         this.cerrarEditarReclamo();
         
         // Recargar los datos para asegurar que todo esté sincronizado
@@ -375,6 +411,7 @@ export class ReclamoTransportistaComponent implements OnInit {
         console.error('Error al actualizar el reclamo', error);
         alert('Error al guardar los cambios. Por favor, intente nuevamente.');
         this.isLoading = false;
+        this.cerrarConfirmacion();
       }
     });
   }

@@ -750,3 +750,18 @@
     </div>
   </div>
 </div>
+<!-- Modal de Confirmación -->
+<div class="modal" [class.modal-open]="confirmarModal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">Confirmación</h3>
+    <p class="mb-4">{{ mensajeConfirmacion }}</p>
+    <div class="modal-action">
+      <button class="btn btn-ghost" (click)="cerrarConfirmacion()">Cancelar</button>
+      <button 
+        class="btn bg-cyan-500 hover:bg-cyan-600 text-white border-0" 
+        (click)="guardarCambiosReclamoConfirmado()">
+        Confirmar
+      </button>
+    </div>
+  </div>
+</div>
