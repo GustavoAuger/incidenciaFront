@@ -587,6 +587,28 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
       }
     });
   }
+    // Método que se ejecuta en el evento keydown
+    validateNumberInput(event: KeyboardEvent): void {
+      const allowedKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'];
+      const charCode = event.charCode || event.keyCode;
+  
+      // Permitir las teclas de borrado, navegación, etc.
+      if (allowedKeys.indexOf(event.key) !== -1) {
+        return;
+      }
+  
+      // Verificar si el carácter ingresado es un número
+      if (event.key && !/[0-9]/.test(event.key)) {
+        event.preventDefault(); // Bloquear si no es un número
+      }
+  
+      // Validar que no se ingresen números negativos (con signo '-')
+      if (charCode === 45) {
+        event.preventDefault(); // Bloquear el signo '-'
+      }
+    } //validaciones varias para campos numericos detalle
+
+
  // metodo para actualizar el detalle de incidencia
   actualizarIncidencia() {
     if (this.detalles.length === 0) {
@@ -624,5 +646,9 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
         alert('Error al actualizar la incidencia');
       }
     });
+
+
+
+    
   }
 }

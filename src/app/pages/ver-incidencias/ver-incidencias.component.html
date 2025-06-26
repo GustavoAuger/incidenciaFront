@@ -121,15 +121,17 @@
                 delete_sweep
               </span>
             </button>
-            <button class="export-btn" (click)="exportToExcel()"> 
+            <button class="export-btn" (click)="exportToExcel()" [disabled]="isLoadingExcel"> 
                 EXPORTAR RESUMEN
-                <span class="material-symbols-outlined">
+                <div *ngIf="isLoadingExcel" class="loading loading-spinner loading-sm"></div>
+                <span *ngIf="!isLoadingExcel" class="material-symbols-outlined">
                     download
                 </span>
             </button>
-            <button class="export-btn" (click)="exportToExcel2()"> 
+            <button class="export-btn" (click)="exportToExcel2()" [disabled]="isLoadingExcel2"> 
                 EXPORTAR DETALLE
-                <span class="material-symbols-outlined">
+                <div *ngIf="isLoadingExcel2" class="loading loading-spinner loading-sm"></div>
+                <span *ngIf="!isLoadingExcel2" class="material-symbols-outlined">
                     download
                 </span>
             </button>
