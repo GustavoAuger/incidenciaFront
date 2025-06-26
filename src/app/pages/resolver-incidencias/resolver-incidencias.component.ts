@@ -376,6 +376,7 @@ export class ResolverIncidenciasComponent implements OnInit {
     if (!this.selectedIncidencia) return;
     
     this.isUpdating = true;
+    this.isLoading = true;
     const userIdString = localStorage.getItem('id_usuario');
     const id_usuario = userIdString ? parseInt(userIdString, 10) : 0;
     
@@ -435,6 +436,7 @@ export class ResolverIncidenciasComponent implements OnInit {
             }
           });
         }
+        
       },
       error: (error) => {
         console.error('Error al generar movimiento:', error);
@@ -463,6 +465,7 @@ export class ResolverIncidenciasComponent implements OnInit {
   
     // Actualizar la lista de incidencias
     this.cargarIncidencias(this.selectedIncidencia.id_usuario);
+    this.isLoading = false;
   }
   
   private getEstadoNombre(estadoId: number): string {
