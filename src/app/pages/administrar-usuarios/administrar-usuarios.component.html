@@ -7,6 +7,15 @@
         </div>
     </div>
 
+    <!-- Toast -->
+    <div *ngIf="toast?.visible" class="fixed top-4 right-4 z-50">
+        <div class="toast toast-center toast-middle">
+            <div class="alert {{getToastClass(toast.tipo)}}">
+                <span>{{toast.mensaje}}</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Mensaje de éxito -->
     <div *ngIf="showSuccessMessage" class="fixed bottom-4 right-4 z-50">
         <div class="flex items-center bg-white text-gray-800 px-6 py-3 rounded-lg shadow-lg border border-gray-200">
