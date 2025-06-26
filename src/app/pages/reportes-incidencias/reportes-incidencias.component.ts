@@ -3,25 +3,8 @@ import { CommonModule } from '@angular/common';
 import { NgChartsModule, BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { IncidenciaService } from '../../services/incidencia.service';
-import { EstadoIncidencia } from '../../interfaces/estado-incidencia';
 import { Incidencia } from '../../interfaces/incidencia';
-
-interface MetricasIncidencia {
-  total: number;
-  totalValorizado: number;
-  nuevas: number;
-  nuevasValorizado: number;
-  enRevision: number;
-  enRevisionValorizado: number;
-  aprobadas: number;
-  aprobadasValorizado: number;
-  rechazadas: number;
-  rechazadasValorizado: number;
-  porcentajeNuevas: number;
-  porcentajeEnRevision: number;
-  porcentajeAprobadas: number;
-  porcentajeRechazadas: number;
-}
+import { MetricasResumenIncidencia } from '../../interfaces/metricas-resumen-incidencia';
 
 @Component({
   selector: 'app-reportes-incidencias',
@@ -36,21 +19,21 @@ export class ReportesIncidenciasComponent implements OnInit {
   // Gestión de pestañas
   activeTab: string = 'resumen';
   
-  metricas: MetricasIncidencia = {
-    total: 0,
-    totalValorizado: 0,
-    nuevas: 0,
-    nuevasValorizado: 0,
-    enRevision: 0,
-    enRevisionValorizado: 0,
-    aprobadas: 0,
-    aprobadasValorizado: 0,
-    rechazadas: 0,
-    rechazadasValorizado: 0,
-    porcentajeNuevas: 0,
-    porcentajeEnRevision: 0,
-    porcentajeAprobadas: 0,
-    porcentajeRechazadas: 0
+  metricasResumen: MetricasResumenIncidencia = {
+    totalResumen: 0,
+    totalValorizadoResumen: 0,
+    nuevasResumen: 0,
+    nuevasValorizadoResumen: 0,
+    enRevisionResumen: 0,
+    enRevisionValorizadoResumen: 0,
+    aprobadasResumen: 0,
+    aprobadasValorizadoResumen: 0,
+    rechazadasResumen: 0,
+    rechazadasValorizadoResumen: 0,
+    porcentajeNuevasResumen: 0,
+    porcentajeEnRevisionResumen: 0,
+    porcentajeAprobadasResumen: 0,
+    porcentajeRechazadasResumen: 0
   };
   
   isLoading = true;
@@ -82,10 +65,10 @@ export class ReportesIncidenciasComponent implements OnInit {
     labels: ['Nuevas', 'En Revisión', 'Aprobadas', 'Rechazadas'],
     datasets: [{
       data: [
-        this.metricas.nuevas,
-        this.metricas.enRevision,
-        this.metricas.aprobadas,
-        this.metricas.rechazadas
+        this.metricasResumen.nuevasResumen,
+        this.metricasResumen.enRevisionResumen,
+        this.metricasResumen.aprobadasResumen,
+        this.metricasResumen.rechazadasResumen
       ],
       backgroundColor: [
         'rgb(59, 130, 246)',    // Azul 500 (bg-blue-500)
@@ -153,21 +136,21 @@ export class ReportesIncidenciasComponent implements OnInit {
     const aprobadasValorizado = incidencias.filter(i => i.id_estado === 4).reduce((acc, incidencia) => acc + incidencia.valorizado, 0);
     const rechazadasValorizado = incidencias.filter(i => i.id_estado === 3).reduce((acc, incidencia) => acc + incidencia.valorizado, 0);
 
-    this.metricas = {
-      total,
-      totalValorizado,
-      nuevas,
-      nuevasValorizado,
-      enRevision,
-      enRevisionValorizado,
-      aprobadas,
-      aprobadasValorizado,
-      rechazadas,
-      rechazadasValorizado,
-      porcentajeNuevas: total > 0 ? Math.round((nuevas / total) * 100) : 0,
-      porcentajeEnRevision: total > 0 ? Math.round((enRevision / total) * 100) : 0,
-      porcentajeAprobadas: total > 0 ? Math.round((aprobadas / total) * 100) : 0,
-      porcentajeRechazadas: total > 0 ? Math.round((rechazadas / total) * 100) : 0
+    this.metricasResumen = {
+      totalResumen: total,
+      totalValorizadoResumen: totalValorizado,
+      nuevasResumen: nuevas,
+      nuevasValorizadoResumen: nuevasValorizado,
+      enRevisionResumen: enRevision,
+      enRevisionValorizadoResumen: enRevisionValorizado,
+      aprobadasResumen: aprobadas,
+      aprobadasValorizadoResumen: aprobadasValorizado,
+      rechazadasResumen: rechazadas,
+      rechazadasValorizadoResumen: rechazadasValorizado,
+      porcentajeNuevasResumen: total > 0 ? Math.round((nuevas / total) * 100) : 0,
+      porcentajeEnRevisionResumen: total > 0 ? Math.round((enRevision / total) * 100) : 0,
+      porcentajeAprobadasResumen: total > 0 ? Math.round((aprobadas / total) * 100) : 0,
+      porcentajeRechazadasResumen: total > 0 ? Math.round((rechazadas / total) * 100) : 0
     };
   }
 
@@ -217,17 +200,17 @@ export class ReportesIncidenciasComponent implements OnInit {
   }
 
   getMetricaValue(key: string): number {
-    return this.metricas[key as keyof MetricasIncidencia] as number;
+    return this.metricasResumen[key as keyof MetricasResumenIncidencia] as number;
   }
 
   // Actualizar los datos del gráfico cuando cambien las métricas
   actualizarGrafico(): void {
     if (this.chart && this.chart.chart) {
       this.pieChartData.datasets[0].data = [
-        this.metricas.nuevas,
-        this.metricas.enRevision,
-        this.metricas.aprobadas,
-        this.metricas.rechazadas,
+        this.metricasResumen.nuevasResumen,
+        this.metricasResumen.enRevisionResumen,
+        this.metricasResumen.aprobadasResumen,
+        this.metricasResumen.rechazadasResumen,
       ];
       this.chart.chart.update();
     }

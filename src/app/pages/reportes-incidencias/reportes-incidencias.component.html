@@ -21,7 +21,7 @@
       <div class="flex justify-between items-center mb-6">
         <h3 class="text-lg font-semibold">Reportes de Incidencias</h3>
         <span class="px-3 py-1 bg-[#00bcd4] text-white text-sm font-medium rounded-full">
-          Total: {{ metricas.total }} incidencias
+          Total: {{ metricasResumen.totalResumen }} incidencias
         </span>
       </div>
       
@@ -78,13 +78,13 @@
                   <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-blue-500 flex flex-col h-40">
                     <div class="flex-1">
                       <p class="text-sm font-medium text-gray-500">Nuevas</p>
-                      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricas.nuevas }}</h3>
-                      <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricas.nuevasValorizado) }}</p>
-                      <p class="text-xs text-gray-500 mt-1">{{ metricas.porcentajeNuevas }}% del total</p>
+                      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricasResumen.nuevasResumen }}</h3>
+                      <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricasResumen.nuevasValorizadoResumen) }}</p>
+                      <p class="text-xs text-gray-500 mt-1">{{ metricasResumen.porcentajeNuevasResumen }}% del total</p>
                     </div>
                     <div class="mt-2">
                       <div class="w-full bg-gray-200 rounded-full h-1.5">
-                        <div class="bg-blue-500 h-1.5 rounded-full" [style.width.%]="metricas.porcentajeNuevas"></div>
+                        <div class="bg-blue-500 h-1.5 rounded-full" [style.width.%]="metricasResumen.porcentajeNuevasResumen"></div>
                       </div>
                     </div>
                   </div>
@@ -93,13 +93,13 @@
                   <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-yellow-500 flex flex-col h-40">
                     <div class="flex-1">
                       <p class="text-sm font-medium text-gray-500">En Revisión</p>
-                      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricas.enRevision }}</h3>
-                      <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricas.enRevisionValorizado) }}</p>
-                      <p class="text-xs text-gray-500 mt-1">{{ metricas.porcentajeEnRevision }}% del total</p>
+                      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricasResumen.enRevisionResumen }}</h3>
+                      <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricasResumen.enRevisionValorizadoResumen) }}</p>
+                      <p class="text-xs text-gray-500 mt-1">{{ metricasResumen.porcentajeEnRevisionResumen }}% del total</p>
                     </div>
                     <div class="mt-2">
                       <div class="w-full bg-gray-200 rounded-full h-1.5">
-                        <div class="bg-yellow-500 h-1.5 rounded-full" [style.width.%]="metricas.porcentajeEnRevision"></div>
+                        <div class="bg-yellow-500 h-1.5 rounded-full" [style.width.%]="metricasResumen.porcentajeEnRevisionResumen"></div>
                       </div>
                     </div>
                   </div>
@@ -111,13 +111,13 @@
                   <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-green-500 flex flex-col h-40">
                     <div class="flex-1">
                       <p class="text-sm font-medium text-gray-500">Aprobadas</p>
-                      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricas.aprobadas }}</h3>
-                      <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricas.aprobadasValorizado) }}</p>
-                      <p class="text-xs text-gray-500 mt-1">{{ metricas.porcentajeAprobadas }}% del total</p>
+                      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricasResumen.aprobadasResumen }}</h3>
+                      <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricasResumen.aprobadasValorizadoResumen) }}</p>
+                      <p class="text-xs text-gray-500 mt-1">{{ metricasResumen.porcentajeAprobadasResumen }}% del total</p>
                     </div>
                     <div class="mt-2">
                       <div class="w-full bg-gray-200 rounded-full h-1.5">
-                        <div class="bg-green-500 h-1.5 rounded-full" [style.width.%]="metricas.porcentajeAprobadas"></div>
+                        <div class="bg-green-500 h-1.5 rounded-full" [style.width.%]="metricasResumen.porcentajeAprobadasResumen"></div>
                       </div>
                     </div>
                   </div>
@@ -126,13 +126,13 @@
                   <div class="bg-white rounded-lg shadow-sm p-3 border-t-4 border-red-500 flex flex-col h-40">
                     <div class="flex-1">
                       <p class="text-sm font-medium text-gray-500">Rechazadas</p>
-                      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricas.rechazadas }}</h3>
-                      <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricas.rechazadasValorizado) }}</p>
-                      <p class="text-xs text-gray-500 mt-1">{{ metricas.porcentajeRechazadas }}% del total</p>
+                      <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ metricasResumen.rechazadasResumen }}</h3>
+                      <p class="text-sm font-medium text-gray-700">{{ formatCurrency(metricasResumen.rechazadasValorizadoResumen) }}</p>
+                      <p class="text-xs text-gray-500 mt-1">{{ metricasResumen.porcentajeRechazadasResumen }}% del total</p>
                     </div>
                     <div class="mt-2">
                       <div class="w-full bg-gray-200 rounded-full h-1.5">
-                        <div class="bg-red-500 h-1.5 rounded-full" [style.width.%]="metricas.porcentajeRechazadas"></div>
+                        <div class="bg-red-500 h-1.5 rounded-full" [style.width.%]="metricasResumen.porcentajeRechazadasResumen"></div>
                       </div>
                     </div>
                   </div>
