@@ -13,6 +13,7 @@ import { ReclamoTransportistaService } from '../../services/reclamo-transportist
 import { EstadoReclamo } from '../../interfaces/estado-reclamo';
 import { ReclamoTransportista } from '../../interfaces/reclamo-transportista';
 
+
 @Component({
   selector: 'app-ver-incidencias',
   standalone: true,
@@ -81,7 +82,11 @@ export class ReclamoTransportistaComponent implements OnInit {
 
   // Propiedades para el modal de confirmación
   confirmarModal = false;
-  mensajeConfirmacion = '';
+  mensajeConfirmacion: string = '';
+  editarReclamoFormOriginal: any | null = null;
+  
+  // Variable para el toast
+  toast: any = null;
 
   // Función para controlar la apertura de los selects
   onSelectOpen(select: string) {
@@ -151,7 +156,8 @@ export class ReclamoTransportistaComponent implements OnInit {
       private _incidenciaService: IncidenciaService,
       private _userService: UserService,
       private reclamoTransportistaService: ReclamoTransportistaService,
-      private cdr: ChangeDetectorRef
+      private cdr: ChangeDetectorRef,
+
   ) {
     // Restaurar la pestaña guardada o usar 'reclamadas' por defecto
     const savedTab = localStorage.getItem('reclamoTransportista_activeTab') as 'reclamadas' | 'ingresar_reclamo' | null;
@@ -319,7 +325,7 @@ export class ReclamoTransportistaComponent implements OnInit {
       this.editarReclamoModal = true;
     } else {
       console.error('No se encontró el reclamo para la incidencia:', incidencia.id);
-      alert('No se pudo cargar la información del reclamo para editar');
+      this.mostrarToast('No se pudo cargar la información del reclamo para editar', 'error');
     }
   }
 
@@ -346,6 +352,35 @@ export class ReclamoTransportistaComponent implements OnInit {
     this.confirmarModal = false;
   }
 
+  // Método para mostrar toast
+  mostrarToast(mensaje: string, tipo: 'success' | 'error' | 'warning') {
+    // Crear el toast
+    this.toast = {
+      mensaje: mensaje,
+      tipo: tipo,
+      visible: true
+    };
+    
+    // Ocultar después de 3 segundos
+    setTimeout(() => {
+      this.toast = null;
+    }, 3000);
+  }
+
+  // Método para obtener la clase del toast según el tipo
+  getToastClass(tipo: 'success' | 'error' | 'warning'): string {
+    switch (tipo) {
+      case 'success':
+        return 'alert-success';
+      case 'error':
+        return 'alert-error';
+      case 'warning':
+        return 'alert-warning';
+      default:
+        return 'alert-info';
+    }
+  }
+
   // Método para obtener el estado seleccionado
   getEstadoSeleccionado(): EstadoReclamo | undefined {
     return this.estadosReclamo.find(estado => estado.id === Number(this.editarReclamoForm.id_estado));
@@ -355,7 +390,7 @@ export class ReclamoTransportistaComponent implements OnInit {
   guardarCambiosReclamo() {
     // Verificar si hay cambios en el formulario
     if (!this.hayCambiosEnFormulario()) {
-      alert('No se han realizado cambios en el formulario.');
+      this.mostrarToast('No se han realizado cambios en el formulario.', 'warning');
       this.cerrarEditarReclamo();
       return;
     }
@@ -396,7 +431,7 @@ export class ReclamoTransportistaComponent implements OnInit {
     this.reclamoTransportistaService.updateReclamoTransportista(reclamoActualizado).subscribe({
       next: (response) => {
         console.log('Reclamo actualizado exitosamente', response);
-        alert('Los cambios se han guardado correctamente');
+        this.mostrarToast('Los cambios se han guardado correctamente', 'success');
         
         // Cerrar los modales
         this.cerrarConfirmacion();
@@ -409,7 +444,7 @@ export class ReclamoTransportistaComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al actualizar el reclamo', error);
-        alert('Error al guardar los cambios. Por favor, intente nuevamente.');
+        this.mostrarToast('Error al guardar los cambios. Por favor, intente nuevamente.', 'error');
         this.isLoading = false;
         this.cerrarConfirmacion();
       }
@@ -760,7 +795,7 @@ export class ReclamoTransportistaComponent implements OnInit {
 
       // Debug: Mostrar información de filtrado
       if (this.filtros.numeroReclamo && reclamoRelacionado2) {
-        const numeroReclamoFormateado = `REC${reclamoRelacionado2.id!.toString().padStart(3, '0')}`;
+        const numeroReclamoFormateado = `REC${String(reclamoRelacionado2.id).padStart(3, '0')}`;
         console.log('Filtrando por número de reclamo:', {
           filtroIngresado: this.filtros.numeroReclamo,
           idReclamo: reclamoRelacionado2.id,
@@ -1028,7 +1063,7 @@ export class ReclamoTransportistaComponent implements OnInit {
   guardarReclamo() {
     // Validar que haya una incidencia seleccionada
     if (!this.incidenciaSeleccionada?.id) {
-      alert('No se ha seleccionado una incidencia válida');
+      this.mostrarToast('No se ha seleccionado una incidencia válida', 'error');
       return;
     }
 
@@ -1038,13 +1073,13 @@ export class ReclamoTransportistaComponent implements OnInit {
     hoy.setHours(0, 0, 0, 0);
     
     if (fechaReclamo > hoy) {
-      alert('La fecha de reclamo no puede ser posterior a la fecha actual');
+      this.mostrarToast('La fecha de reclamo no puede ser posterior a la fecha actual', 'error');
       return;
     }
 
     // Validar campos requeridos
     if (!this.reclamoForm.fdr) {
-      alert('El campo FDR es requerido');
+      this.mostrarToast('El campo FDR es requerido', 'error');
       return;
     }
 
@@ -1065,7 +1100,7 @@ export class ReclamoTransportistaComponent implements OnInit {
     this.reclamoTransportistaService.createReclamoTransportista(nuevoReclamo).subscribe({
       next: (response) => {
         console.log('Reclamo guardado exitosamente', response);
-        alert('Reclamo guardado correctamente');
+        this.mostrarToast('Reclamo guardado correctamente', 'success');
         
         // Cerrar el modal
         this.closeIngresarReclamoModal();
@@ -1082,7 +1117,7 @@ export class ReclamoTransportistaComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al guardar el reclamo', error);
-        alert('Error al guardar el reclamo. Por favor, intente nuevamente.');
+        this.mostrarToast('Error al guardar el reclamo. Por favor, intente nuevamente.', 'error');
       }
     });
   }
