@@ -423,7 +423,23 @@ export class ReclamoTransportistaComponent implements OnInit {
         // Luego cargamos las incidencias
         this._incidenciaService.getIncidencias(id_usuario).subscribe(
           (incidencias) => {
-            const todasLasIncidencias = [...incidencias].sort((a, b) => (b.id || 0) - (a.id || 0));
+            // Verificar el tipo y valor de id_transportista
+            console.log('Tipo de id_transportista:', typeof incidencias[0]?.id_transportista);
+            console.log('Valor exacto de id_transportista:', incidencias.map(i => i.id_transportista));
+            
+            // Verificar incidencias con id_transportista = 4
+            const incidenciasCon4 = incidencias.filter(inc => inc.id_transportista === 4);
+            console.log('Incidencias con id_transportista = 4:', incidenciasCon4.map(i => i.id));
+            
+            // Primero filtrar para excluir incidencias con id_transportista = 4
+            const todasLasIncidencias = [...incidencias]
+              .filter(inc => inc.id_transportista != 4)
+              .sort((a, b) => (b.id || 0) - (a.id || 0));
+            
+            // Verificar si el filtro está funcionando
+            const algunaIncidenciaCon4 = todasLasIncidencias.some(inc => inc.id_transportista === 4);
+            console.log('¿Hay incidencias con id_transportista = 4 después del filtro?', algunaIncidenciaCon4);
+            
             let incidenciasFiltradas = [...todasLasIncidencias];
             
             if (localStorage.getItem('id_rol') == '2') {
