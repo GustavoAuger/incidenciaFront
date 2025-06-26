@@ -385,15 +385,21 @@ export class ResolverIncidenciasComponent implements OnInit {
       id_estado: nuevoEstadoId,
       observaciones: '' // Enviar string vacío como valor por defecto
     };
-    
+    // 3 banderas para controlar el flujo
+    let movimientoGenerado = false;
+    let estadoActualizado = false;
+    let correoEnviado = false;
+
     // Primero generar el movimiento
     this._incidenciaService.generarMovimiento(this.selectedIncidencia.id).subscribe({
       next: (movimientoResponse) => {
         if (movimientoResponse) {
+          movimientoGenerado = true; // Marca que el movimiento se generó exitosamente
           // Si el movimiento se generó correctamente, proceder con la actualización del estado
           this._incidenciaService.updateEstadoIncidencia(datosActualizacion).subscribe({
             next: (response) => {
               if (response) {
+                estadoActualizado = true; // Marca que el estado se actualizó exitosamente
                 // Actualizar el estado de la incidencia antes de enviar correo
                 this.selectedIncidencia.id_estado = nuevoEstadoId;
                 
@@ -401,13 +407,16 @@ export class ResolverIncidenciasComponent implements OnInit {
                 this._incidenciaService.enviarCorreo(this.selectedIncidencia).subscribe({
                   next: (correoResponse) => {
                     if (correoResponse) {
-                      console.log('Correo enviado exitosamente');
+                      correoEnviado = true; // Marca que el correo se envió exitosamente
+                      this.finalizarProceso(movimientoGenerado, estadoActualizado, correoEnviado);
                     } else {
                       console.error('Error al enviar correo');
+                      this.finalizarProceso(movimientoGenerado, estadoActualizado, correoEnviado);
                     }
                   },
                   error: (error) => {
                     console.error('Error al enviar correo:', error);
+                    this.finalizarProceso(movimientoGenerado, estadoActualizado, correoEnviado);
                   }
                 });
 
@@ -422,6 +431,7 @@ export class ResolverIncidenciasComponent implements OnInit {
             error: (error) => {
               console.error('Error al actualizar el estado de la incidencia:', error);
               this.isUpdating = false;
+              this.finalizarProceso(movimientoGenerado, estadoActualizado, correoEnviado);
             }
           });
         }
@@ -429,8 +439,30 @@ export class ResolverIncidenciasComponent implements OnInit {
       error: (error) => {
         console.error('Error al generar movimiento:', error);
         this.isUpdating = false;
+        this.finalizarProceso(movimientoGenerado, estadoActualizado, correoEnviado);
       }
     });
+  }
+
+  private finalizarProceso(movimientoGenerado: boolean, estadoActualizado: boolean, correoEnviado: boolean) {
+    this.isUpdating = false;
+  
+    // Si las 2 primeras llamadas fueron exitosas pero no el correo
+    if (movimientoGenerado && estadoActualizado && !correoEnviado) {
+      alert('Movimiento generado correctamente y estado actualizado. Pero no se pudo enviar el correo de notificación.');
+    }
+    
+    // Si las 3 llamadas fueron exitosas
+    if (movimientoGenerado && estadoActualizado && correoEnviado) {
+      alert('Movimiento generado correctamente, estado actualizado, y correo enviado a la bodega de destino.');
+    }
+  
+    // Cerrar el modal y resetear el estado
+    this.showResolveModal = false;
+    this.selectedEstado = null;
+  
+    // Actualizar la lista de incidencias
+    this.cargarIncidencias(this.selectedIncidencia.id_usuario);
   }
   
   private getEstadoNombre(estadoId: number): string {
