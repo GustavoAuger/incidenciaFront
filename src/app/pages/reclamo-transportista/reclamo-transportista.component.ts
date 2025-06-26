@@ -402,6 +402,8 @@ export class ReclamoTransportistaComponent implements OnInit {
     this.activeTab = tab;
     // Guardar la pestaña seleccionada en localStorage
     localStorage.setItem('reclamoTransportista_activeTab', tab);
+    // Limpiar filtros al cambiar de pestaña
+    this.limpiarFiltros();
     this.aplicarFiltros();
   }
 
@@ -738,12 +740,16 @@ export class ReclamoTransportistaComponent implements OnInit {
   }
 
   limpiarFiltros() {
+    // Obtener las fechas por defecto
+    const today = this.getTodayDate();
+    const thirtyDaysAgo = this.getThirtyDaysAgoDate();
+
     if (this.activeTab === 'reclamadas') {
-      // Limpiar filtros de la pestaña reclamadas
+      // Mantener las fechas por defecto y limpiar otros filtros
       this.filtros = {
         ...this.filtros,  
-        fechaReclamoDesde: '',
-        fechaReclamoHasta: '',
+        fechaReclamoDesde: thirtyDaysAgo,
+        fechaReclamoHasta: today,
         numeroReclamo: '',
         destino: '',
         ots: '',
@@ -751,11 +757,11 @@ export class ReclamoTransportistaComponent implements OnInit {
         estadoReclamoId: '' 
       };
     } else if (this.activeTab === 'ingresar_reclamo') {
-      // Limpiar filtros de la pestaña ingresar reclamo
+      // Mantener las fechas por defecto y limpiar otros filtros
       this.filtros = {
         ...this.filtros, 
-        fechaDesde: '',
-        fechaHasta: '',
+        fechaDesde: thirtyDaysAgo,
+        fechaHasta: today,
         numeroIncidencia: '',
         destino: '',
         ots: '',
