@@ -37,7 +37,7 @@ export class ReclamoTransportistaComponent implements OnInit {
   isFechaReclamoHastaOpen = false;
 
   // Propiedades para ordenamiento
-  sortColumn: string = 'id';
+  sortColumn: string = 'numero_reclamo';
   sortDirection: 'asc' | 'desc' = 'desc';
 
   // Propiedad para controlar la pestaña activa
@@ -154,10 +154,16 @@ export class ReclamoTransportistaComponent implements OnInit {
     this.activeTab = savedTab || 'reclamadas';
   }
 
+  // Método para ordenar por número de reclamo descendente
+  sortByNumeroReclamoDesc(): void {
+    this.sortColumn = 'numero_reclamo';
+    this.sortDirection = 'desc';
+    this.sortTable('numero_reclamo', 'desc');
+  }
+
   ngOnInit() {
     // Mostrar loader
-    this.isLoading = true;
-    
+    this.isLoading = true;    
     const userIdString = localStorage.getItem('id_usuario');
     const id_usuario = userIdString ? parseInt(userIdString, 10) : 0;
     
@@ -223,10 +229,10 @@ export class ReclamoTransportistaComponent implements OnInit {
         }
       });
     }
-    
+
     this.getBodegas();
     this.loadEstadosReclamo();
-    
+
     // Restaurar la pestaña guardada después de cargar los datos
     const savedTab = localStorage.getItem('reclamoTransportista_activeTab') as 'reclamadas' | 'ingresar_reclamo' | null;
     if (savedTab) {
@@ -404,7 +410,17 @@ export class ReclamoTransportistaComponent implements OnInit {
     localStorage.setItem('reclamoTransportista_activeTab', tab);
     // Limpiar filtros al cambiar de pestaña
     this.limpiarFiltros();
-    this.aplicarFiltros();
+    
+    // Ordenar según la pestaña activa
+    if (tab === 'reclamadas') {
+      // Ordenar por número de reclamo descendente
+      this.sortByNumeroReclamoDesc();
+    } else {
+      // Ordenar por número de incidencia descendente
+      this.sortColumn = 'id';
+      this.sortDirection = 'desc';
+      this.sortTable('id', 'desc');
+    }
   }
 
   // Agregar un nuevo método para encontrar el ID de reclamo por ID de incidencia
@@ -435,9 +451,9 @@ export class ReclamoTransportistaComponent implements OnInit {
             
             // Primero filtrar para excluir incidencias con id_transportista = 4
             const todasLasIncidencias = [...incidencias]
-              .filter(inc => inc.id_transportista != 4)
-              .sort((a, b) => (b.id || 0) - (a.id || 0));
-            
+              .filter(inc => inc.id_transportista != 4);
+
+            //
             // Verificar si el filtro está funcionando
             const algunaIncidenciaCon4 = todasLasIncidencias.some(inc => inc.id_transportista === 4);
             console.log('¿Hay incidencias con id_transportista = 4 después del filtro?', algunaIncidenciaCon4);
@@ -487,7 +503,12 @@ export class ReclamoTransportistaComponent implements OnInit {
             console.log('Incidencias con reclamo:', this.incidenciasReclamadas.map(i => ({id: i.id, id_reclamo: (i as any).id_reclamo})));
             console.log('Incidencias para reclamo (sin reclamo):', this.ingresarReclamo.map(i => i.id));
             
+            // Aplicar filtros y luego ordenar
             this.aplicarFiltros();
+            
+            // Ordenar por número de reclamo descendente después de cargar y relacionar todo
+            this.sortByNumeroReclamoDesc();
+            
             this.isLoading = false;
           },
           (error) => {
@@ -731,10 +752,6 @@ export class ReclamoTransportistaComponent implements OnInit {
     });
     
     console.log(`Total de incidencias después de filtrar: ${this.incidenciasFiltradas.length}`);
-    
-    // Ordenar por ID descendente después de filtrar
-    this.incidenciasFiltradas.sort((a, b) => (b.id || 0) - (a.id || 0));
-    
     // Actualizar la paginación
     this.updatePagination();
   }
@@ -777,13 +794,12 @@ export class ReclamoTransportistaComponent implements OnInit {
   }
 
   // Método para ordenar la tabla
-  sortTable(column: string): void {
-    if (this.sortColumn === column) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
+  sortTable(column: string, initialDirection: 'asc' | 'desc' = 'asc'): void {
+    // Si es la primera vez que se ordena esta columna, usar la dirección inicial
+    if (this.sortColumn !== column) {
       this.sortColumn = column;
-      this.sortDirection = 'asc';
-    }
+      this.sortDirection = initialDirection;
+    } 
 
     this.incidenciasFiltradas.sort((a, b) => {
       let aValue: any;
@@ -799,8 +815,12 @@ export class ReclamoTransportistaComponent implements OnInit {
           bValue = b.fecha ? new Date(b.fecha).getTime() : 0;
           break;
         case 'numero_reclamo':
-          aValue = this.getNumeroReclamo(a) || '';
-          bValue = this.getNumeroReclamo(b) || '';
+          // Extraer el número del formato RECXXX
+          const numeroA = parseInt(this.getNumeroReclamo(a).replace('REC', '')) || 0;
+          const numeroB = parseInt(this.getNumeroReclamo(b).replace('REC', '')) || 0;
+          
+          // Usar sortDirection para determinar el orden
+          return this.sortDirection === 'desc' ? numeroB - numeroA : numeroA - numeroB;
           break;
         case 'fdr':
           aValue = this.getFDR(a) || '';
