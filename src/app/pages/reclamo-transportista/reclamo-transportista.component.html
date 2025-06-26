@@ -293,9 +293,9 @@
                 <div class="flex items-center justify-center h-full">
                   <span [ngClass]="{
                     'px-2 py-1 rounded-full text-xs': true,
-                    'bg-yellow-100 text-yellow-800': getEstadoReclamo(incidencia) === 'Reclamado',
-                    'bg-green-100 text-green-800': getEstadoReclamo(incidencia) === 'Pagado',
-                    'bg-red-100 text-red-800': getEstadoReclamo(incidencia) === 'Rechazado'
+                    'bg-yellow-100 text-yellow-800': getEstadoReclamo(incidencia) === 'reclamado',
+                    'bg-green-100 text-green-800': getEstadoReclamo(incidencia) === 'pagado',
+                    'bg-red-100 text-red-800': getEstadoReclamo(incidencia) === 'rechazado'
                   }">
                     {{ getEstadoReclamo(incidencia) | initCapFirst }}
                   </span>
@@ -307,7 +307,9 @@
                     <button (click)="verDetalle(incidencia)" class="btn btn-ghost btn-xs hover:bg-transparent" title="Ver detalle incidencia">
                       <i class="fas fa-eye" style="color: #00bcd4;"></i>
                     </button>
-                    <button (click)="abrirEditarReclamo(incidencia)" class="btn btn-ghost btn-xs hover:bg-transparent" title="Editar reclamo">
+                    <button (click)="abrirEditarReclamo(incidencia)" 
+                    *ngIf="getEstadoReclamo(incidencia) === 'reclamado'"
+                    class="btn btn-ghost btn-xs hover:bg-transparent" title="Editar reclamo">
                       <i class="fas fa-edit" style="color: #4CAF50;"></i>
                     </button>
                   </div>
