@@ -407,8 +407,10 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
   }
 
   generarIncidencia() {
+    this.isLoading = true;
     if (this.detalles.length === 0) {
       alert('Debe agregar al menos un detalle antes de generar la incidencia');
+      this.isLoading = false;
       return;
     }
 
@@ -417,6 +419,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     
     if (!incidenciaParcial) {
       alert('Error: No se encontraron los datos de la incidencia');
+      this.isLoading = false;
       return;
     }
     // Calcular totales
@@ -454,11 +457,13 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     this.incidenciaService.createIncidenciaCompleta(datosParaEnviar, file).subscribe({
       next: (response) => {
         alert(response.mensaje);
-        this.navigateTo(this.fromRoute);
+        this.navigateTo(this.fromRoute); 
+        this.isLoading = false; 
       },
       error: (error) => {
         console.error('Error al crear la incidencia:', error);
         alert('Error al crear la incidencia');
+        this.isLoading = false;
       }
     });
 }
