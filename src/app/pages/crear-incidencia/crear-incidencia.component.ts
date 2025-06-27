@@ -37,23 +37,50 @@ export class CrearIncidenciaComponent {
   // Modelo para el formulario de incidencia
   incidencia: Incidencia = {
     id: 0,
-    id_bodega: 0,
+    id_bodega: undefined,
     origen_id_local: '',
     destino_id_bodega: '',
     ots: '',
-    fecha: '',
+    fecha: new Date().toISOString().split('T')[0],
     observaciones: '',
     id_estado: 1,
     id_usuario: 0,
     transportista: '',
-    id_transportista: 0,
+    id_transportista: undefined,
     tipo_estado: '',
-    id_tipo_incidencia: 0,
+    id_tipo_incidencia: undefined,
     total_item: 0,
     valorizado: 0,
     d_id_bodega: 0,
-    ruta:''
+    ruta: ''
   };
+
+  showToast: boolean = false;
+  toastMessage: string = '';
+  toastType: 'warning' | 'error' | 'success' = 'warning';
+  private toastTimeout: any;
+
+  private showToastMessage(message: string, type: 'warning' | 'error' | 'success' = 'warning') {
+    this.toastMessage = message;
+    this.toastType = type;
+    this.showToast = true;
+    
+    // Ocultar el toast después de 3 segundos
+    if (this.toastTimeout) {
+      clearTimeout(this.toastTimeout);
+    }
+    
+    this.toastTimeout = setTimeout(() => {
+      this.showToast = false;
+    }, 3000);
+  }
+
+  closeToast() {
+    this.showToast = false;
+    if (this.toastTimeout) {
+      clearTimeout(this.toastTimeout);
+    }
+  }
 
   constructor(
     private router: Router,
@@ -181,14 +208,14 @@ export class CrearIncidenciaComponent {
     
     // Validar tipo de archivo
     if (!file.type.startsWith('image/') || !this.ALLOWED_TYPES.includes(file.type)) {
-      alert('Solo se permiten archivos JPG y PNG');
+      this.showToastMessage('Solo se permiten archivos JPG y PNG', 'error');
       input.value = '';
       return;
     }
 
     // Validar tamaño del archivo
     if (file.size > this.MAX_FILE_SIZE) {
-      alert('El archivo no debe superar los 1MB');
+      this.showToastMessage('El archivo no debe superar los 1MB', 'error');
       input.value = '';
       return;
     }
@@ -199,7 +226,7 @@ export class CrearIncidenciaComponent {
       const img = new Image();
       img.onload = () => {
         if (img.width > this.MAX_WIDTH || img.height > this.MAX_HEIGHT) {
-          alert('Las dimensiones máximas son 1080x720');
+          this.showToastMessage('Las dimensiones máximas son 1080x720 píxeles', 'error');
           input.value = '';
           return;
         }
@@ -284,11 +311,29 @@ export class CrearIncidenciaComponent {
     this.router.navigate(['/crear-detalle-incidencia'], navigationExtras);
 }
 
-
-
-
-
-
+  // Método para validar que la fecha no sea futura
+  validateDate(event: any) {
+    const selectedDate = new Date(event.target.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Establecer a medianoche para comparar solo fechas
+    
+    if (selectedDate > today) {
+      // Si la fecha es futura, establecer la fecha actual
+      this.incidencia.fecha = today.toISOString().split('T')[0];
+      
+      // Mostrar toast
+      this.showToastMessage('La fecha no puede ser futura', 'warning');
+      
+      // Ocultar el toast después de 3 segundos
+      if (this.toastTimeout) {
+        clearTimeout(this.toastTimeout);
+      }
+      
+      this.toastTimeout = setTimeout(() => {
+        this.showToast = false;
+      }, 3000);
+    }
+  }
 
   getUserId() {
     const usernameStorage = localStorage.getItem('username');

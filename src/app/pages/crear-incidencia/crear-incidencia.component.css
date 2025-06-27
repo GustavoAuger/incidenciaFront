@@ -1,0 +1,105 @@
+/* Estilos para los campos de entrada */
+input[type="text"],
+input[type="date"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  transition: all 0.2s ease-in-out;
+  outline: none !important;
+  border-color: #d1d5db !important; /* Color gris más suave */
+}
+
+/* Estilo cuando el input está enfocado */
+input[type="text"]:focus,
+input[type="date"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  border-color: #3b82f6 !important; /* Azul de DaisyUI */
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Estilo para los inputs con error */
+.input-error {
+  border-color: #ef4444 !important; /* Rojo para errores */
+}
+
+.input-error:focus {
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Estilo para el texto 'Seleccione...' en gris */
+.select-bordered {
+  color: #9ca3af; /* Color gris de DaisyUI */
+}
+
+/* Cuando se selecciona una opción, el texto vuelve a negro */
+.select-bordered:not([value=""]) {
+  color: #1f2937; /* Color negro de DaisyUI */
+}
+
+/* Para asegurar que funcione con ngModel */
+select.ng-valid:not([value=""]) {
+  color: #1f2937;
+}
+
+select option:disabled {
+  color: #9ca3af; /* Mismo color gris para consistencia */
+  font-style: italic;
+}
+
+/* Estilo para el texto mostrado en el select cuando está seleccionada la opción por defecto */
+select:required:invalid {
+  color: #9ca3af;
+}
+
+/* Asegurar que las opciones normales se vean en negro */
+select option:not(:disabled) {
+  color: #1f2937; /* Casi negro de DaisyUI */
+}
+
+/* Estilos para los campos desplegables */
+select:hover {
+  cursor: pointer;
+}
+
+/* Asegurar que las opciones también muestren el cursor de manito */
+select option {
+  cursor: pointer;
+}
+
+/* Estilo adicional para mejorar la experiencia en los campos de formulario */
+/* select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+} */
+
+/* Toast styling */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 9999;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.toast .alert {
+  min-width: 300px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

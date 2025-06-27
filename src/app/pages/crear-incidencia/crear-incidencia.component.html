@@ -29,16 +29,16 @@
                   [(ngModel)]="incidencia.id_tipo_incidencia" 
                   name="tipo_incidencia"
                   (ngModelChange)="watchTipoIncidencia()"
-                  #origen="ngModel"
+                  #tipoIncidencia="ngModel"
                   class="select select-bordered w-full"
-                  [class.select-error]="transportista.invalid && (transportista.dirty || transportista.touched)"
+                  [class.select-error]="tipoIncidencia.invalid && (tipoIncidencia.dirty || tipoIncidencia.touched)"
                   required>
-                  <option disabled selected value="">Seleccione tipo incidencia</option>
-                  <option *ngFor="let tipo_incidencia of lista_tipo_incidencia" [value]="tipo_incidencia.id">
+                  <option [ngValue]="undefined" disabled selected>Seleccione tipo incidencia</option>
+                  <option *ngFor="let tipo_incidencia of lista_tipo_incidencia" [ngValue]="tipo_incidencia.id">
                     {{tipo_incidencia.nombre | initCapFirst}}
                   </option>
                 </select>
-                <label class="label" *ngIf="transportista.invalid && (transportista.dirty || transportista.touched)">
+                <label class="label" *ngIf="tipoIncidencia.invalid && (tipoIncidencia.dirty || tipoIncidencia.touched)">
                   <span class="label-text-alt text-error">Debe seleccionar tipo de incindencia </span>
                 </label>
               </div>
@@ -56,11 +56,11 @@
                   [class.select-error]="origen.invalid && (origen.dirty || origen.touched)"
                   [disabled]="incidencia.id_tipo_incidencia == 1"
                   required>
-                  <option disabled selected value="">Seleccione una bodega</option>
+                  <option [ngValue]="undefined" disabled selected>Seleccione una bodega</option>
                   <ng-container *ngFor="let bodega of lista_bodegas">
                     <option 
                       *ngIf="bodega.id != 22 && bodega.id != 23 && bodega.id != +incidencia.destino_id_bodega"
-                      [value]="bodega.id"
+                      [ngValue]="bodega.id"
                       [selected]="incidencia.id_tipo_incidencia == 1 && bodega.id == 21">
                       {{bodega.nombre | initCapFirst}}
                     </option>
@@ -85,8 +85,8 @@
                   class="select select-bordered w-full"
                   [class.select-error]="transportista.invalid && (transportista.dirty || transportista.touched)"
                   required>
-                  <option disabled selected value="">Seleccione un transportista</option>
-                  <option *ngFor="let transportista of lista_transportistas" [value]="transportista.id">
+                  <option [ngValue]="undefined" disabled selected>Seleccione un transportista</option>
+                  <option *ngFor="let transportista of lista_transportistas" [ngValue]="transportista.id">
                     {{transportista.nombre | initCapFirst}}
                   </option>
                 </select>
@@ -126,6 +126,8 @@
                   name="fecha"
                   #fecha="ngModel"
                   class="input input-bordered w-full"
+                  (change)="validateDate($event)"
+                  (input)="validateDate($event)"
                   [class.input-error]="fecha.invalid && (fecha.dirty || fecha.touched)"
                   required>
                 <label class="label" *ngIf="fecha.invalid && (fecha.dirty || fecha.touched)">
@@ -138,7 +140,7 @@
               <div class="form-control w-full">
                 <label class="label">
                   <span class="label-text">Imágen</span>
-                  <span class="label-text-alt text-info">(Máx. 1MB, JPG/PNG, 1080x720)</span>
+                  <span class="text-xs text-cyan-500">(Máx. 1MB, JPG/PNG, 1080x720)</span>
                 </label>
                 <input 
                   type="file" 
@@ -190,6 +192,35 @@
           <span>Volver</span>
         </button>
       </div>
+    </div>
+  </div>
+  
+  <!-- Toast container -->
+  <div class="toast toast-end toast-bottom z-50">
+    <div *ngIf="showToast" [ngClass]="{
+        'alert-warning': toastType === 'warning',
+        'alert-error': toastType === 'error',
+        'alert-success': toastType === 'success'
+      }" class="alert shadow-lg flex items-start">
+      <div class="flex-1">
+        <div class="flex items-center">
+          <svg *ngIf="toastType === 'warning'" xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <svg *ngIf="toastType === 'error'" xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <svg *ngIf="toastType === 'success'" xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ toastMessage }}</span>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-ghost" (click)="closeToast()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
     </div>
   </div>
 </div>
