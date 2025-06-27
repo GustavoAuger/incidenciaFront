@@ -244,40 +244,45 @@
           <div *ngIf="activeTab === 'detalle'" class="p-6 bg-gray-50 min-h-screen">
             <!-- Filtros en la parte superior -->
             <div class="filters-container mb-6">
-              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div class="date-filters">
-                  <div class="flex flex-col sm:flex-row gap-4">
-                    <div class="filter-group">
-                      <label class="block text-sm font-medium text-gray-700 mb-1">Bodega</label>
-                      <select class="select select-bordered select-sm w-full max-w-xs" 
-                              [(ngModel)]="bodegaSeleccionada" 
-                              (change)="cambiarBodega()"
-                              [disabled]="cargandoBodega">
-                        <option *ngFor="let bodega of bodegas" [ngValue]="bodega">{{ bodega.nombre }}</option>
-                      </select>
-                    </div>
-                    <div class="filter-group">
-                      <label>Desde</label>
-                      <input type="date" 
-                            class="date-input text-xs p-1 h-8 w-full"
-                            [ngClass]="{'text-gray-400': !fechaDesdeBodega, 'text-black': fechaDesdeBodega}"
-                            [(ngModel)]="fechaDesdeBodega" 
-                            (ngModelChange)="onFechaBodegaCambiada()"
-                            [max]="todayDate"
-                            [disabled]="cargandoBodega">
-                    </div>
-                    <div class="filter-group">                      
-                      <label>Hasta</label>
-                      <input type="date" 
-                            class="date-input text-xs p-1 h-8 w-full"
-                            [ngClass]="{'text-gray-400': !fechaHastaBodega, 'text-black': fechaHastaBodega}"
-                            [(ngModel)]="fechaHastaBodega" 
-                            (ngModelChange)="onFechaBodegaCambiada()"
-                            [min]="fechaDesdeBodega"
-                            [max]="todayDate"
-                            [disabled]="cargandoBodega">
-                    </div>
+              <div class="flex flex-col sm:flex-row justify-start items-start sm:items-end gap-4 flex-wrap">
+                <!-- Contenedor de fechas -->
+                <div class="flex flex-col sm:flex-row gap-4">
+                  <div class="filter-group">
+                    <label>Fecha Recepción</label>
+                    <label>Desde</label>
+                    <input type="date" 
+                          class="date-input text-xs p-1 h-8 w-full"
+                          [ngClass]="{'text-gray-400': !fechaDesdeBodega, 'text-black': fechaDesdeBodega}"
+                          [(ngModel)]="fechaDesdeBodega" 
+                          (ngModelChange)="onFechaBodegaCambiada()"
+                          [max]="todayDate"
+                          [disabled]="cargandoBodega">
                   </div>
+                  <div class="filter-group">                      
+                    <label>&nbsp;</label>
+                    <label>Hasta</label>
+                    <input type="date" 
+                          class="date-input text-xs p-1 h-8 w-full"
+                          [ngClass]="{'text-gray-400': !fechaHastaBodega, 'text-black': fechaHastaBodega}"
+                          [(ngModel)]="fechaHastaBodega" 
+                          (ngModelChange)="onFechaBodegaCambiada()"
+                          [min]="fechaDesdeBodega"
+                          [max]="todayDate"
+                          [disabled]="cargandoBodega">
+                  </div>
+                </div>
+                
+                <!-- Selector de bodega al lado de las fechas -->
+                <div class="filter-group">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Bodega</label>
+                  <select class="select select-bordered select-sm w-full sm:w-64" 
+                          [(ngModel)]="bodegaSeleccionada" 
+                          (change)="cambiarBodega()"
+                          [disabled]="cargandoBodega">
+                    <option *ngFor="let bodega of bodegas" [ngValue]="bodega">
+                      {{ bodega.id_bodega }} - {{ bodega.nombre | initCapFirst }}
+                    </option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -425,16 +430,6 @@
             <div *ngIf="!bodegaSeleccionada" class="text-center py-10">
               <i class="fas fa-warehouse text-4xl text-gray-300 mb-4"></i>
               <p class="text-gray-500">Selecciona una bodega para ver las métricas</p>
-            </div>
-
-            <!-- Indicador de carga -->
-            <div *ngIf="cargandoBodega" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-              <div class="bg-white p-6 rounded-lg shadow-xl">
-                <div class="flex items-center">
-                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700 mr-3"></div>
-                  <span class="text-gray-700">Cargando datos de la bodega...</span>
-                </div>
-              </div>
             </div>
           </div>
 

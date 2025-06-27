@@ -12,11 +12,12 @@ import { UserService } from '../../services/user.service';
 import { switchMap, map, catchError } from 'rxjs/operators';
 import { forkJoin, of, Observable } from 'rxjs';
 import { GetIncidencia } from '../../interfaces/get-incidencia';
+import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
 
 @Component({
   selector: 'app-reportes-incidencias',
   standalone: true,
-  imports: [CommonModule, NgChartsModule, FormsModule],
+  imports: [CommonModule, NgChartsModule, FormsModule, InitCapFirstPipe],
   templateUrl: './reportes-incidencias.component.html',
   styleUrls: ['./reportes-incidencias.component.css']
 })
@@ -206,8 +207,12 @@ export class ReportesIncidenciasComponent implements OnInit {
       this.activeTab = savedTab;
     }
     
-    // Cargar datos iniciales
-    this.cargarDatosIniciales();
+    // Cargar datos iniciales según la pestaña activa
+    if (this.activeTab === 'detalle') {
+      this.cargarBodegas();
+    } else {
+      this.cargarDatosIniciales();
+    }
   }
 
   // ===== MÉTODOS DE GESTIÓN DE PESTAÑAS =====
@@ -215,9 +220,13 @@ export class ReportesIncidenciasComponent implements OnInit {
     this.activeTab = tab;
     localStorage.setItem('reportesIncidencias_activeTab', tab);
     
-    // Cargar bodegas si estamos en la pestaña de detalle y aún no se han cargado
-    if ((tab === 'detalle' || tab === 'bodegas') && this.bodegas.length === 0) {
+    // Cargar bodegas si estamos en la pestaña de detalle
+    if (tab === 'detalle') {
       this.cargarBodegas();
+    } 
+    // Si no es la pestaña de detalle, cargar datos iniciales
+    else if (tab === 'resumen') {
+      this.cargarDatosIniciales();
     }
     
     // Actualizar el gráfico según la pestaña activa
@@ -242,10 +251,11 @@ export class ReportesIncidenciasComponent implements OnInit {
   // ===== MÉTODOS DE LA SECCIÓN DE RESÚMEN =====
   cargarMetricasResumen(): void {
     this.cargandoResumen = true;
-    const idUsuario = parseInt(localStorage.getItem('id_usuario') || '0', 10);
+    this.isLoading = true;
+    this.error = null; // Limpiar errores previos
     
-    this.incidenciaService.getIncidencias(idUsuario).subscribe({
-      next: (incidencias) => {
+    this.incidenciaService.getAllIncidencias().subscribe({
+      next: (incidencias: GetIncidencia[]) => {
         const incidenciasFiltradas = this.filtrarIncidenciasPorFecha(
           incidencias, 
           this.fechaDesdeResumen, 
@@ -265,7 +275,7 @@ export class ReportesIncidenciasComponent implements OnInit {
     });
   }
 
-  private calcularMetricasResumen(incidencias: Incidencia[]): void {
+  private calcularMetricasResumen(incidencias: GetIncidencia[]): void {
     const total = incidencias.length;
     const nuevas = incidencias.filter(i => i.id_estado === 1).length;
     const enRevision = incidencias.filter(i => i.id_estado === 2).length;
@@ -307,6 +317,9 @@ export class ReportesIncidenciasComponent implements OnInit {
   // ===== MÉTODOS DE LA SECCIÓN DE BODEGAS =====
   cargarBodegas(): void {
     console.log('Cargando bodegas...');
+    this.isLoading = true;
+    this.error = null; // Limpiar errores previos
+    
     this.userService.getBodegas().subscribe({
       next: (bodegas: Bodega[]) => {
         console.log('Bodegas recibidas:', bodegas);
@@ -318,11 +331,13 @@ export class ReportesIncidenciasComponent implements OnInit {
         } else {
           console.warn('No se encontraron bodegas');
           this.error = 'No se encontraron bodegas disponibles';
+          this.isLoading = false; // Asegurarse de desactivar el loading
         }
       },
       error: (error: any) => {
         console.error('Error al cargar las bodegas:', error);
         this.error = 'No se pudieron cargar las bodegas';
+        this.isLoading = false; // Asegurarse de desactivar el loading
       }
     });
   }
@@ -334,7 +349,10 @@ export class ReportesIncidenciasComponent implements OnInit {
   }
 
   cargarDatosBodega(): void {
-    if (!this.bodegaSeleccionada) return;
+    if (!this.bodegaSeleccionada) {
+      this.isLoading = false; // Asegurarse de desactivar el loading
+      return;
+    }
     
     this.cargandoBodega = true;
     
@@ -350,11 +368,13 @@ export class ReportesIncidenciasComponent implements OnInit {
       next: (incidencias) => {
         this.procesarDatosBodega(incidencias);
         this.cargandoBodega = false;
+        this.isLoading = false; // Asegurarse de desactivar el loading
       },
       error: (error) => {
         console.error('Error al cargar incidencias por bodega:', error);
         this.error = 'No se pudieron cargar las incidencias de la bodega';
         this.cargandoBodega = false;
+        this.isLoading = false; // Asegurarse de desactivar el loading
       }
     });
   }
@@ -416,59 +436,68 @@ export class ReportesIncidenciasComponent implements OnInit {
   }
 
   procesarDatosBodega(incidencias: GetIncidencia[]): void {
-    // Inicializar métricas
-    this.metricasBodega = {
-      totalBodega: incidencias.length,
-      totalValorizadoBodega: 0,
-      nuevasBodega: 0,
-      nuevasValorizadoBodega: 0,
-      enRevisionBodega: 0,
-      enRevisionValorizadoBodega: 0,
-      aprobadasBodega: 0,
-      aprobadasValorizadoBodega: 0,
-      rechazadasBodega: 0,
-      rechazadasValorizadoBodega: 0,
-      porcentajeNuevasBodega: 0,
-      porcentajeEnRevisionBodega: 0,
-      porcentajeAprobadasBodega: 0,
-      porcentajeRechazadasBodega: 0
-    };
+    try {
+      // Inicializar métricas
+      this.metricasBodega = {
+        totalBodega: incidencias.length,
+        totalValorizadoBodega: 0,
+        nuevasBodega: 0,
+        nuevasValorizadoBodega: 0,
+        enRevisionBodega: 0,
+        enRevisionValorizadoBodega: 0,
+        aprobadasBodega: 0,
+        aprobadasValorizadoBodega: 0,
+        rechazadasBodega: 0,
+        rechazadasValorizadoBodega: 0,
+        porcentajeNuevasBodega: 0,
+        porcentajeEnRevisionBodega: 0,
+        porcentajeAprobadasBodega: 0,
+        porcentajeRechazadasBodega: 0
+      };
 
-    // Calcular totales por estado
-    incidencias.forEach(incidencia => {
-      const valorizado = incidencia.valorizado || 0;
-      this.metricasBodega.totalValorizadoBodega += valorizado;
+      // Calcular totales por estado
+      incidencias.forEach(incidencia => {
+        const valorizado = incidencia.valorizado || 0;
+        this.metricasBodega.totalValorizadoBodega += valorizado;
 
-      switch (incidencia.id_estado) {
-        case 1: // Nuevas
-          this.metricasBodega.nuevasBodega++;
-          this.metricasBodega.nuevasValorizadoBodega += valorizado;
-          break;
-        case 2: // En revisión
-          this.metricasBodega.enRevisionBodega++;
-          this.metricasBodega.enRevisionValorizadoBodega += valorizado;
-          break;
-        case 3: // Aprobadas
-          this.metricasBodega.aprobadasBodega++;
-          this.metricasBodega.aprobadasValorizadoBodega += valorizado;
-          break;
-        case 4: // Rechazadas
-          this.metricasBodega.rechazadasBodega++;
-          this.metricasBodega.rechazadasValorizadoBodega += valorizado;
-          break;
-      }
+        switch (incidencia.id_estado) {
+          case 1: // Nuevas
+            this.metricasBodega.nuevasBodega++;
+            this.metricasBodega.nuevasValorizadoBodega += valorizado;
+            break;
+          case 2: // En revisión
+            this.metricasBodega.enRevisionBodega++;
+            this.metricasBodega.enRevisionValorizadoBodega += valorizado;
+            break;
+          case 3: // Aprobadas
+            this.metricasBodega.aprobadasBodega++;
+            this.metricasBodega.aprobadasValorizadoBodega += valorizado;
+            break;
+          case 4: // Rechazadas
+            this.metricasBodega.rechazadasBodega++;
+            this.metricasBodega.rechazadasValorizadoBodega += valorizado;
+            break;
+        }
     });
 
-    // Calcular porcentajes
-    if (this.metricasBodega.totalBodega > 0) {
-      this.metricasBodega.porcentajeNuevasBodega = (this.metricasBodega.nuevasBodega / this.metricasBodega.totalBodega) * 100;
-      this.metricasBodega.porcentajeEnRevisionBodega = (this.metricasBodega.enRevisionBodega / this.metricasBodega.totalBodega) * 100;
-      this.metricasBodega.porcentajeAprobadasBodega = (this.metricasBodega.aprobadasBodega / this.metricasBodega.totalBodega) * 100;
-      this.metricasBodega.porcentajeRechazadasBodega = (this.metricasBodega.rechazadasBodega / this.metricasBodega.totalBodega) * 100;
-    }
+      // Calcular porcentajes
+      if (this.metricasBodega.totalBodega > 0) {
+        this.metricasBodega.porcentajeNuevasBodega = Math.round((this.metricasBodega.nuevasBodega / this.metricasBodega.totalBodega) * 100);
+        this.metricasBodega.porcentajeEnRevisionBodega = Math.round((this.metricasBodega.enRevisionBodega / this.metricasBodega.totalBodega) * 100);
+        this.metricasBodega.porcentajeAprobadasBodega = Math.round((this.metricasBodega.aprobadasBodega / this.metricasBodega.totalBodega) * 100);
+        this.metricasBodega.porcentajeRechazadasBodega = Math.round((this.metricasBodega.rechazadasBodega / this.metricasBodega.totalBodega) * 100);
+      }
 
-    // Actualizar gráfico
-    this.actualizarGraficoBodega();
+      // Actualizar gráfico
+      this.actualizarGraficoBodega();
+    } catch (error) {
+      console.error('Error al procesar datos de bodega:', error);
+      this.error = 'Error al procesar los datos de la bodega';
+    } finally {
+      // Asegurarse de que el indicador de carga se desactive
+      this.isLoading = false;
+      this.cargandoBodega = false;
+    }
   }
 
   actualizarGraficoBodega(): void {
@@ -490,7 +519,7 @@ export class ReportesIncidenciasComponent implements OnInit {
   }
 
   // ===== MÉTODOS DE AYUDA COMPARTIDOS =====
-  private filtrarIncidenciasPorFecha(incidencias: Incidencia[], fechaDesde: string, fechaHasta: string): Incidencia[] {
+  private filtrarIncidenciasPorFecha(incidencias: GetIncidencia[], fechaDesde: string, fechaHasta: string): GetIncidencia[] {
     if (!fechaDesde && !fechaHasta) {
       return incidencias;
     }
