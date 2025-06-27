@@ -271,6 +271,8 @@ export class ReportesIncidenciasComponent implements OnInit {
       this.cargarBodegas();
     } else if (this.activeTab === 'graficos') {
       this.cargarRankingBodegas();
+    } else if (this.activeTab === 'transportistas') {
+      this.cargarRankingTransportistas();
     } else {
       this.cargarDatosIniciales();
     }
@@ -999,13 +1001,14 @@ export class ReportesIncidenciasComponent implements OnInit {
         const transportistasConDatos = transportistas
           .filter(t => incidenciasPorTransportista.has(t.id))  
           .map(transportista => {
-            const totalIncidencias = incidenciasPorTransportista.get(transportista.id) || 0;
+            const totalIncidenciasLocal = incidenciasPorTransportista.get(transportista.id) || 0;
             const reclamosTransportista = transportistaReclamos.get(transportista.id) || [];
             
             // Count claims by status
             const recuentoEstados: {[key: string]: number} = {
               'Reclamado': 0,
               'Aceptado': 0,
+              'Pagado': 0,
               'Rechazado': 0,
               'En revisión': 0
             };
@@ -1015,19 +1018,33 @@ export class ReportesIncidenciasComponent implements OnInit {
               if (estado) {
                 // Map to simplified status names
                 let estadoSimple = estado.nombre;
-                if (estado.nombre.toLowerCase().includes('acept')) estadoSimple = 'Aceptado';
-                else if (estado.nombre.toLowerCase().includes('rechaz')) estadoSimple = 'Rechazado';
-                else if (estado.nombre.toLowerCase().includes('revis')) estadoSimple = 'En revisión';
-                else estadoSimple = 'Reclamado';
+                if (estado.id === 1) estadoSimple = 'Reclamado';
+                else if (estado.id === 2) estadoSimple = 'Pagado';
+                else if (estado.id === 3) estadoSimple = 'Rechazado';
+                else if (estado.id === 4) estadoSimple = 'Aceptado';
                 
-                recuentoEstados[estadoSimple] = (recuentoEstados[estadoSimple] || 0) + 1;
+                // Solo contamos los estados que nos interesan
+                if (['Reclamado', 'Aceptado', 'Pagado', 'Rechazado'].includes(estadoSimple)) {
+                  recuentoEstados[estadoSimple] = (recuentoEstados[estadoSimple] || 0) + 1;
+                }
               }
             });
             
+            // Calculate totalIncidencias as sum of Reclamado, Pagado, and Rechazado statuses
+            const totalIncidencias = recuentoEstados['Reclamado'] + 
+                                  recuentoEstados['Pagado'] + 
+                                  recuentoEstados['Rechazado'];
+            
+            // Calculate totalReclamos as sum of Reclamado, Aceptado, Pagado, and Rechazado statuses
+            const totalReclamos = recuentoEstados['Reclamado'] + 
+                               recuentoEstados['Aceptado'] +
+                               recuentoEstados['Pagado'] + 
+                               recuentoEstados['Rechazado'];
+            
             return {
               transportista,
-              totalIncidencias,
-              totalReclamos: reclamosTransportista.length,
+              totalIncidencias: totalIncidenciasLocal,  // This is the actual count of incidents
+              totalReclamos: totalReclamos,  // This is the sum of claims in the specified statuses
               recuentoEstados
             };
           });
