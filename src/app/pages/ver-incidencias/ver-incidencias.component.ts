@@ -28,6 +28,8 @@ export class VerIncidenciasComponent implements OnInit {
   // Lista de usuarios para mapear ID a nombre
   usuarios: any[] = [];
   isLoading: boolean = true;
+  isLoadingExcel: boolean = false;
+  isLoadingExcel2: boolean = false;
   //para los colores grises
   isOrigenOpen = false;
   isDestinoOpen = false;
@@ -105,7 +107,11 @@ export class VerIncidenciasComponent implements OnInit {
       private router: Router, 
       private _incidenciaService: IncidenciaService,
       private _userService: UserService
-  ) {}
+  ) {
+    this.incidenciasFiltradas = this.incidencias;
+    this.isLoadingExcel = false;
+    this.isLoadingExcel2 = false;
+  }
 
   ngOnInit() {
     // Mostrar loader
@@ -376,10 +382,32 @@ getTipoIncidencia() {
     this.updatePagination();
   }
 
+  getTodayDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  getThirtyDaysAgoDate(): string {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    
+    const year = thirtyDaysAgo.getFullYear();
+    const month = String(thirtyDaysAgo.getMonth() + 1).padStart(2, '0');
+    const day = String(thirtyDaysAgo.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   limpiarFiltros() {
+    // Obtener las fechas por defecto
+    const today = this.getTodayDate();
+    const thirtyDaysAgo = this.getThirtyDaysAgoDate();
     this.filtros = {
-      fechaDesde: '',
-      fechaHasta: '',
+      fechaDesde: thirtyDaysAgo,
+      fechaHasta: today,
       numeroIncidencia: '',
       tipoIncidencia: '',
       origen:'',
@@ -392,87 +420,93 @@ getTipoIncidencia() {
     this.updatePagination();
   }
 // Método para exportar a Excel todas las incidencias
-exportToExcel(): void {
-  const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet('data');
+async exportToExcel(): Promise<void> {
+  this.isLoadingExcel = true;
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('data');
 
-  // Definir encabezados
-  const columnas = [
-    { header: 'Número de incidencia', key: 'id' },
-    { header: 'Fecha de recepción', key: 'fecha_recepcion' },
-    { header: 'Fecha emisión', key: 'fecha_emision' },
-    { header: 'Estado', key: 'tipo_estado' },
-    { header: 'Transportista', key: 'transportista' },
-    { header: 'Código Bodega Origen', key: 'origen_id_local' },
-    { header: 'Código Bodega Destino', key: 'destino_id_bodega' },
-    { header: 'Bodega de destino', key: 'destino' },
-    { header: 'OTS', key: 'ots' },
-    { header: 'Valorizado', key: 'valorizado' },
-    { header: 'Total item', key: 'total_item' }
-  ];
-  worksheet.columns = columnas.map(col => ({
-    header: col.header,
-    key: col.key,
-    width: 17
-  }));
+    // Definir encabezados
+    const columnas = [
+      { header: 'Número de incidencia', key: 'id' },
+      { header: 'Fecha de recepción', key: 'fecha_recepcion' },
+      { header: 'Fecha emisión', key: 'fecha_emision' },
+      { header: 'Estado', key: 'tipo_estado' },
+      { header: 'Transportista', key: 'transportista' },
+      { header: 'Código Bodega Origen', key: 'origen_id_local' },
+      { header: 'Código Bodega Destino', key: 'destino_id_bodega' },
+      { header: 'Bodega de destino', key: 'destino' },
+      { header: 'OTS', key: 'ots' },
+      { header: 'Valorizado', key: 'valorizado' },
+      { header: 'Total item', key: 'total_item' }
+    ];
+    worksheet.columns = columnas.map(col => ({
+      header: col.header,
+      key: col.key,
+      width: 17
+    }));
 
-  // Agregar datos
-  this.incidenciasFiltradas.forEach(incidencia => {
-    worksheet.addRow({
-      id: incidencia.id || '',
-      fecha_recepcion: incidencia.fecha_recepcion?.split('T')[0] || '',
-      fecha_emision: incidencia.fecha_emision?.split('T')[0] || '',
-      tipo_estado: this.toInitCap(incidencia.tipo_estado || ''),
-      transportista: this.toInitCap(incidencia.transportista || ''),
-      origen_id_local: incidencia.origen_id_local || '',
-      destino_id_bodega: incidencia.destino_id_bodega || '',
-      destino: this.toInitCap(incidencia.destino || ''),
-      ots: incidencia.ots || '',
-      valorizado: incidencia.valorizado || '',
-      total_item: incidencia.total_item || ''
+    // Agregar datos
+    this.incidenciasFiltradas.forEach(incidencia => {
+      worksheet.addRow({
+        id: incidencia.id || '',
+        fecha_recepcion: incidencia.fecha_recepcion?.split('T')[0] || '',
+        fecha_emision: incidencia.fecha_emision?.split('T')[0] || '',
+        tipo_estado: this.toInitCap(incidencia.tipo_estado || ''),
+        transportista: this.toInitCap(incidencia.transportista || ''),
+        origen_id_local: incidencia.origen_id_local || '',
+        destino_id_bodega: incidencia.destino_id_bodega || '',
+        destino: this.toInitCap(incidencia.destino || ''),
+        ots: incidencia.ots || '',
+        valorizado: incidencia.valorizado || '',
+        total_item: incidencia.total_item || ''
+      });
     });
-  });
 
-  // Agregar 5 filas en blanco
-  for (let i = 0; i < 5; i++) {
-    worksheet.addRow([]);
-  }
+    // Agregar 5 filas en blanco
+    for (let i = 0; i < 5; i++) {
+      worksheet.addRow([]);
+    }
 
-  // Agregar fila de confidencialidad
-  const mensaje = 'INFORMACIÓN CONFIDENCIAL. NO DISTRIBUIR. SOLO PARA USO INTERNO.';
-  const lastRowIndex = worksheet.lastRow?.number ?? worksheet.rowCount;
-  const confidRowIndex = lastRowIndex + 1;
+    // Agregar fila de confidencialidad
+    const mensaje = 'INFORMACIÓN CONFIDENCIAL. NO DISTRIBUIR. SOLO PARA USO INTERNO.';
+    const lastRowIndex = worksheet.lastRow?.number ?? worksheet.rowCount;
+    const confidRowIndex = lastRowIndex + 1;
 
-  const row = worksheet.getRow(confidRowIndex);
-  row.getCell(1).value = mensaje;
+    const row = worksheet.getRow(confidRowIndex);
+    row.getCell(1).value = mensaje;
 
-  // Combinar las celdas de la fila de confidencialidad (de A a K)
-  const lastColLetter = String.fromCharCode(64 + columnas.length); // 'K' si son 11 columnas
-  worksheet.mergeCells(`A${confidRowIndex}:${lastColLetter}${confidRowIndex}`);
+    // Combinar las celdas de la fila de confidencialidad (de A a K)
+    const lastColLetter = String.fromCharCode(64 + columnas.length); // 'K' si son 11 columnas
+    worksheet.mergeCells(`A${confidRowIndex}:${lastColLetter}${confidRowIndex}`);
 
-  // Aplicar estilo a la celda combinada
-  row.getCell(1).fill = {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FFFF00' }
-  };
-  row.getCell(1).font = {
-    bold: true
-  };
-  row.getCell(1).alignment = {
-    horizontal: 'center'
-  };
+    // Aplicar estilo a la celda combinada
+    row.getCell(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFFF00' }
+    };
+    row.getCell(1).font = {
+      bold: true
+    };
+    row.getCell(1).alignment = {
+      horizontal: 'center'
+    };
 
-  row.commit(); // Aplicar cambios a la fila
+    row.commit(); // Aplicar cambios a la fila
 
-  // Guardar archivo
-  workbook.xlsx.writeBuffer().then((buffer) => {
+    // Guardar archivo
+    const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
     link.download = 'Incidencias.xlsx';
     link.click();
-  });
+  } catch (error) {
+    console.error('Error en exportToExcel:', error);
+  } finally {
+    this.isLoadingExcel = false;
+  }
 }
 
   // Función auxiliar para convertir cada palabra en mayúscula
@@ -483,24 +517,23 @@ exportToExcel(): void {
     ).join(' ');
   }
 
-  exportToExcel2(): void {
+  async exportToExcel2(): Promise<void> {
+    this.isLoadingExcel2 = true;
     const incidenciasExpandidas: any[] = [];
     let incidenciasProcesadas = 0;
-  
-    this.incidenciasFiltradas.forEach(incidencia => {
-      if (incidencia.id === undefined) {
-        incidenciasExpandidas.push(incidencia);
-        incidenciasProcesadas++;
-  
-        if (incidenciasProcesadas === this.incidenciasFiltradas.length) {
-          this.generarExcelConDetalles(incidenciasExpandidas);
+
+    try {
+      for (const incidencia of this.incidenciasFiltradas) {
+        if (incidencia.id === undefined) {
+          incidenciasExpandidas.push(incidencia);
+          incidenciasProcesadas++;
+          continue;
         }
-        return;
-      }
-  
-      this._incidenciaService.getDetallesIncidencia(incidencia.id).subscribe({
-        next: (detalles) => {
-          if (detalles.length === 0) {
+
+        try {
+          const detalles = await this._incidenciaService.getDetallesIncidencia(incidencia.id).toPromise();
+          
+          if (!detalles || detalles.length === 0) {
             incidenciasExpandidas.push(incidencia);
           } else {
             detalles.forEach(detalle => {
@@ -527,24 +560,20 @@ exportToExcel(): void {
               incidenciasExpandidas.push(obj);
             });
           }
-  
-          incidenciasProcesadas++;
-  
-          if (incidenciasProcesadas === this.incidenciasFiltradas.length) {
-            this.generarExcelConDetalles(incidenciasExpandidas);
-          }
-        },
-        error: (error) => {
+        } catch (error) {
           console.error('Error al obtener detalles:', error);
           incidenciasExpandidas.push(incidencia);
-          incidenciasProcesadas++;
-  
-          if (incidenciasProcesadas === this.incidenciasFiltradas.length) {
-            this.generarExcelConDetalles(incidenciasExpandidas);
-          }
         }
-      });
-    });
+
+        incidenciasProcesadas++;
+      }
+
+      await this.generarExcelConDetalles(incidenciasExpandidas);
+    } catch (error) {
+      console.error('Error en exportToExcel2:', error);
+    } finally {
+      this.isLoadingExcel2 = false;
+    }
   }
   
   // Nueva función para generar Excel usando exceljs

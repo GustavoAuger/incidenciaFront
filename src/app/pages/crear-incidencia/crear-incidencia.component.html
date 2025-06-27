@@ -23,6 +23,7 @@
               <div class="form-control w-full">
                 <label class="label">
                   <span class="label-text">Tipo de incidencia</span>
+                  <span class="label-text-alt text-error">*</span>
                 </label>
                 <select 
                   [(ngModel)]="incidencia.id_tipo_incidencia" 
@@ -45,6 +46,7 @@
               <div class="form-control w-full">
                 <label class="label">
                   <span class="label-text">Origen de la Mercadería</span>
+                  <span class="label-text-alt text-error">*</span>
                 </label>
                 <select 
                   [(ngModel)]="incidencia.id_bodega" 
@@ -74,6 +76,7 @@
               <div class="form-control w-full">
                 <label class="label">
                   <span class="label-text">Transportista</span>
+                  <span class="label-text-alt text-error">*</span>
                 </label>
                 <select 
                   [(ngModel)]="incidencia.id_transportista" 
@@ -93,7 +96,8 @@
               </div>
               <div class="form-control w-full">
                 <label class="label">
-                  <span class="label-text">OTS</span>
+                  <span class="label-text">OTS (Orden de Transporte Simple)</span>
+                  <span class="label-text-alt text-error">*</span>
                 </label>
                 <input 
                   type="text" 
@@ -114,6 +118,7 @@
               <div class="form-control w-full">
                 <label class="label">
                   <span class="label-text">Fecha de Recepción</span>
+                  <span class="label-text-alt text-error">*</span>
                 </label>
                 <input 
                   type="date" 
@@ -132,7 +137,7 @@
 
               <div class="form-control w-full">
                 <label class="label">
-                  <span class="label-text">Imágen (Opcional)</span>
+                  <span class="label-text">Imágen</span>
                   <span class="label-text-alt text-info">(Máx. 1MB, JPG/PNG, 1080x720)</span>
                 </label>
                 <input 

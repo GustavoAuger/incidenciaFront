@@ -81,6 +81,9 @@ export class AdministrarUsuariosComponent {
 
   showEditModal: boolean = false;
   userToEdit: User | null = null;
+  
+  // Variable para el toast
+  toast: any = null;
   editPassword: string = '';
   editConfirmPassword: string = '';
   editEmailPrefix: string = '';
@@ -212,6 +215,9 @@ deleteUser(user: User): void {
   if (!confirmar) {
     return; // Si el usuario cancela, no hacer nada
   }
+
+  // Mostrar mensaje de éxito al eliminar
+  this.mostrarToast(`Usuario ${user.nombre} eliminado con éxito`, 'success');
 
   if (!user.id) {
     throw new Error('User ID is required for deleting');
@@ -430,15 +436,7 @@ deleteUser(user: User): void {
     this._userService.createUser(userToCreate).subscribe({
       next: (response: boolean) => {
         if (response) {
-          // Mostrar mensaje de éxito
-          this.showSuccessMessage = true;
-          this.successMessage = 'Usuario creado con éxito';
-          
-          // Ocultar el mensaje después de 3 segundos
-          setTimeout(() => {
-            this.showSuccessMessage = false;
-          }, 2000);
-          
+          this.mostrarToast('Usuario creado con éxito', 'success');
           this.getBodegaUsers();
           this.getUsuarios();
           this.toggleCreateUserForm();
@@ -820,4 +818,34 @@ deleteUser(user: User): void {
     });
   }
 
+  // Método para mostrar el toast
+  mostrarToast(mensaje: string, tipo: 'success' | 'error' | 'warning', callback?: () => void) {
+    this.toast = {
+      mensaje: mensaje,
+      tipo: tipo,
+      visible: true
+    };
+    
+    // Ocultar después de 5 segundos y ejecutar callback si existe
+    setTimeout(() => {
+      this.toast = null;
+      if (callback) {
+        callback();
+      }
+    }, 5000);
+  }
+
+  // Método para obtener la clase del toast según el tipo
+  getToastClass(tipo: 'success' | 'error' | 'warning'): string {
+    switch (tipo) {
+      case 'success':
+        return 'alert-success';
+      case 'error':
+        return 'alert-error';
+      case 'warning':
+        return 'alert-warning';
+      default:
+        return 'alert-info';
+    }
+  }
 }

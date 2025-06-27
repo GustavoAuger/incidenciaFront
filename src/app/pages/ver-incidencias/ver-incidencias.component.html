@@ -114,25 +114,31 @@
             </div>
         </div>
 
-        <div class="export-buttons">
-            <button class="export-btn" (click)="limpiarFiltros()"> 
-              LIMPIAR FILTROS
-              <span class="material-symbols-outlined">
-                delete_sweep
-              </span>
-            </button>
-            <button class="export-btn" (click)="exportToExcel()"> 
-                EXPORTAR RESUMEN
-                <span class="material-symbols-outlined">
-                    download
-                </span>
-            </button>
-            <button class="export-btn" (click)="exportToExcel2()"> 
-                EXPORTAR DETALLE
-                <span class="material-symbols-outlined">
-                    download
-                </span>
-            </button>
+        <div class="export-buttons flex flex-row justify-between">
+            <div class="flex-1">
+                <button class="export-btn w-[200px] flex items-center justify-center gap-2" (click)="limpiarFiltros()"> 
+                  LIMPIAR FILTROS
+                  <span class="material-symbols-outlined">
+                    delete_sweep
+                  </span>
+                </button>
+            </div>
+            <div class="flex-1 flex justify-end gap-2">
+                <button class="export-btn w-[200px] flex items-center justify-center gap-2" (click)="exportToExcel()" [disabled]="isLoadingExcel"> 
+                    EXPORTAR RESUMEN
+                    <div *ngIf="isLoadingExcel" class="loading loading-spinner loading-sm"></div>
+                    <span *ngIf="!isLoadingExcel" class="material-symbols-outlined">
+                        download
+                    </span>
+                </button>
+                <button class="export-btn w-[200px] flex items-center justify-center gap-2" (click)="exportToExcel2()" [disabled]="isLoadingExcel2"> 
+                    EXPORTAR DETALLE
+                    <div *ngIf="isLoadingExcel2" class="loading loading-spinner loading-sm"></div>
+                    <span *ngIf="!isLoadingExcel2" class="material-symbols-outlined">
+                        download
+                    </span>
+                </button>
+            </div>
         </div>
     </div>
 

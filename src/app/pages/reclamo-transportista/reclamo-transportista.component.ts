@@ -13,6 +13,7 @@ import { ReclamoTransportistaService } from '../../services/reclamo-transportist
 import { EstadoReclamo } from '../../interfaces/estado-reclamo';
 import { ReclamoTransportista } from '../../interfaces/reclamo-transportista';
 
+
 @Component({
   selector: 'app-ver-incidencias',
   standalone: true,
@@ -37,7 +38,7 @@ export class ReclamoTransportistaComponent implements OnInit {
   isFechaReclamoHastaOpen = false;
 
   // Propiedades para ordenamiento
-  sortColumn: string = 'id';
+  sortColumn: string = 'numero_reclamo';
   sortDirection: 'asc' | 'desc' = 'desc';
 
   // Propiedad para controlar la pestaña activa
@@ -78,6 +79,14 @@ export class ReclamoTransportistaComponent implements OnInit {
     monto_pagado: 0,
     id_estado: 1
   };
+
+  // Propiedades para el modal de confirmación
+  confirmarModal = false;
+  mensajeConfirmacion: string = '';
+  editarReclamoFormOriginal: any | null = null;
+  
+  // Variable para el toast
+  toast: any = null;
 
   // Función para controlar la apertura de los selects
   onSelectOpen(select: string) {
@@ -147,17 +156,24 @@ export class ReclamoTransportistaComponent implements OnInit {
       private _incidenciaService: IncidenciaService,
       private _userService: UserService,
       private reclamoTransportistaService: ReclamoTransportistaService,
-      private cdr: ChangeDetectorRef
+      private cdr: ChangeDetectorRef,
+
   ) {
     // Restaurar la pestaña guardada o usar 'reclamadas' por defecto
     const savedTab = localStorage.getItem('reclamoTransportista_activeTab') as 'reclamadas' | 'ingresar_reclamo' | null;
     this.activeTab = savedTab || 'reclamadas';
   }
 
+  // Método para ordenar por número de reclamo descendente
+  sortByNumeroReclamoDesc(): void {
+    this.sortColumn = 'numero_reclamo';
+    this.sortDirection = 'desc';
+    this.sortTable('numero_reclamo', 'desc');
+  }
+
   ngOnInit() {
     // Mostrar loader
-    this.isLoading = true;
-    
+    this.isLoading = true;    
     const userIdString = localStorage.getItem('id_usuario');
     const id_usuario = userIdString ? parseInt(userIdString, 10) : 0;
     
@@ -223,10 +239,10 @@ export class ReclamoTransportistaComponent implements OnInit {
         }
       });
     }
-    
+
     this.getBodegas();
     this.loadEstadosReclamo();
-    
+
     // Restaurar la pestaña guardada después de cargar los datos
     const savedTab = localStorage.getItem('reclamoTransportista_activeTab') as 'reclamadas' | 'ingresar_reclamo' | null;
     if (savedTab) {
@@ -309,7 +325,7 @@ export class ReclamoTransportistaComponent implements OnInit {
       this.editarReclamoModal = true;
     } else {
       console.error('No se encontró el reclamo para la incidencia:', incidencia.id);
-      alert('No se pudo cargar la información del reclamo para editar');
+      this.mostrarToast('No se pudo cargar la información del reclamo para editar', 'error');
     }
   }
 
@@ -326,15 +342,75 @@ export class ReclamoTransportistaComponent implements OnInit {
     };
   }
 
+  // Método para mostrar el modal de confirmación
+  mostrarConfirmacion() {
+    this.confirmarModal = true;
+  }
+
+  // Método para cerrar el modal de confirmación
+  cerrarConfirmacion() {
+    this.confirmarModal = false;
+  }
+
+  // Método para mostrar toast
+  mostrarToast(mensaje: string, tipo: 'success' | 'error' | 'warning') {
+    // Crear el toast
+    this.toast = {
+      mensaje: mensaje,
+      tipo: tipo,
+      visible: true
+    };
+    
+    // Ocultar después de 3 segundos
+    setTimeout(() => {
+      this.toast = null;
+    }, 3000);
+  }
+
+  // Método para obtener la clase del toast según el tipo
+  getToastClass(tipo: 'success' | 'error' | 'warning'): string {
+    switch (tipo) {
+      case 'success':
+        return 'alert-success';
+      case 'error':
+        return 'alert-error';
+      case 'warning':
+        return 'alert-warning';
+      default:
+        return 'alert-info';
+    }
+  }
+
+  // Método para obtener el estado seleccionado
+  getEstadoSeleccionado(): EstadoReclamo | undefined {
+    return this.estadosReclamo.find(estado => estado.id === Number(this.editarReclamoForm.id_estado));
+  }
+
   // Método para guardar los cambios del reclamo
   guardarCambiosReclamo() {
     // Verificar si hay cambios en el formulario
     if (!this.hayCambiosEnFormulario()) {
-      alert('No se han realizado cambios en el formulario.');
+      this.mostrarToast('No se han realizado cambios en el formulario.', 'warning');
       this.cerrarEditarReclamo();
       return;
     }
 
+    // Obtener el estado seleccionado
+    const estadoSeleccionado = this.getEstadoSeleccionado();
+    
+    // Si el estado es pagado, mostrar confirmación
+    if (estadoSeleccionado?.nombre?.toLowerCase() === 'pagado') {
+      this.mensajeConfirmacion = '¿Estás seguro de marcar este reclamo como pagado? Una vez realizado este cambio, no podrás modificarlo.';
+      this.mostrarConfirmacion();
+      return;
+    }
+
+    // Para otros estados, guardar directamente
+    this.guardarCambiosReclamoConfirmado();
+  }
+
+  // Método para guardar cambios después de confirmación
+  guardarCambiosReclamoConfirmado() {
     // Mostrar mensaje de carga
     this.isLoading = true;
 
@@ -355,9 +431,10 @@ export class ReclamoTransportistaComponent implements OnInit {
     this.reclamoTransportistaService.updateReclamoTransportista(reclamoActualizado).subscribe({
       next: (response) => {
         console.log('Reclamo actualizado exitosamente', response);
-        alert('Los cambios se han guardado correctamente');
+        this.mostrarToast('Los cambios se han guardado correctamente', 'success');
         
-        // Cerrar el modal
+        // Cerrar los modales
+        this.cerrarConfirmacion();
         this.cerrarEditarReclamo();
         
         // Recargar los datos para asegurar que todo esté sincronizado
@@ -367,8 +444,9 @@ export class ReclamoTransportistaComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al actualizar el reclamo', error);
-        alert('Error al guardar los cambios. Por favor, intente nuevamente.');
+        this.mostrarToast('Error al guardar los cambios. Por favor, intente nuevamente.', 'error');
         this.isLoading = false;
+        this.cerrarConfirmacion();
       }
     });
   }
@@ -402,7 +480,19 @@ export class ReclamoTransportistaComponent implements OnInit {
     this.activeTab = tab;
     // Guardar la pestaña seleccionada en localStorage
     localStorage.setItem('reclamoTransportista_activeTab', tab);
-    this.aplicarFiltros();
+    // Limpiar filtros al cambiar de pestaña
+    this.limpiarFiltros();
+    
+    // Ordenar según la pestaña activa
+    if (tab === 'reclamadas') {
+      // Ordenar por número de reclamo descendente
+      this.sortByNumeroReclamoDesc();
+    } else {
+      // Ordenar por número de incidencia descendente
+      this.sortColumn = 'id';
+      this.sortDirection = 'desc';
+      this.sortTable('id', 'desc');
+    }
   }
 
   // Agregar un nuevo método para encontrar el ID de reclamo por ID de incidencia
@@ -423,7 +513,23 @@ export class ReclamoTransportistaComponent implements OnInit {
         // Luego cargamos las incidencias
         this._incidenciaService.getIncidencias(id_usuario).subscribe(
           (incidencias) => {
-            const todasLasIncidencias = [...incidencias].sort((a, b) => (b.id || 0) - (a.id || 0));
+            // Verificar el tipo y valor de id_transportista
+            console.log('Tipo de id_transportista:', typeof incidencias[0]?.id_transportista);
+            console.log('Valor exacto de id_transportista:', incidencias.map(i => i.id_transportista));
+            
+            // Verificar incidencias con id_transportista = 4
+            const incidenciasCon4 = incidencias.filter(inc => inc.id_transportista === 4);
+            console.log('Incidencias con id_transportista = 4:', incidenciasCon4.map(i => i.id));
+            
+            // Primero filtrar para excluir incidencias con id_transportista = 4
+            const todasLasIncidencias = [...incidencias]
+              .filter(inc => inc.id_transportista != 4);
+
+            //
+            // Verificar si el filtro está funcionando
+            const algunaIncidenciaCon4 = todasLasIncidencias.some(inc => inc.id_transportista === 4);
+            console.log('¿Hay incidencias con id_transportista = 4 después del filtro?', algunaIncidenciaCon4);
+            
             let incidenciasFiltradas = [...todasLasIncidencias];
             
             if (localStorage.getItem('id_rol') == '2') {
@@ -469,7 +575,12 @@ export class ReclamoTransportistaComponent implements OnInit {
             console.log('Incidencias con reclamo:', this.incidenciasReclamadas.map(i => ({id: i.id, id_reclamo: (i as any).id_reclamo})));
             console.log('Incidencias para reclamo (sin reclamo):', this.ingresarReclamo.map(i => i.id));
             
+            // Aplicar filtros y luego ordenar
             this.aplicarFiltros();
+            
+            // Ordenar por número de reclamo descendente después de cargar y relacionar todo
+            this.sortByNumeroReclamoDesc();
+            
             this.isLoading = false;
           },
           (error) => {
@@ -684,7 +795,7 @@ export class ReclamoTransportistaComponent implements OnInit {
 
       // Debug: Mostrar información de filtrado
       if (this.filtros.numeroReclamo && reclamoRelacionado2) {
-        const numeroReclamoFormateado = `REC${reclamoRelacionado2.id!.toString().padStart(3, '0')}`;
+        const numeroReclamoFormateado = `REC${String(reclamoRelacionado2.id).padStart(3, '0')}`;
         console.log('Filtrando por número de reclamo:', {
           filtroIngresado: this.filtros.numeroReclamo,
           idReclamo: reclamoRelacionado2.id,
@@ -713,21 +824,21 @@ export class ReclamoTransportistaComponent implements OnInit {
     });
     
     console.log(`Total de incidencias después de filtrar: ${this.incidenciasFiltradas.length}`);
-    
-    // Ordenar por ID descendente después de filtrar
-    this.incidenciasFiltradas.sort((a, b) => (b.id || 0) - (a.id || 0));
-    
     // Actualizar la paginación
     this.updatePagination();
   }
 
   limpiarFiltros() {
+    // Obtener las fechas por defecto
+    const today = this.getTodayDate();
+    const thirtyDaysAgo = this.getThirtyDaysAgoDate();
+
     if (this.activeTab === 'reclamadas') {
-      // Limpiar filtros de la pestaña reclamadas
+      // Mantener las fechas por defecto y limpiar otros filtros
       this.filtros = {
         ...this.filtros,  
-        fechaReclamoDesde: '',
-        fechaReclamoHasta: '',
+        fechaReclamoDesde: thirtyDaysAgo,
+        fechaReclamoHasta: today,
         numeroReclamo: '',
         destino: '',
         ots: '',
@@ -735,11 +846,11 @@ export class ReclamoTransportistaComponent implements OnInit {
         estadoReclamoId: '' 
       };
     } else if (this.activeTab === 'ingresar_reclamo') {
-      // Limpiar filtros de la pestaña ingresar reclamo
+      // Mantener las fechas por defecto y limpiar otros filtros
       this.filtros = {
         ...this.filtros, 
-        fechaDesde: '',
-        fechaHasta: '',
+        fechaDesde: thirtyDaysAgo,
+        fechaHasta: today,
         numeroIncidencia: '',
         destino: '',
         ots: '',
@@ -755,13 +866,12 @@ export class ReclamoTransportistaComponent implements OnInit {
   }
 
   // Método para ordenar la tabla
-  sortTable(column: string): void {
-    if (this.sortColumn === column) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
+  sortTable(column: string, initialDirection: 'asc' | 'desc' = 'asc'): void {
+    // Si es la primera vez que se ordena esta columna, usar la dirección inicial
+    if (this.sortColumn !== column) {
       this.sortColumn = column;
-      this.sortDirection = 'asc';
-    }
+      this.sortDirection = initialDirection;
+    } 
 
     this.incidenciasFiltradas.sort((a, b) => {
       let aValue: any;
@@ -776,19 +886,61 @@ export class ReclamoTransportistaComponent implements OnInit {
           aValue = a.fecha ? new Date(a.fecha).getTime() : 0;
           bValue = b.fecha ? new Date(b.fecha).getTime() : 0;
           break;
-        case 'origen':
-          aValue = a.origen_id_local || '';
-          bValue = a.origen_id_local || '';
+        case 'numero_reclamo':
+          // Extraer el número del formato RECXXX
+          const numeroA = parseInt(this.getNumeroReclamo(a).replace('REC', '')) || 0;
+          const numeroB = parseInt(this.getNumeroReclamo(b).replace('REC', '')) || 0;
+          
+          // Usar sortDirection para determinar el orden
+          return this.sortDirection === 'desc' ? numeroB - numeroA : numeroA - numeroB;
+          break;
+        case 'fdr':
+          aValue = this.getFDR(a) || '';
+          bValue = this.getFDR(b) || '';
+          break;
+        case 'fecha_reclamo':
+          const fechaReclamoA = this.getFechaReclamo(a);
+          const fechaReclamoB = this.getFechaReclamo(b);
+          aValue = fechaReclamoA ? fechaReclamoA.getTime() : 0;
+          bValue = fechaReclamoB ? fechaReclamoB.getTime() : 0;
+          break;
+        case 'fecha_recepcion':
+          aValue = a.fecha_recepcion ? new Date(a.fecha_recepcion).getTime() : 0;
+          bValue = b.fecha_recepcion ? new Date(b.fecha_recepcion).getTime() : 0;
           break;
         case 'destino':
+          aValue = a.destino || '';
+          bValue = b.destino || '';
+          break;
+        case 'destino_id_bodega':
           aValue = a.destino_id_bodega || '';
-          bValue = a.destino_id_bodega || '';
+          bValue = b.destino_id_bodega || '';
           break;
-        case 'transporte':
+        case 'nombreDestino':
+          aValue = a.destino || '';
+          bValue = b.destino || '';
+          break;
+        case 'total_item':
+          aValue = a.total_item || 0;
+          bValue = b.total_item || 0;
+          break;
+        case 'valorizado':
+          aValue = a.valorizado || 0;
+          bValue = b.valorizado || 0;
+          break;
+        case 'ots':
+          aValue = a.ots || '';
+          bValue = b.ots || '';
+          break;
+        case 'transportista':
           aValue = a.transportista || '';
-          bValue = a.transportista || '';
+          bValue = b.transportista || '';
           break;
-        case 'estado':
+        case 'monto_pagado':
+          aValue = this.getMontoPagado(a) || 0;
+          bValue = this.getMontoPagado(b) || 0;
+          break;
+        case 'estado_reclamo':
           aValue = this.getEstadoReclamo(a);
           bValue = this.getEstadoReclamo(b);
           break;
@@ -911,7 +1063,7 @@ export class ReclamoTransportistaComponent implements OnInit {
   guardarReclamo() {
     // Validar que haya una incidencia seleccionada
     if (!this.incidenciaSeleccionada?.id) {
-      alert('No se ha seleccionado una incidencia válida');
+      this.mostrarToast('No se ha seleccionado una incidencia válida', 'error');
       return;
     }
 
@@ -921,13 +1073,13 @@ export class ReclamoTransportistaComponent implements OnInit {
     hoy.setHours(0, 0, 0, 0);
     
     if (fechaReclamo > hoy) {
-      alert('La fecha de reclamo no puede ser posterior a la fecha actual');
+      this.mostrarToast('La fecha de reclamo no puede ser posterior a la fecha actual', 'error');
       return;
     }
 
     // Validar campos requeridos
     if (!this.reclamoForm.fdr) {
-      alert('El campo FDR es requerido');
+      this.mostrarToast('El campo FDR es requerido', 'error');
       return;
     }
 
@@ -948,7 +1100,7 @@ export class ReclamoTransportistaComponent implements OnInit {
     this.reclamoTransportistaService.createReclamoTransportista(nuevoReclamo).subscribe({
       next: (response) => {
         console.log('Reclamo guardado exitosamente', response);
-        alert('Reclamo guardado correctamente');
+        this.mostrarToast('Reclamo guardado correctamente', 'success');
         
         // Cerrar el modal
         this.closeIngresarReclamoModal();
@@ -965,7 +1117,7 @@ export class ReclamoTransportistaComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al guardar el reclamo', error);
-        alert('Error al guardar el reclamo. Por favor, intente nuevamente.');
+        this.mostrarToast('Error al guardar el reclamo. Por favor, intente nuevamente.', 'error');
       }
     });
   }

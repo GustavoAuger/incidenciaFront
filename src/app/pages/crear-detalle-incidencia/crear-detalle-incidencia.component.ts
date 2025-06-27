@@ -79,11 +79,44 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     document.body.style.overflow = 'auto';
   }
 
+  // Variable para el toast
+  toast: any = null;
+
+  // Método para mostrar toast
+  mostrarToast(mensaje: string, tipo: 'success' | 'error' | 'warning', callback?: () => void) {
+    this.toast = {
+      mensaje: mensaje,
+      tipo: tipo,
+      visible: true
+    };
+    
+    // Ocultar después de 5 segundos y ejecutar callback si existe
+    setTimeout(() => {
+      this.toast = null;
+      if (callback) {
+        callback();
+      }
+    }, 25000);
+  }
+
+  // Método para obtener la clase del toast según el tipo
+  getToastClass(tipo: 'success' | 'error' | 'warning'): string {
+    switch (tipo) {
+      case 'success':
+        return 'alert-success';
+      case 'error':
+        return 'alert-error';
+      case 'warning':
+        return 'alert-warning';
+      default:
+        return 'alert-info';
+    }
+  }
+
   constructor(
     private router: Router,
     private incidenciaService: IncidenciaService,
     private route: ActivatedRoute,
-
   ) {
     // Deshabilitar el scroll de restauración del navegador
     if (typeof window !== 'undefined') {
@@ -111,7 +144,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
         };
       }
       // Obtener la ruta de origen del estado de navegación
-      this.fromRoute = state.fromRoute || 'ver-incidencias';
+      this.fromRoute = state.fromRoute;
     }
 
     // También verificar el parámetro de consulta 'from' como respaldo
@@ -163,7 +196,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
         },
         error: (error) => {
           console.error('Error al cargar guías:', error);
-          alert('Error al cargar las guías');
+          this.mostrarToast('Error al cargar las guías', 'error');
           this.completeLoading();
         }
       });
@@ -176,7 +209,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
           },
           error: (error) => {
             console.error('Error al obtener detalles:', error);
-            alert('Error al cargar los detalles de la incidencia');
+            this.mostrarToast('Error al cargar los detalles de la incidencia', 'error');
             this.completeLoading();
           },
           complete: () => {
@@ -215,8 +248,9 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
         if (incidenciaParcial) {
           this.incidenciaId = incidenciaParcial.id || 0;
           this.detalleIncidencia.idIncidencia = this.incidenciaId;
-        } else {
           this.router.navigate(['/crear-incidencia']);
+        } else {
+          this.fromRoute = this.router.url;
         }
       }
     });
@@ -237,13 +271,39 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     this.isLoading = false;
   }
 
-  navigateTo(route: string): void {    
+  // se almacena la ruta desde la que venimos, antes de navegar
+  navigateTo(route: string): void {
+    this.fromRoute = this.router.url; // Guarda la ruta actual antes de redirigir
+    
     if (route === '/crear-incidencia' && (this.detalles.length > 0 || this.hayDatosIngresados())) {
       if (confirm('¿Estás seguro de volver? Se perderán todos los datos ingresados.')) {
         this.router.navigate([route]);
       }
     } else {
       this.router.navigate([route]);
+    }
+  }
+  
+  // Si la ruta es la de creación, luego de terminar rediriges a la ruta almacenada
+  goBack(): void {
+    if (this.fromRoute) {
+      // Dividir la URL en baseRoute y queryParamsString
+      const [baseRoute, queryParamsString] = this.fromRoute.split('?');
+      
+      // Si hay parámetros de consulta, convertirlos en un objeto
+      const queryParams: { [key: string]: string } = queryParamsString
+        ? queryParamsString.split('&').reduce((acc, param) => {
+            const [key, value] = param.split('=');
+            acc[key] = decodeURIComponent(value); // Decodificar los valores
+            return acc;
+          }, {} as { [key: string]: string }) // Definir el tipo explícitamente aquí
+        : {};
+  
+      // Redirigir a la baseRoute con los queryParams
+      this.router.navigate([baseRoute], { queryParams });
+    } else {
+      // Si no hay ruta guardada, redirigir a una ruta por defecto (por ejemplo, la página principal)
+      this.router.navigate(['/']);
     }
   }
 
@@ -288,7 +348,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     this.limpiarErrores();
     // Validar campos requeridos
     if (!this.detalleIncidencia.tipoDiferencia || !this.detalleIncidencia.sku || !this.detalleIncidencia.cantidad || !this.detalleIncidencia.numGuia) {
-      alert('Completar campos obligatorios');
+      this.mostrarToast('Completar campos obligatorios', 'warning');
           // Marcar los campos que no están completos
       if (!this.detalleIncidencia.tipoDiferencia) {
         const elementos = document.getElementsByClassName("tipoDiferencia");
@@ -323,7 +383,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     }
 
     if (!this.detalleIncidencia.descripcion) {
-      alert('Busque el producto para obtener la descripción');
+      this.mostrarToast('Busque el producto para obtener la descripción', 'warning');
       return;
     }
 
@@ -377,7 +437,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
           const cantidadEnGuia = Number(skuEnGuia.total);
   
           if (cantidadIngresada > cantidadEnGuia) {
-            alert(`La cantidad faltante no puede ser mayor a la cantidad en la guía: ${cantidadEnGuia}`);
+            this.mostrarToast(`La cantidad faltante no puede ser mayor a la cantidad en la guía: ${cantidadEnGuia}`, 'error');
             this.detalleIncidencia.cantidad = null;
             const elementos = document.getElementsByClassName("cantidad");
             for (let i = 0; i < elementos.length; i++) {
@@ -407,8 +467,10 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
   }
 
   generarIncidencia() {
+    this.isLoading = true;
     if (this.detalles.length === 0) {
-      alert('Debe agregar al menos un detalle antes de generar la incidencia');
+      this.mostrarToast('Debe agregar al menos un detalle antes de generar la incidencia', 'warning');
+      this.isLoading = false;
       return;
     }
 
@@ -416,7 +478,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     const incidenciaParcial = this.incidenciaService.getIncidenciaParcial();
     
     if (!incidenciaParcial) {
-      alert('Error: No se encontraron los datos de la incidencia');
+      this.mostrarToast('Error: No se encontraron los datos de la incidencia', 'error');
+      this.isLoading = false;
       return;
     }
     // Calcular totales
@@ -453,12 +516,15 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     // Llamar al servicio para crear la incidencia
     this.incidenciaService.createIncidenciaCompleta(datosParaEnviar, file).subscribe({
       next: (response) => {
-        alert(response.mensaje);
-        this.navigateTo(this.fromRoute);
+        this.mostrarToast(response.mensaje, 'success', () => {
+          this.navigateTo(this.fromRoute);
+          this.isLoading = false;
+        });
       },
       error: (error) => {
         console.error('Error al crear la incidencia:', error);
-        alert('Error al crear la incidencia');
+        this.mostrarToast('Error al crear la incidencia', 'error');
+        this.isLoading = false;
       }
     });
 }
@@ -496,13 +562,13 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
           console.log('La guía no pertenece a la bodega del usuario');
           console.log(idBodegaDestino);
           console.log(bodegaUsuario);
-          alert('La guía ingresada no tiene como destino su bodega');
+          this.mostrarToast('La guía ingresada no tiene como destino su bodega', 'error');
           this.detalleIncidencia.numGuia = null;
           this.skuEnabled = false;
         }
       } else {
         console.log('Guía no encontrada');
-        alert('El número de guía ingresado no existe');
+        this.mostrarToast('El número de guía ingresado no existe', 'error');
         this.detalleIncidencia.numGuia = null;
         this.skuEnabled = false;
       }
@@ -521,12 +587,12 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
 
   buscarProducto() {
     if (!this.detalleIncidencia.sku) {
-      alert('Ingrese un SKU para buscar');
+      this.mostrarToast('Ingrese un SKU para buscar', 'warning');
       return;
     }
 
     if (!this.detalleIncidencia.numGuia) {
-      alert('Primero debe seleccionar una guía');
+      this.mostrarToast('Primero debe seleccionar una guía', 'warning');
       return;
     }
 
@@ -536,7 +602,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     );
 
     if (skuExistente) {
-      alert('Este SKU ya ha sido agregado a los detalles');
+      this.mostrarToast('Este SKU ya ha sido agregado a los detalles', 'warning');
       return;
     }
 
@@ -546,7 +612,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     );
 
     if (!guiaSeleccionada) {
-      alert('No se encontró la guía seleccionada');
+      this.mostrarToast('No se encontró la guía seleccionada', 'error');
       return;
     }
 
@@ -556,7 +622,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     );
 
     if (!skuEnGuia && this.detalleIncidencia.tipoDiferencia === 'faltante') {
-      alert('El SKU ingresado no existe en la guía seleccionada');
+      this.mostrarToast('El SKU ingresado no existe en la guía seleccionada', 'error');
       this.detalleIncidencia.sku = null;
       this.detalleIncidencia.descripcion = '';
       this.fieldsEnabled = false;
@@ -575,22 +641,44 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
           this.detalleIncidencia.descripcion = productoEncontrado.descripcion;
           this.fieldsEnabled = true;
         } else {
-          alert('No se encontró la descripción del producto');
+          this.mostrarToast('No se encontró la descripción del producto', 'error');
           this.detalleIncidencia.descripcion = '';
           this.fieldsEnabled = false;
         }
       },
       error: (error) => {
         console.error('Error al buscar el producto:', error);
-        alert('Error al buscar el producto');
+        this.mostrarToast('Error al buscar el producto', 'error');
         this.fieldsEnabled = false;
       }
     });
   }
+    // Método que se ejecuta en el evento keydown
+    validateNumberInput(event: KeyboardEvent): void {
+      const allowedKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'];
+      const charCode = event.charCode || event.keyCode;
+  
+      // Permitir las teclas de borrado, navegación, etc.
+      if (allowedKeys.indexOf(event.key) !== -1) {
+        return;
+      }
+  
+      // Verificar si el carácter ingresado es un número
+      if (event.key && !/[0-9]/.test(event.key)) {
+        event.preventDefault(); // Bloquear si no es un número
+      }
+  
+      // Validar que no se ingresen números negativos (con signo '-')
+      if (charCode === 45) {
+        event.preventDefault(); // Bloquear el signo '-'
+      }
+    } //validaciones varias para campos numericos detalle
+
+
  // metodo para actualizar el detalle de incidencia
   actualizarIncidencia() {
     if (this.detalles.length === 0) {
-      alert('Debe tener al menos un detalle en la incidencia');
+      this.mostrarToast('Debe tener al menos un detalle en la incidencia', 'warning');
       return;
     }
 
@@ -613,15 +701,15 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     this.incidenciaService.actualizarDetallesIncidencia(datosActualizados).subscribe({
       next: (response) => {
         if (response) {
-          alert('Incidencia actualizada con éxito');
+          this.mostrarToast('Incidencia actualizada con éxito', 'success');
           this.router.navigate(['/home']);
         } else {
-          alert('Error al actualizar la incidencia');
+          this.mostrarToast('Error al actualizar la incidencia', 'error');
         }
       },
       error: (error) => {
         console.error('Error al actualizar la incidencia:', error);
-        alert('Error al actualizar la incidencia');
+        this.mostrarToast('Error al actualizar la incidencia', 'error');
       }
     });
   }

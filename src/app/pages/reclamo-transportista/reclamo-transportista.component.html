@@ -85,7 +85,7 @@
               </select>
             </div>
             <div class="filter-group">
-                <label>OTS</label>
+                <label>OTS (Orden de Transporte Simple)</label>
                 <input type="text" class="text-input text-xs p-1 h-8" [(ngModel)]="filtros.ots" (ngModelChange)="aplicarFiltros()">
             </div>
             <div class="filter-group">
@@ -216,11 +216,17 @@
                   <i class="fas {{ getSortIcon('transportista')}} ml-1"></i>
                 </div>
               </th>
-              <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">
-                Monto Pagado
+              <th (click)="sortTable('monto_pagado')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+                <div class="flex items-center justify-center">
+                  <span>Monto Pagado</span>
+                  <i class="fas {{ getSortIcon('monto_pagado') }} ml-1"></i>
+                </div>
               </th>
-              <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">
-                Estado Reclamo
+              <th (click)="sortTable('estado_reclamo')" style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200">
+                <div class="flex items-center justify-center">
+                  <span>Estado Reclamo</span>
+                  <i class="fas {{ getSortIcon('estado_reclamo') }} ml-1"></i>
+                </div>
               </th>
               <th style="font-size: 10px;" class="px-3 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider text-center">Acción</th>
             </tr>
@@ -287,9 +293,9 @@
                 <div class="flex items-center justify-center h-full">
                   <span [ngClass]="{
                     'px-2 py-1 rounded-full text-xs': true,
-                    'bg-yellow-100 text-yellow-800': getEstadoReclamo(incidencia) === 'Reclamado',
-                    'bg-green-100 text-green-800': getEstadoReclamo(incidencia) === 'Pagado',
-                    'bg-red-100 text-red-800': getEstadoReclamo(incidencia) === 'Rechazado'
+                    'bg-yellow-100 text-yellow-800': getEstadoReclamo(incidencia) === 'reclamado',
+                    'bg-green-100 text-green-800': getEstadoReclamo(incidencia) === 'pagado',
+                    'bg-red-100 text-red-800': getEstadoReclamo(incidencia) === 'rechazado'
                   }">
                     {{ getEstadoReclamo(incidencia) | initCapFirst }}
                   </span>
@@ -301,7 +307,9 @@
                     <button (click)="verDetalle(incidencia)" class="btn btn-ghost btn-xs hover:bg-transparent" title="Ver detalle incidencia">
                       <i class="fas fa-eye" style="color: #00bcd4;"></i>
                     </button>
-                    <button (click)="abrirEditarReclamo(incidencia)" class="btn btn-ghost btn-xs hover:bg-transparent" title="Editar reclamo">
+                    <button (click)="abrirEditarReclamo(incidencia)" 
+                    *ngIf="getEstadoReclamo(incidencia) === 'reclamado'"
+                    class="btn btn-ghost btn-xs hover:bg-transparent" title="Editar reclamo">
                       <i class="fas fa-edit" style="color: #4CAF50;"></i>
                     </button>
                   </div>
@@ -378,7 +386,7 @@
               </select>
             </div>
             <div class="filter-group">
-                <label>OTS</label>
+                <label>OTS (Orden de Transporte Simple)</label>
                 <input type="text" class="text-input text-xs p-1 h-8" [(ngModel)]="filtros.ots" (ngModelChange)="aplicarFiltros()">
             </div>
             <div class="filter-group">
@@ -633,6 +641,15 @@
   </div>
 </div>
 
+<!-- Toast -->
+<div class="toast toast-center toast-middle" *ngIf="toast?.visible">
+  <div class="alert" [ngClass]="getToastClass(toast.tipo)">
+    <div class="flex-1">
+      <label>{{ toast.mensaje }}</label>
+    </div>
+  </div>
+</div>
+
 <!-- Modal para ingresar reclamo -->
 <div class="modal" [class.modal-open]="ingresarReclamoModal">
   <div class="modal-box max-w-2xl">
@@ -641,7 +658,7 @@
       <!-- Campo FDR -->
       <div class="form-control w-full">
         <label class="label">
-          <span class="label-text font-medium">FDR</span>
+          <span class="label-text font-medium">FDR (Formulario de Reclamo)</span>
           <span class="label-text-alt text-error">*</span>
         </label>
         <input 
@@ -738,6 +755,21 @@
         [disabled]="!hayCambiosEnFormulario()"
         (click)="guardarCambiosReclamo()">
         Guardar Cambios
+      </button>
+    </div>
+  </div>
+</div>
+<!-- Modal de Confirmación -->
+<div class="modal" [class.modal-open]="confirmarModal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">Confirmación</h3>
+    <p class="mb-4">{{ mensajeConfirmacion }}</p>
+    <div class="modal-action">
+      <button class="btn btn-ghost" (click)="cerrarConfirmacion()">Cancelar</button>
+      <button 
+        class="btn bg-cyan-500 hover:bg-cyan-600 text-white border-0" 
+        (click)="guardarCambiosReclamoConfirmado()">
+        Confirmar
       </button>
     </div>
   </div>
