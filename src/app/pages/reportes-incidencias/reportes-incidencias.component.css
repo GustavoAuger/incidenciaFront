@@ -27,28 +27,13 @@
 }
 
 /* Estilos específicos para cada pestaña */
-.tab-button.resumen.active {
+.tab-button.resumen.active,
+.tab-button.detalle.active,
+.tab-button.graficos.active,
+.tab-button.exportar.active {
   border-top-color: #00bcd4;
   border-top-width: 3px;
   color: #00bcd4;
-}
-
-.tab-button.detalle.active {
-  border-top-color: #4caf50;
-  border-top-width: 3px;
-  color: #4caf50;
-}
-
-.tab-button.graficos.active {
-  border-top-color: #9c27b0;
-  border-top-width: 3px;
-  color: #9c27b0;
-}
-
-.tab-button.exportar.active {
-  border-top-color: #ff9800;
-  border-top-width: 3px;
-  color: #ff9800;
 }
 
 /* Efecto hover para pestañas inactivas */

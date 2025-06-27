@@ -242,10 +242,10 @@
 
           <!-- Pestaña Incidencias por Bodega -->
           <div *ngIf="activeTab === 'detalle'" class="p-6 bg-gray-50 min-h-screen">
-            <!-- Filtros en la parte superior -->
+            <!-- Filtros en la parte superior bodegas -->
             <div class="filters-container mb-6">
               <div class="flex flex-col sm:flex-row justify-start items-start sm:items-end gap-4 flex-wrap">
-                <!-- Contenedor de fechas -->
+                <!-- Contenedor de fechas bodegas -->
                 <div class="flex flex-col sm:flex-row gap-4">
                   <div class="filter-group">
                     <label>Fecha Recepción</label>
@@ -272,7 +272,7 @@
                   </div>
                 </div>
                 
-                <!-- Selector de bodega al lado de las fechas -->
+                <!-- Selector de bodega -->
                 <div class="filter-group">
                   <label class="block text-sm font-medium text-gray-700 mb-1">Bodega</label>
                   <select class="select select-bordered select-sm w-full sm:w-64" 
@@ -284,6 +284,11 @@
                     </option>
                   </select>
                 </div>
+                <!-- Total de incidencias - Alineado a la derecha -->
+                <div class="bg-gray-50 px-4 py-3 rounded-md border border-gray-200 min-w-[200px] text-right ml-auto">
+                  <p class="text-sm font-medium text-gray-500">Total de incidencias</p>
+                  <p class="text-2xl font-bold text-gray-800">{{ metricasBodega.totalBodega || 0 }}</p>
+                </div>   
               </div>
             </div>
 
