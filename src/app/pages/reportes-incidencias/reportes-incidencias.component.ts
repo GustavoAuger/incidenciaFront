@@ -875,6 +875,7 @@ export class ReportesIncidenciasComponent implements OnInit {
     id_transportista: number;
     nombre: string;
     totalIncidencias: number;
+    totalReclamos?: number;  // Add this line
     porcentaje?: number;
     recuentoEstados: { [key: string]: number };
   }> = [];
@@ -947,14 +948,20 @@ export class ReportesIncidenciasComponent implements OnInit {
       this.fechaDesdeRanking = fechaDesde.toISOString().split('T')[0];
     }
     
-    // Get transportistas with their claims status and incidences
+    // Obtener el total de reclamos en la bd
+    const totalReclamosEnSistema = this.reclamoTransportistaService.getReclamosTransportista().pipe(
+      map(reclamos => reclamos.length)
+    );
+
+    // Obtener transportistas con sus reclamos y incidencias
     forkJoin([
       this.incidenciaService.getTransportistas(),
       this.reclamoTransportistaService.getEstadosReclamo(),
       this.reclamoTransportistaService.getReclamosTransportista(),
-      this.incidenciaService.getAllIncidencias()
+      this.incidenciaService.getAllIncidencias(),
+      totalReclamosEnSistema
     ]).pipe(
-      switchMap(([transportistas, estadosReclamo, reclamos, todasLasIncidencias]) => {
+      switchMap(([transportistas, estadosReclamo, reclamos, todasLasIncidencias, totalReclamos]) => {
         if (!transportistas || transportistas.length === 0) {
           this.error = 'No se encontraron transportistas';
           return of([]);
@@ -1060,11 +1067,13 @@ export class ReportesIncidenciasComponent implements OnInit {
           porcentaje: 0 // Will be calculated below
         }));
         
-        // Calculate percentage of total incidences for each transportista
-        const totalIncidencias = this.rankingTransportistas.reduce((sum, t) => sum + t.totalIncidencias, 0);
+        // Calculate percentage of total claims for each transportista
+        // Calcular el total de reclamos de todos los transportistas
+        const totalReclamosEnSistema = this.rankingTransportistas.reduce((total, item) => total + item.totalReclamos!, 0);
+
         this.rankingTransportistas = this.rankingTransportistas.map(t => ({
           ...t,
-          porcentaje: totalIncidencias > 0 ? Math.round((t.totalIncidencias / totalIncidencias) * 100) : 0
+          porcentaje: totalReclamosEnSistema > 0 ? Math.round((t.totalReclamos! / totalReclamosEnSistema) * 100) : 0
         }));
         
         // Update the chart with top 4 transportistas by incidences
@@ -1087,18 +1096,18 @@ export class ReportesIncidenciasComponent implements OnInit {
       return;
     }
 
-    // Take top 4 transportistas by number of incidences
+    // Tomar los 4 transportistas con más incidencias
     const topTransportistas = [...this.rankingTransportistas]
       .sort((a, b) => b.totalIncidencias - a.totalIncidencias)
       .slice(0, 4);
 
-    // Update chart data with just the total incidences for the top 4
+    // Usar directamente el porcentaje que ya calculamos en cargarRankingTransportistas
     this.barChartDataTransportistas = {
       labels: topTransportistas.map(t => t.nombre),
       datasets: [
         {
-          label: 'Total de incidencias',
-          data: topTransportistas.map(t => t.totalIncidencias),
+          label: '% del total',
+          data: topTransportistas.map(t => t.porcentaje || 0),
           backgroundColor: 'rgba(20, 184, 166, 0.7)',
           hoverBackgroundColor: 'rgba(13, 148, 136, 0.9)',
           borderColor: 'rgba(20, 184, 166, 1)',
@@ -1109,23 +1118,24 @@ export class ReportesIncidenciasComponent implements OnInit {
       ]
     };
 
-    // Update chart options
+    // Actualizar opciones del gráfico
     this.barChartOptionsTransportistas = {
       responsive: true,
       indexAxis: 'y',
       scales: {
         x: {
           beginAtZero: true,
+          max: 100,
           title: {
             display: true,
-            text: 'Cantidad de incidencias',
+            text: '% del total',
             font: {
               weight: 'bold'
             }
           },
           ticks: {
-            stepSize: 1,
-            precision: 0
+            callback: (value) => `${value}%`,
+            stepSize: 20
           }
         },
         y: {
@@ -1145,16 +1155,15 @@ export class ReportesIncidenciasComponent implements OnInit {
         tooltip: {
           callbacks: {
             label: (context) => {
-              const label = context.dataset.label || '';
               const value = context.raw as number;
-              return `${label}: ${value}`;
+              return `% del total: ${value}%`;
             }
           }
         }
       }
     };
 
-    // Force chart update
+    // Forzar actualización del gráfico
     if (this.chart) {
       this.chart.update();
     }

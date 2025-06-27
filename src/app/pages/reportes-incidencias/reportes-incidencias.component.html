@@ -631,7 +631,7 @@
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Incidencias</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Reclamos</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">Distribución de Reclamos</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">% del Total</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">% Total Reclamos</th>
                   </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -660,29 +660,29 @@
                     <td class="px-6 py-4">
                       <div class="w-full bg-gray-100 rounded-full h-6 overflow-hidden">
                         <div class="flex h-full">
-                          <!-- Reclamado (Azul) -->
+                          <!-- Reclamado (Morado) -->
                           <div *ngIf="transportista.recuentoEstados['Reclamado'] > 0" 
-                            [style.width.%]="(transportista.recuentoEstados['Reclamado'] / transportista.totalIncidencias) * 100"
-                               class="h-full bg-blue-500 flex items-center justify-center text-white text-xs font-medium"
+                            [style.width.%]="(transportista.recuentoEstados['Reclamado'] / transportista.totalReclamos!) * transportista.porcentaje!"
+                               class="h-full bg-purple-600 flex items-center justify-center text-white text-xs font-medium"
                                [title]="'Reclamado: ' + transportista.recuentoEstados['Reclamado']">
                             {{ transportista.recuentoEstados['Reclamado'] }}
                           </div>
-                          <!-- Pagado (Verde) -->
+                          <!-- Pagado (Verde turquesa) -->
                           <div *ngIf="transportista.recuentoEstados['Pagado'] > 0"
-                               [style.width.%]="(transportista.recuentoEstados['Pagado'] / transportista.totalIncidencias) * 100"
-                               class="h-full bg-green-500 flex items-center justify-center text-white text-xs font-medium"
+                               [style.width.%]="(transportista.recuentoEstados['Pagado'] / transportista.totalReclamos!) * transportista.porcentaje!"
+                               class="h-full bg-teal-500 flex items-center justify-center text-white text-xs font-medium"
                                [title]="'Pagado: ' + transportista.recuentoEstados['Pagado']">
                             {{ transportista.recuentoEstados['Pagado'] }}
                           </div>
                           <!-- Rechazado (Rojo) -->
                           <div *ngIf="transportista.recuentoEstados['Rechazado'] > 0"
-                               [style.width.%]="(transportista.recuentoEstados['Rechazado'] / transportista.totalIncidencias) * 100"
+                               [style.width.%]="(transportista.recuentoEstados['Rechazado'] / transportista.totalReclamos!) * transportista.porcentaje!"
                                class="h-full bg-red-500 flex items-center justify-center text-white text-xs font-medium"
                                [title]="'Rechazado: ' + transportista.recuentoEstados['Rechazado']">
                             {{ transportista.recuentoEstados['Rechazado'] }}
                           </div>
                           <!-- Sin reclamos (Gris) -->
-                          <div *ngIf="transportista.totalIncidencias === 0"
+                          <div *ngIf="transportista.totalReclamos === 0"
                                class="h-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs w-full">
                             Sin reclamos
                           </div>
@@ -691,11 +691,11 @@
                       <!-- Leyenda de colores -->
                       <div class="flex flex-wrap gap-2 mt-1 text-xs text-gray-500">
                         <div *ngIf="transportista.recuentoEstados['Reclamado'] > 0" class="flex items-center">
-                          <span class="inline-block w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
+                          <span class="inline-block w-2 h-2 bg-purple-600 rounded-full mr-1"></span>
                           Reclamado: {{ transportista.recuentoEstados['Reclamado'] }}
                         </div>
                         <div *ngIf="transportista.recuentoEstados['Pagado'] > 0" class="flex items-center">
-                          <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                          <span class="inline-block w-2 h-2 bg-teal-500 rounded-full mr-1"></span>
                           Pagado: {{ transportista.recuentoEstados['Pagado'] }}
                         </div>
                         <div *ngIf="transportista.recuentoEstados['Rechazado'] > 0" class="flex items-center">
