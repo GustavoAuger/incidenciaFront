@@ -9,6 +9,7 @@ import { User } from './interfaces/user';
 import { Rol } from './interfaces/rol';
 import { InitCapFirstPipe } from './pipes/init-cap-first.pipe';
 import { FormsModule } from '@angular/forms';
+import { Bodega } from './interfaces/bodega';
 
 @Component({
   selector: 'app-root',
@@ -41,6 +42,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private _isAdmin: boolean = false;
 
+  private bodegas: Bodega[] = [];
+  private bodegasLoaded: boolean = false;
+
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -55,6 +59,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.updateAuthStatus();
     });
 
+    this.loadBodegas();
     this.loadTiendaBodegas();
   }
 
@@ -173,35 +178,30 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
   
+  private loadBodegas(): void {
+    this.userService.getBodegas().subscribe({
+      next: (bodegas: Bodega[]) => {
+        this.bodegas = bodegas;
+        this.bodegasLoaded = true;
+      },
+      error: (error) => {
+        console.error('Error al cargar las bodegas:', error);
+        this.bodegasLoaded = true; // Asegurarse de no bloquear la aplicación
+      }
+    });
+  }
+
   private getBodegaName(bodegaId: number): string {
-    // Mapeo de IDs de bodega a nombres
-    const bodegasMap: {[key: number]: string} = {
-      1: 'LOCAL BELLOTO',
-      2: 'LOCAL MARINA',
-      3: 'LOCAL MELIPILLA',
-      4: 'LOCAL CONCEPCION CENTRO',
-      5: 'LOCAL LA SERENA',
-      6: 'LOCAL ANTOFAGASTA',
-      7: 'LOCAL LOS ANGELES',
-      8: 'LOCAL RANCAGUA',
-      9: 'LOCAL TALCA',
-      10: 'LOCAL CHILLAN',
-      11: 'LOCAL CURICO',
-      12: 'LOCAL ARICA',
-      13: 'LOCAL PUERTO MONTT',
-      14: 'LOCAL PATIO MAIPU',
-      15: 'LOCAL PLAZA VESPUCIO',
-      16: 'LOCAL PLAZA SUR',
-      17: 'LOCAL IQUIQUE',
-      18: 'LOCAL VALDIVIA',
-      19: 'LOCAL TEMUCO',
-      20: 'LOCAL CALAMA',
-      21: 'BODEGA CENTRAL',
-      22: 'BODEGA DEVOLUCIONES',
-      23: 'BODEGA VIRTUAL'
-    };
+    // Si no se han cargado las bodegas o no hay ID, retornar un valor por defecto
+    if (!this.bodegasLoaded || !bodegaId) {
+      return `Bodega ${bodegaId}`;
+    }
+
+    // Buscar la bodega por ID
+    const bodega = this.bodegas.find(b => b.id == bodegaId);
     
-    return bodegasMap[bodegaId] || `Bodega ${bodegaId}`;
+    // Si se encuentra la bodega, retornar su nombre, de lo contrario un valor por defecto
+    return bodega ? bodega.nombre : `Bodega ${bodegaId}`;
   }
 
   private capitalizeFirstLetter(string: string): string {
