@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { NgChartsModule, BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { IncidenciaService } from '../../services/incidencia.service';
-import { Incidencia } from '../../interfaces/incidencia';
 import { MetricasResumenIncidencia } from '../../interfaces/metricas-resumen-incidencia';
 import { MetricasBodegaIncidencia } from '../../interfaces/metricas-bodega-incidencia';
 import { Bodega } from '../../interfaces/bodega';
@@ -13,7 +12,7 @@ import { switchMap, map, catchError } from 'rxjs/operators';
 import { forkJoin, of, Observable } from 'rxjs';
 import { GetIncidencia } from '../../interfaces/get-incidencia';
 import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
-import { Transportista } from '../../interfaces/transportista';
+import { ReclamoTransportistaService } from '../../services/reclamo-transportista.service';
 
 @Component({
   selector: 'app-reportes-incidencias',
@@ -245,7 +244,8 @@ export class ReportesIncidenciasComponent implements OnInit {
 
   constructor(
     private incidenciaService: IncidenciaService,
-    private userService: UserService
+    private userService: UserService,
+    private reclamoTransportistaService: ReclamoTransportistaService
   ) {
     // Inicializar fechas
     const fechaHasta = new Date();
@@ -873,8 +873,8 @@ export class ReportesIncidenciasComponent implements OnInit {
     id_transportista: number;
     nombre: string;
     totalIncidencias: number;
-    porcentaje: number;
-    incidenciasPorEstado: { [key: string]: number };
+    porcentaje?: number;
+    recuentoEstados: { [key: string]: number };
   }> = [];
 
   public barChartOptionsTransportistas: ChartConfiguration['options'] = {
@@ -945,41 +945,120 @@ export class ReportesIncidenciasComponent implements OnInit {
       this.fechaDesdeRanking = fechaDesde.toISOString().split('T')[0];
     }
     
-    // Get all transportistas
-    this.incidenciaService.getTransportistas().pipe(
-      switchMap(transportistas => {
+    // Get transportistas with their claims status and incidences
+    forkJoin([
+      this.incidenciaService.getTransportistas(),
+      this.reclamoTransportistaService.getEstadosReclamo(),
+      this.reclamoTransportistaService.getReclamosTransportista(),
+      this.incidenciaService.getAllIncidencias()
+    ]).pipe(
+      switchMap(([transportistas, estadosReclamo, reclamos, todasLasIncidencias]) => {
         if (!transportistas || transportistas.length === 0) {
-          this.error = 'No se encontraron transportistas para el ranking';
-          this.cargandoRanking = false;
-          this.isLoading = false;
+          this.error = 'No se encontraron transportistas';
           return of([]);
         }
         
-        // For each transportista, get their incidences
-        const requests = transportistas.map(transportista => 
-          this.incidenciaService.getAllIncidencias().pipe(
-            map(incidencias => 
-              incidencias.filter(i => 
-                i.id_transportista == transportista.id && 
-                this.filtrarIncidenciasPorFecha(
-                  [i], 
-                  this.fechaDesdeRanking, 
-                  this.fechaHastaRanking
-                ).length > 0
-              )
-            ),
-            map(incidencias => ({
-              transportista,
-              incidencias
-            }))
-          )
-        );
+        // Filtrar incidencias por fecha
+        const incidencias = todasLasIncidencias.filter(incidencia => {
+          if (!incidencia.fecha_recepcion) return false;
+          const fechaIncidencia = new Date(incidencia.fecha_recepcion).toISOString().split('T')[0];
+          return (!this.fechaDesdeRanking || fechaIncidencia >= this.fechaDesdeRanking) &&
+                 (!this.fechaHastaRanking || fechaIncidencia <= this.fechaHastaRanking);
+        });
         
-        return forkJoin(requests);
+        // Count incidences per transportista
+        const incidenciasPorTransportista = new Map<number, number>();
+        incidencias.forEach(incidencia => {
+          if (incidencia.id_transportista) {
+            const count = incidenciasPorTransportista.get(incidencia.id_transportista) || 0;
+            incidenciasPorTransportista.set(incidencia.id_transportista, count + 1);
+          }
+        });
+        
+        // Map incidencia IDs to transportista IDs for claim lookup
+        const incidenciaTransportistaMap = new Map<number, number>();
+        incidencias.forEach(incidencia => {
+          if (incidencia.id_transportista) {
+            incidenciaTransportistaMap.set(incidencia.id, incidencia.id_transportista);
+          }
+        });
+        
+        // Group claims by transportista
+        const transportistaReclamos = new Map<number, any[]>();
+        reclamos.forEach(reclamo => {
+          const transportistaId = incidenciaTransportistaMap.get(reclamo.id_incidencia);
+          if (transportistaId) {
+            if (!transportistaReclamos.has(transportistaId)) {
+              transportistaReclamos.set(transportistaId, []);
+            }
+            transportistaReclamos.get(transportistaId)?.push(reclamo);
+          }
+        });
+        
+        // Process each transportista with both incidences and claims
+        const transportistasConDatos = transportistas
+          .filter(t => incidenciasPorTransportista.has(t.id))  
+          .map(transportista => {
+            const totalIncidencias = incidenciasPorTransportista.get(transportista.id) || 0;
+            const reclamosTransportista = transportistaReclamos.get(transportista.id) || [];
+            
+            // Count claims by status
+            const recuentoEstados: {[key: string]: number} = {
+              'Reclamado': 0,
+              'Aceptado': 0,
+              'Rechazado': 0,
+              'En revisión': 0
+            };
+            
+            reclamosTransportista.forEach(reclamo => {
+              const estado = estadosReclamo.find(e => e.id === reclamo.id_estado);
+              if (estado) {
+                // Map to simplified status names
+                let estadoSimple = estado.nombre;
+                if (estado.nombre.toLowerCase().includes('acept')) estadoSimple = 'Aceptado';
+                else if (estado.nombre.toLowerCase().includes('rechaz')) estadoSimple = 'Rechazado';
+                else if (estado.nombre.toLowerCase().includes('revis')) estadoSimple = 'En revisión';
+                else estadoSimple = 'Reclamado';
+                
+                recuentoEstados[estadoSimple] = (recuentoEstados[estadoSimple] || 0) + 1;
+              }
+            });
+            
+            return {
+              transportista,
+              totalIncidencias,
+              totalReclamos: reclamosTransportista.length,
+              recuentoEstados
+            };
+          });
+        
+        return of(transportistasConDatos);
       })
     ).subscribe({
       next: (resultados) => {
-        this.procesarRankingTransportistas(resultados);
+        // Sort by number of incidences (descending)
+        const transportistasOrdenados = [...resultados].sort((a, b) => b.totalIncidencias - a.totalIncidencias);
+        
+        // Update the rankingTransportistas array with the new data
+        this.rankingTransportistas = transportistasOrdenados.map(item => ({
+          id_transportista: item.transportista.id,
+          nombre: item.transportista.nombre,
+          totalIncidencias: item.totalIncidencias,
+          totalReclamos: item.totalReclamos,
+          recuentoEstados: item.recuentoEstados,
+          porcentaje: 0 // Will be calculated below
+        }));
+        
+        // Calculate percentage of total incidences for each transportista
+        const totalIncidencias = this.rankingTransportistas.reduce((sum, t) => sum + t.totalIncidencias, 0);
+        this.rankingTransportistas = this.rankingTransportistas.map(t => ({
+          ...t,
+          porcentaje: totalIncidencias > 0 ? Math.round((t.totalIncidencias / totalIncidencias) * 100) : 0
+        }));
+        
+        // Update the chart with top 4 transportistas by incidences
+        this.actualizarGraficoTransportistas();
+        
         this.cargandoRanking = false;
         this.isLoading = false;
       },
@@ -991,72 +1070,24 @@ export class ReportesIncidenciasComponent implements OnInit {
       }
     });
   }
-
-  private procesarRankingTransportistas(
-    resultados: Array<{ transportista: Transportista; incidencias: GetIncidencia[] }>
-  ): void {
-    // Calculate totals per transportista
-    this.rankingTransportistas = resultados
-      .filter(({ incidencias }) => incidencias.length > 0) // Only include transportistas with incidences
-      .map(({ transportista, incidencias }) => {
-        const incidenciasPorEstado = {
-          'Nuevas': 0,
-          'En Revisión': 0,
-          'Aprobadas': 0,
-          'Rechazadas': 0
-        };
-        
-        incidencias.forEach(incidencia => {
-          switch (incidencia.id_estado) {
-            case 1: incidenciasPorEstado['Nuevas']++; break;
-            case 2: incidenciasPorEstado['En Revisión']++; break;
-            case 4: incidenciasPorEstado['Aprobadas']++; break;
-            case 3: incidenciasPorEstado['Rechazadas']++; break;
-          }
-        });
-        
-        const totalIncidencias = incidencias.length;
-        
-        return {
-          id_transportista: transportista.id,
-          nombre: transportista.nombre,
-          totalIncidencias,
-          porcentaje: 0, // Will be calculated later
-          incidenciasPorEstado
-        };
-      });
-    
-    // Sort by total incidences (descending)
-    this.rankingTransportistas.sort((a, b) => b.totalIncidencias - a.totalIncidencias);
-    
-    // Calculate percentages
-    const totalGeneral = this.rankingTransportistas.reduce((sum, t) => sum + t.totalIncidencias, 0);
-    this.rankingTransportistas = this.rankingTransportistas.map(transportista => ({
-      ...transportista,
-      porcentaje: totalGeneral > 0 ? Math.round((transportista.totalIncidencias / totalGeneral) * 100) : 0
-    }));
-    
-    // Update chart
-    this.actualizarGraficoTransportistas();
-  }
-
+  
   actualizarGraficoTransportistas(): void {
     if (!this.rankingTransportistas || this.rankingTransportistas.length === 0) {
       return;
     }
 
-    // Tomar los primeros 10 transportistas o menos
+    // Take top 4 transportistas by number of incidences
     const topTransportistas = [...this.rankingTransportistas]
       .sort((a, b) => b.totalIncidencias - a.totalIncidencias)
-      .slice(0, 10);
+      .slice(0, 4);
 
-    // Actualizar datos del gráfico
+    // Update chart data with just the total incidences for the top 4
     this.barChartDataTransportistas = {
       labels: topTransportistas.map(t => t.nombre),
       datasets: [
         {
-          data: topTransportistas.map(t => t.totalIncidencias),
           label: 'Total de incidencias',
+          data: topTransportistas.map(t => t.totalIncidencias),
           backgroundColor: 'rgba(20, 184, 166, 0.7)',
           hoverBackgroundColor: 'rgba(13, 148, 136, 0.9)',
           borderColor: 'rgba(20, 184, 166, 1)',
@@ -1067,10 +1098,54 @@ export class ReportesIncidenciasComponent implements OnInit {
       ]
     };
 
-    // Forzar actualización del gráfico
+    // Update chart options
+    this.barChartOptionsTransportistas = {
+      responsive: true,
+      indexAxis: 'y',
+      scales: {
+        x: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Cantidad de incidencias',
+            font: {
+              weight: 'bold'
+            }
+          },
+          ticks: {
+            stepSize: 1,
+            precision: 0
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Transportistas',
+            font: {
+              weight: 'bold'
+            }
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              const label = context.dataset.label || '';
+              const value = context.raw as number;
+              return `${label}: ${value}`;
+            }
+          }
+        }
+      }
+    };
+
+    // Force chart update
     if (this.chart) {
       this.chart.update();
     }
   }
-  
 }
