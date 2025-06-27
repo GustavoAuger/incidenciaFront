@@ -9,6 +9,7 @@ import { Tipo_incidencia } from '../interfaces/tipo_incidencia';
 import { DetalleIncidencia } from '../interfaces/detalleIncidencia';
 import { Guia } from '../interfaces/guia';
 import { catchError, throwError } from 'rxjs';
+import { GetIncidencia } from '../interfaces/get-incidencia';
 
 // Interfaz para la respuesta del backend
 interface BackendResponse {
@@ -38,6 +39,10 @@ export class IncidenciaService {
   }
   getIncidencias(id_usuario: number): Observable<Incidencia[]> {
     return this.http.post<Incidencia[]>(this.apiUrl + '/getIncidencias', { id_usuario });
+  }
+
+  getAllIncidencias(): Observable<GetIncidencia[]> {
+    return this.http.get<GetIncidencia[]>(this.apiUrl + '/getAllIncidencias');
   }
 
   getEstadoIncidencias(): Observable<EstadoIncidencia[]>{
