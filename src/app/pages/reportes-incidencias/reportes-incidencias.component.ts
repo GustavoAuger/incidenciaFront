@@ -1030,21 +1030,15 @@ export class ReportesIncidenciasComponent implements OnInit {
               }
             });
             
-            // Calculate totalIncidencias as sum of Reclamado, Pagado, and Rechazado statuses
-            const totalIncidencias = recuentoEstados['Reclamado'] + 
-                                  recuentoEstados['Pagado'] + 
-                                  recuentoEstados['Rechazado'];
-            
-            // Calculate totalReclamos as sum of Reclamado, Aceptado, Pagado, and Rechazado statuses
-            const totalReclamos = recuentoEstados['Reclamado'] + 
-                               recuentoEstados['Aceptado'] +
-                               recuentoEstados['Pagado'] + 
-                               recuentoEstados['Rechazado'];
+            // Calculate totalReclamos as the sum of all statuses shown in the chart
+            const totalReclamos = Object.entries(recuentoEstados)
+              .filter(([key]) => ['Reclamado', 'Aceptado', 'Pagado', 'Rechazado'].includes(key))
+              .reduce((sum, [_, count]) => sum + count, 0);
             
             return {
               transportista,
               totalIncidencias: totalIncidenciasLocal,  // This is the actual count of incidents
-              totalReclamos: totalReclamos,  // This is the sum of claims in the specified statuses
+              totalReclamos: totalReclamos,  // This is the sum of all claims shown in the chart
               recuentoEstados
             };
           });
