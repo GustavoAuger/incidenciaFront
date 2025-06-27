@@ -144,7 +144,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
         };
       }
       // Obtener la ruta de origen del estado de navegación
-      this.fromRoute = state.fromRoute || 'ver-incidencias';
+      this.fromRoute = state.fromRoute;
     }
 
     // También verificar el parámetro de consulta 'from' como respaldo
@@ -248,8 +248,9 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
         if (incidenciaParcial) {
           this.incidenciaId = incidenciaParcial.id || 0;
           this.detalleIncidencia.idIncidencia = this.incidenciaId;
-        } else {
           this.router.navigate(['/crear-incidencia']);
+        } else {
+          this.fromRoute = this.router.url;
         }
       }
     });
@@ -270,13 +271,39 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     this.isLoading = false;
   }
 
-  navigateTo(route: string): void {    
+  // se almacena la ruta desde la que venimos, antes de navegar
+  navigateTo(route: string): void {
+    this.fromRoute = this.router.url; // Guarda la ruta actual antes de redirigir
+    
     if (route === '/crear-incidencia' && (this.detalles.length > 0 || this.hayDatosIngresados())) {
       if (confirm('¿Estás seguro de volver? Se perderán todos los datos ingresados.')) {
         this.router.navigate([route]);
       }
     } else {
       this.router.navigate([route]);
+    }
+  }
+  
+  // Si la ruta es la de creación, luego de terminar rediriges a la ruta almacenada
+  goBack(): void {
+    if (this.fromRoute) {
+      // Dividir la URL en baseRoute y queryParamsString
+      const [baseRoute, queryParamsString] = this.fromRoute.split('?');
+      
+      // Si hay parámetros de consulta, convertirlos en un objeto
+      const queryParams: { [key: string]: string } = queryParamsString
+        ? queryParamsString.split('&').reduce((acc, param) => {
+            const [key, value] = param.split('=');
+            acc[key] = decodeURIComponent(value); // Decodificar los valores
+            return acc;
+          }, {} as { [key: string]: string }) // Definir el tipo explícitamente aquí
+        : {};
+  
+      // Redirigir a la baseRoute con los queryParams
+      this.router.navigate([baseRoute], { queryParams });
+    } else {
+      // Si no hay ruta guardada, redirigir a una ruta por defecto (por ejemplo, la página principal)
+      this.router.navigate(['/']);
     }
   }
 

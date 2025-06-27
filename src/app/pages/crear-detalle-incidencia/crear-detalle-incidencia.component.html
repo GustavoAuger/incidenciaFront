@@ -276,18 +276,10 @@
 
       <!-- Botón Volver -->
       <button type="button"
-      *ngIf="!modoVisualizacion" 
-              class="btn btn-sm flex items-center space-x-2 bg-gray-400 hover:bg-gray-500 text-white h-10 px-4" 
-              (click)="navigateTo('/crear-incidencia')">
+        class="btn btn-sm flex items-center space-x-2 bg-gray-400 hover:bg-gray-500 text-white h-10 px-4"
+        (click)="goBack()">
         <i class="fas fa-arrow-left"></i>
         <span>Volver</span>
-      </button>
-      <button type="button" 
-      *ngIf="modoVisualizacion" 
-            class="btn btn-sm flex items-center space-x-2 bg-gray-400 hover:bg-gray-500 text-white h-10 px-4" 
-            (click)="navigateTo('/ver-incidencias')">
-      <i class="fas fa-arrow-left"></i>
-      <span>Volver</span>
       </button>
 
       <!-- Botón Actualizar Detalle -->
