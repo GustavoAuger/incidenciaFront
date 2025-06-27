@@ -13,6 +13,7 @@ import { switchMap, map, catchError } from 'rxjs/operators';
 import { forkJoin, of, Observable } from 'rxjs';
 import { GetIncidencia } from '../../interfaces/get-incidencia';
 import { InitCapFirstPipe } from '../../pipes/init-cap-first.pipe';
+import { Transportista } from '../../interfaces/transportista';
 
 @Component({
   selector: 'app-reportes-incidencias',
@@ -287,6 +288,8 @@ export class ReportesIncidenciasComponent implements OnInit {
       this.cargarBodegas();
     } else if (tab === 'graficos') {
       this.cargarRankingBodegas();
+    } else if (tab === 'transportistas') {
+      this.cargarRankingTransportistas();
     }
     
     // Actualizar el gráfico según la pestaña activa
@@ -599,6 +602,11 @@ export class ReportesIncidenciasComponent implements OnInit {
     });
   }
 
+  // Helper method to get minimum value (can be used in template)
+  getMin(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+
   // ===== MÉTODOS DE ACTUALIZACIÓN DE VISTA =====
   actualizarGrafico(): void {
     if (!this.chart?.chart) return;
@@ -609,6 +617,8 @@ export class ReportesIncidenciasComponent implements OnInit {
       this.actualizarGraficoBodega();
     } else if (this.activeTab === 'graficos') {
       this.actualizarGraficoRanking();
+    } else if (this.activeTab === 'transportistas') {
+      this.actualizarGraficoTransportistas();
     }
   }
 
@@ -730,7 +740,7 @@ export class ReportesIncidenciasComponent implements OnInit {
         // Para cada bodega, obtener sus incidencias
         const requests = bodegas.map(bodega => 
           this.obtenerIncidenciasPorBodega(
-            bodega.id, 
+            bodega.id,
             this.fechaDesdeRanking, 
             this.fechaHastaRanking
           ).pipe(
@@ -836,10 +846,231 @@ export class ReportesIncidenciasComponent implements OnInit {
   /**
    * Calcula la altura del gráfico basado en la cantidad de elementos
    * @param length Cantidad de elementos a mostrar
-   * @returns Altura en píxeles (mínimo 200px, máximo 500px, 40px por elemento)
+   * @param isTransportistas Indica si es el gráfico de transportistas
+   * @returns Altura en píxeles
    */
-  calculateChartHeight(length: number): number {
-    if (!length) return 200; // Valor por defecto si no hay elementos
-    return Math.min(Math.max(length * 40, 200), 500);
+  calculateChartHeight(length: number, isTransportistas: boolean = false): number {
+    if (isTransportistas) {
+      // Para transportistas, hacemos el gráfico más compacto
+      const baseHeight = 200; // Altura base más pequeña
+      const itemHeight = 30;  // Altura por ítem más pequeña
+      const maxHeight = 350;  // Altura máxima más pequeña
+      
+      const calculatedHeight = baseHeight + (length * itemHeight);
+      return Math.min(calculatedHeight, maxHeight);
+    } else {
+      // Configuración original para otros gráficos
+      const baseHeight = 250;
+      const itemHeight = 40;
+      const maxHeight = 500;
+      
+      const calculatedHeight = baseHeight + (length * itemHeight);
+      return Math.min(calculatedHeight, maxHeight);
+    }
   }
+
+  public rankingTransportistas: Array<{
+    id_transportista: number;
+    nombre: string;
+    totalIncidencias: number;
+    porcentaje: number;
+    incidenciasPorEstado: { [key: string]: number };
+  }> = [];
+
+  public barChartOptionsTransportistas: ChartConfiguration['options'] = {
+    responsive: true,
+    indexAxis: 'y',
+    scales: {
+      x: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'Cantidad de incidencias'
+        }
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Transportistas'
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = context.dataset.label || '';
+            const value = context.raw as number;
+            return `${label}: ${value}`;
+          }
+        }
+      }
+    }
+  };
+  
+  public barChartDataTransportistas: ChartData<'bar'> = {
+    labels: [],
+    datasets: [
+      { 
+        data: [], 
+        label: 'Total de incidencias', 
+        backgroundColor: 'rgba(20, 184, 166, 0.7)',
+        hoverBackgroundColor: 'rgba(13, 148, 136, 0.9)',
+        borderColor: 'rgba(20, 184, 166, 1)',
+        borderWidth: 1,
+        borderRadius: 2,
+        borderSkipped: false
+      }
+    ]
+  };
+
+  cargarRankingTransportistas(): void {
+    if (this.cargandoRanking) return;
+    
+    this.cargandoRanking = true;
+    this.isLoading = true;
+    this.error = null;
+    
+    // Set default date range if not set
+    if (!this.fechaDesdeRanking || !this.fechaHastaRanking) {
+      const fechaHasta = new Date();
+      const fechaDesde = new Date();
+      fechaDesde.setDate(fechaDesde.getDate() - 30);
+      
+      this.fechaHastaRanking = fechaHasta.toISOString().split('T')[0];
+      this.fechaDesdeRanking = fechaDesde.toISOString().split('T')[0];
+    }
+    
+    // Get all transportistas
+    this.incidenciaService.getTransportistas().pipe(
+      switchMap(transportistas => {
+        if (!transportistas || transportistas.length === 0) {
+          this.error = 'No se encontraron transportistas para el ranking';
+          this.cargandoRanking = false;
+          this.isLoading = false;
+          return of([]);
+        }
+        
+        // For each transportista, get their incidences
+        const requests = transportistas.map(transportista => 
+          this.incidenciaService.getAllIncidencias().pipe(
+            map(incidencias => 
+              incidencias.filter(i => 
+                i.id_transportista == transportista.id && 
+                this.filtrarIncidenciasPorFecha(
+                  [i], 
+                  this.fechaDesdeRanking, 
+                  this.fechaHastaRanking
+                ).length > 0
+              )
+            ),
+            map(incidencias => ({
+              transportista,
+              incidencias
+            }))
+          )
+        );
+        
+        return forkJoin(requests);
+      })
+    ).subscribe({
+      next: (resultados) => {
+        this.procesarRankingTransportistas(resultados);
+        this.cargandoRanking = false;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar el ranking de transportistas:', error);
+        this.error = 'Error al cargar el ranking de transportistas';
+        this.cargandoRanking = false;
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private procesarRankingTransportistas(
+    resultados: Array<{ transportista: Transportista; incidencias: GetIncidencia[] }>
+  ): void {
+    // Calculate totals per transportista
+    this.rankingTransportistas = resultados
+      .filter(({ incidencias }) => incidencias.length > 0) // Only include transportistas with incidences
+      .map(({ transportista, incidencias }) => {
+        const incidenciasPorEstado = {
+          'Nuevas': 0,
+          'En Revisión': 0,
+          'Aprobadas': 0,
+          'Rechazadas': 0
+        };
+        
+        incidencias.forEach(incidencia => {
+          switch (incidencia.id_estado) {
+            case 1: incidenciasPorEstado['Nuevas']++; break;
+            case 2: incidenciasPorEstado['En Revisión']++; break;
+            case 4: incidenciasPorEstado['Aprobadas']++; break;
+            case 3: incidenciasPorEstado['Rechazadas']++; break;
+          }
+        });
+        
+        const totalIncidencias = incidencias.length;
+        
+        return {
+          id_transportista: transportista.id,
+          nombre: transportista.nombre,
+          totalIncidencias,
+          porcentaje: 0, // Will be calculated later
+          incidenciasPorEstado
+        };
+      });
+    
+    // Sort by total incidences (descending)
+    this.rankingTransportistas.sort((a, b) => b.totalIncidencias - a.totalIncidencias);
+    
+    // Calculate percentages
+    const totalGeneral = this.rankingTransportistas.reduce((sum, t) => sum + t.totalIncidencias, 0);
+    this.rankingTransportistas = this.rankingTransportistas.map(transportista => ({
+      ...transportista,
+      porcentaje: totalGeneral > 0 ? Math.round((transportista.totalIncidencias / totalGeneral) * 100) : 0
+    }));
+    
+    // Update chart
+    this.actualizarGraficoTransportistas();
+  }
+
+  actualizarGraficoTransportistas(): void {
+    if (!this.rankingTransportistas || this.rankingTransportistas.length === 0) {
+      return;
+    }
+
+    // Tomar los primeros 10 transportistas o menos
+    const topTransportistas = [...this.rankingTransportistas]
+      .sort((a, b) => b.totalIncidencias - a.totalIncidencias)
+      .slice(0, 10);
+
+    // Actualizar datos del gráfico
+    this.barChartDataTransportistas = {
+      labels: topTransportistas.map(t => t.nombre),
+      datasets: [
+        {
+          data: topTransportistas.map(t => t.totalIncidencias),
+          label: 'Total de incidencias',
+          backgroundColor: 'rgba(20, 184, 166, 0.7)',
+          hoverBackgroundColor: 'rgba(13, 148, 136, 0.9)',
+          borderColor: 'rgba(20, 184, 166, 1)',
+          borderWidth: 1,
+          borderRadius: 2,
+          borderSkipped: false
+        }
+      ]
+    };
+
+    // Forzar actualización del gráfico
+    if (this.chart) {
+      this.chart.update();
+    }
+  }
+  
 }
