@@ -388,13 +388,14 @@ export class ReportesIncidenciasComponent implements OnInit {
     this.userService.getBodegas().subscribe({
       next: (bodegas: Bodega[]) => {
         console.log('Bodegas recibidas:', bodegas);
-        this.bodegas = bodegas;
-        if (bodegas.length > 0) {
-          console.log('Seleccionando primera bodega:', bodegas[0]);
-          this.bodegaSeleccionada = bodegas[0];
+        // Filtrar para excluir la bodega virtual con ID 'LO-000'
+        this.bodegas = bodegas.filter(bodega => bodega.id_bodega !== 'LO-000');
+        if (this.bodegas.length > 0) {
+          console.log('Seleccionando primera bodega:', this.bodegas[0]);
+          this.bodegaSeleccionada = this.bodegas[0];
           this.cargarDatosBodega();
         } else {
-          console.warn('No se encontraron bodegas');
+          console.warn('No se encontraron bodegas después de filtrar');
           this.error = 'No se encontraron bodegas disponibles';
           this.isLoading = false; // Asegurarse de desactivar el loading
         }
