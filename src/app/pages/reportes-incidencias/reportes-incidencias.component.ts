@@ -136,7 +136,7 @@ export class ReportesIncidenciasComponent implements OnInit {
       tooltip: {
         callbacks: {
           label: (context) => {
-            const label = context.label || '';
+            const label = context.dataset.label || '';
             const value = context.raw as number;
             const total = (context.dataset.data as number[]).reduce((a, b) => (a || 0) + (b || 0), 0);
             const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
@@ -184,6 +184,64 @@ export class ReportesIncidenciasComponent implements OnInit {
   isLoading: boolean = true;  // Initialize as true since you're showing a loading state initially
   error: string | null = null;
 
+  // ===== PROPIEDADES PARA EL RANKING DE BODEGAS =====
+  public rankingBodegas: Array<{
+    id_bodega: number;
+    nombre: string;
+    totalIncidencias: number;
+    porcentaje: number;
+    incidenciasPorEstado: { [key: string]: number };
+  }> = [];
+  
+  public barChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    indexAxis: 'y',
+    scales: {
+      x: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'Cantidad de incidencias'
+        }
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Bodegas'
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = context.dataset.label || '';
+            const value = context.raw as number;
+            return `${label}: ${value}`;
+          }
+        }
+      }
+    }
+  };
+  
+  public barChartLabels: string[] = [];
+  public barChartType: ChartType = 'bar';
+  public barChartLegend = true;
+  public barChartData: ChartData<'bar'> = {
+    labels: [],
+    datasets: [
+      { data: [], label: 'Total de incidencias', backgroundColor: 'rgba(20, 184, 166, 0.7)' }
+    ]
+  };
+  
+  public fechaDesdeRanking: string = '';
+  public fechaHastaRanking: string = '';
+  public cargandoRanking: boolean = false;
+
   constructor(
     private incidenciaService: IncidenciaService,
     private userService: UserService
@@ -210,6 +268,8 @@ export class ReportesIncidenciasComponent implements OnInit {
     // Cargar datos iniciales según la pestaña activa
     if (this.activeTab === 'detalle') {
       this.cargarBodegas();
+    } else if (this.activeTab === 'graficos') {
+      this.cargarRankingBodegas();
     } else {
       this.cargarDatosIniciales();
     }
@@ -220,13 +280,13 @@ export class ReportesIncidenciasComponent implements OnInit {
     this.activeTab = tab;
     localStorage.setItem('reportesIncidencias_activeTab', tab);
     
-    // Cargar bodegas si estamos en la pestaña de detalle
-    if (tab === 'detalle') {
+    // Cargar datos específicos de la pestaña
+    if (tab === 'resumen') {
+      this.cargarMetricasResumen();
+    } else if (tab === 'detalle' && this.bodegas.length === 0) {
       this.cargarBodegas();
-    } 
-    // Si no es la pestaña de detalle, cargar datos iniciales
-    else if (tab === 'resumen') {
-      this.cargarDatosIniciales();
+    } else if (tab === 'graficos') {
+      this.cargarRankingBodegas();
     }
     
     // Actualizar el gráfico según la pestaña activa
@@ -469,11 +529,11 @@ export class ReportesIncidenciasComponent implements OnInit {
             this.metricasBodega.enRevisionBodega++;
             this.metricasBodega.enRevisionValorizadoBodega += valorizado;
             break;
-          case 3: // Aprobadas
+          case 4: // Aprobadas
             this.metricasBodega.aprobadasBodega++;
             this.metricasBodega.aprobadasValorizadoBodega += valorizado;
             break;
-          case 4: // Rechazadas
+          case 3: // Rechazadas
             this.metricasBodega.rechazadasBodega++;
             this.metricasBodega.rechazadasValorizadoBodega += valorizado;
             break;
@@ -547,6 +607,8 @@ export class ReportesIncidenciasComponent implements OnInit {
       this.actualizarGraficoResumen();
     } else if (this.activeTab === 'bodegas') {
       this.actualizarGraficoBodega();
+    } else if (this.activeTab === 'graficos') {
+      this.actualizarGraficoRanking();
     }
   }
 
@@ -638,5 +700,146 @@ export class ReportesIncidenciasComponent implements OnInit {
     if (this.fechaDesdeResumen && this.fechaHastaResumen) {
       this.cargarMetricasResumen();
     }
+  }
+
+  // ===== MÉTODOS PARA EL RANKING DE BODEGAS =====
+  cargarRankingBodegas(): void {
+    if (this.cargandoRanking) return;
+    
+    this.cargandoRanking = true;
+    this.isLoading = true;
+    this.error = null;
+    
+    // Si no hay fechas definidas, usamos los últimos 30 días
+    if (!this.fechaDesdeRanking || !this.fechaHastaRanking) {
+      const fechaHasta = new Date();
+      const fechaDesde = new Date();
+      fechaDesde.setDate(fechaDesde.getDate() - 30);
+      
+      this.fechaHastaRanking = fechaHasta.toISOString().split('T')[0];
+      this.fechaDesdeRanking = fechaDesde.toISOString().split('T')[0];
+    }
+    
+    // Obtener todas las bodegas
+    this.userService.getBodegas().pipe(
+      switchMap(bodegas => {
+        if (bodegas.length === 0) {
+          return of([]);
+        }
+        
+        // Para cada bodega, obtener sus incidencias
+        const requests = bodegas.map(bodega => 
+          this.obtenerIncidenciasPorBodega(
+            bodega.id, 
+            this.fechaDesdeRanking, 
+            this.fechaHastaRanking
+          ).pipe(
+            map(incidencias => ({
+              bodega,
+              incidencias
+            }))
+          )
+        );
+        
+        return forkJoin(requests);
+      })
+    ).subscribe({
+      next: (resultados) => {
+        this.procesarRankingBodegas(resultados);
+        this.cargandoRanking = false;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar el ranking de bodegas:', error);
+        this.error = 'Error al cargar el ranking de bodegas';
+        this.cargandoRanking = false;
+        this.isLoading = false;
+      }
+    });
+  }
+  
+  private procesarRankingBodegas(
+    resultados: Array<{ bodega: Bodega; incidencias: GetIncidencia[] }>
+  ): void {
+    // Calcular totales por bodega
+    this.rankingBodegas = resultados.map(({ bodega, incidencias }) => {
+      const incidenciasPorEstado = {
+        'Nuevas': 0,
+        'En Revisión': 0,
+        'Aprobadas': 0,
+        'Rechazadas': 0
+      };
+      
+      incidencias.forEach(incidencia => {
+        switch (incidencia.id_estado) {
+          case 1: incidenciasPorEstado['Nuevas']++; break;
+          case 2: incidenciasPorEstado['En Revisión']++; break;
+          case 4: incidenciasPorEstado['Aprobadas']++; break;
+          case 3: incidenciasPorEstado['Rechazadas']++; break;
+        }
+      });
+      
+      const totalIncidencias = incidencias.length;
+      
+      return {
+        id_bodega: bodega.id,
+        nombre: bodega.nombre,
+        totalIncidencias,
+        porcentaje: 0, // Se calculará después
+        incidenciasPorEstado
+      };
+    });
+    
+    // Ordenar por total de incidencias (de mayor a menor)
+    this.rankingBodegas.sort((a, b) => b.totalIncidencias - a.totalIncidencias);
+    
+    // Calcular porcentajes
+    const totalGeneral = this.rankingBodegas.reduce((sum, b) => sum + b.totalIncidencias, 0);
+    this.rankingBodegas = this.rankingBodegas.map(bodega => ({
+      ...bodega,
+      porcentaje: totalGeneral > 0 ? Math.round((bodega.totalIncidencias / totalGeneral) * 100) : 0
+    }));
+    
+    // Actualizar gráfico
+    this.actualizarGraficoRanking();
+  }
+  
+  private actualizarGraficoRanking(): void {
+    // Tomar las primeras 10 bodegas para el gráfico
+    const topBodegas = [...this.rankingBodegas].slice(0, 10);
+    
+    // Actualizar etiquetas y datos del gráfico
+    this.barChartLabels = topBodegas.map(b => `${b.nombre} (${b.totalIncidencias})`);
+    this.barChartData = {
+      labels: this.barChartLabels,
+      datasets: [
+        {
+          data: topBodegas.map(b => b.totalIncidencias),
+          label: 'Total de incidencias',
+          backgroundColor: 'rgba(20, 184, 166, 0.7)',
+          borderColor: 'rgba(20, 184, 166, 1)',
+          borderWidth: 1
+        }
+      ]
+    };
+    
+    // Forzar actualización del gráfico
+    if (this.chart) {
+      this.chart.update();
+    }
+  }
+  
+  onFechaRankingCambiada(): void {
+    this.cargarRankingBodegas();
+  }
+
+  /**
+   * Calcula la altura del gráfico basado en la cantidad de elementos
+   * @param length Cantidad de elementos a mostrar
+   * @returns Altura en píxeles (mínimo 200px, máximo 500px, 40px por elemento)
+   */
+  calculateChartHeight(length: number): number {
+    if (!length) return 200; // Valor por defecto si no hay elementos
+    return Math.min(Math.max(length * 40, 200), 500);
   }
 }
