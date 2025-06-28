@@ -128,22 +128,19 @@ export class IncidenciaService {
     }, 0);
   }
 
-  // Método para calcular el valorizado total
+  // Método para calcular el valorizado total --- REVISAR PUES ES POCO  EFICIENTE TRAER TODAS LAS GUIAS (PRECIO EN GUIA Y EN PRODUCTO)
   calcularValorizado(detalles: DetalleIncidencia[], guias: any[]): number {
     return detalles.reduce((total, detalle) => {
-      // Buscar la guía correspondiente al detalle
-      const guia = guias.find(g => g.numguia === detalle.numGuia);
-      if (!guia) return total;
-
-      // Buscar el SKU en la guía para obtener el precio
-      const skuInfo = guia.sku_total.find((item: any) => item.sku === detalle.sku);
-      if (!skuInfo) return total;
-
-      // Multiplicar el precio por la cantidad del detalle
-      return total + (skuInfo.precio * detalle.cantidad);
+      // Buscar el SKU en cualquier guía
+      const skuInfo = guias
+        .flatMap(g => g.sku_total) // combinar todos los skus de todas las guías
+        .find((item: any) => item.sku === detalle.sku);
+  
+      const precio = skuInfo?.precio ?? 0;
+  
+      return total + (precio * detalle.cantidad);
     }, 0);
   }
-
   subirImagenes(formData: FormData) {
     return this.http.post<{ urls: string[] }>(this.apiUrl + '/upload-image', formData);
   }
