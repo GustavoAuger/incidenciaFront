@@ -144,10 +144,10 @@
       </div>
     </div>
     <!-- Toast -->
-    <div class="toast toast-center toast-middle" *ngIf="toast?.visible">
-      <div class="alert" [ngClass]="getToastClass(toast.tipo)">
-        <div class="flex-1">
-          <label>{{ toast.mensaje }}</label>
+    <div class="toast toast-bottom toast-end z-50" *ngIf="toast?.visible">
+      <div class="alert shadow-lg" [ngClass]="getToastClass(toast.tipo)">
+        <div>
+          <span>{{ toast.mensaje }}</span>
         </div>
       </div>
     </div>

@@ -85,19 +85,28 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
 
   // Método para mostrar toast
   mostrarToast(mensaje: string, tipo: 'success' | 'error' | 'warning', callback?: () => void) {
+    // Cerrar toast anterior si existe
+    if (this.toast?.timeoutId) {
+      clearTimeout(this.toast.timeoutId);
+    }
+    
     this.toast = {
       mensaje: mensaje,
       tipo: tipo,
       visible: true
     };
     
-    // Ocultar después de 5 segundos y ejecutar callback si existe
-    setTimeout(() => {
-      this.toast = null;
+    // Ocultar después de 3 segundos y ejecutar callback si existe
+    this.toast.timeoutId = setTimeout(() => {
+      this.toast.visible = false;
       if (callback) {
         callback();
       }
-    }, 25000);
+      // Limpiar el toast después de la animación
+      setTimeout(() => {
+        this.toast = null;
+      }, 300);
+    }, 3000);
   }
 
   // Método para obtener la clase del toast según el tipo
@@ -554,13 +563,13 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
           console.log(idBodegaDestino);
           console.log(bodegaUsuario);
           this.mostrarToast('La guía ingresada no tiene como destino su bodega', 'error');
-          this.detalleIncidencia.numGuia = null;
+          // No borrar el número de guía para permitir corrección
           this.skuEnabled = false;
         }
       } else {
         console.log('Guía no encontrada');
         this.mostrarToast('El número de guía ingresado no existe', 'error');
-        this.detalleIncidencia.numGuia = null;
+        // No borrar el número de guía para permitir corrección
         this.skuEnabled = false;
       }
     } else {
