@@ -790,13 +790,12 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     // Llamar al servicio para actualizar la incidencia
     this.incidenciaService.actualizarDetallesIncidencia(datosActualizados).subscribe({
       next: (response) => {
-        if (response) {
-          this.mostrarToast('Incidencia actualizada con éxito', 'success');
-          this.router.navigate(['/home']);
-        } else {
-          this.mostrarToast('Error al actualizar la incidencia', 'error');
-        }
-      },
+        this.mostrarToast("Incidencia actualizada con éxito", 'success', () => {
+          this.fromRoute = 'home';
+          this.router.navigate([this.fromRoute]);
+          this.isLoading = false;
+        });
+      }, 
       error: (error) => {
         console.error('Error al actualizar la incidencia:', error);
         this.mostrarToast('Error al actualizar la incidencia', 'error');
