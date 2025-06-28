@@ -477,11 +477,12 @@ export class ReclamoTransportistaComponent implements OnInit {
 
   // Método para cambiar entre pestañas
   cambiarTab(tab: 'reclamadas' | 'ingresar_reclamo') {
+    // Limpiar filtros al cambiar de pestaña
+    this.limpiarFiltros();
     this.activeTab = tab;
     // Guardar la pestaña seleccionada en localStorage
     localStorage.setItem('reclamoTransportista_activeTab', tab);
-    // Limpiar filtros al cambiar de pestaña
-    this.limpiarFiltros();
+    
     
     // Ordenar según la pestaña activa
     if (tab === 'reclamadas') {

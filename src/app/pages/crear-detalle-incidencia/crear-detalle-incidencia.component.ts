@@ -65,6 +65,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
   showImageModal: boolean = false;
   modalImageUrl: string = '';
 
+  bodegaNombreForm: string = '';
+
   // Método para abrir la imagen en el modal
   openImageModal(imageUrl: string): void {
     this.modalImageUrl = imageUrl;
@@ -152,7 +154,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
           ruta: incidenciaData?.ruta || '',
           observaciones: incidenciaData?.observaciones || ''
         };
-        this.incidencia.bodDestinoNombre = localStorage.getItem('bodega_nombre') || '';
+        this.bodegaNombreForm = localStorage.getItem('bodega_nombre') || '';
       }
       // Obtener la ruta de origen del estado de navegación
       this.fromRoute = state.fromRoute;
