@@ -477,12 +477,12 @@ export class ReclamoTransportistaComponent implements OnInit {
 
   // Método para cambiar entre pestañas
   cambiarTab(tab: 'reclamadas' | 'ingresar_reclamo') {
-    // Limpiar filtros al cambiar de pestaña
-    this.limpiarFiltros();
+
     this.activeTab = tab;
     // Guardar la pestaña seleccionada en localStorage
     localStorage.setItem('reclamoTransportista_activeTab', tab);
-    
+    // Limpiar filtros al cambiar de pestaña
+    this.limpiarFiltros();
     
     // Ordenar según la pestaña activa
     if (tab === 'reclamadas') {
@@ -524,7 +524,7 @@ export class ReclamoTransportistaComponent implements OnInit {
             
             // Primero filtrar para excluir incidencias con id_transportista = 4
             const todasLasIncidencias = [...incidencias]
-              .filter(inc => inc.id_transportista != 4);
+              .filter(inc => inc.id_transportista !== 4);
 
             //
             // Verificar si el filtro está funcionando
@@ -570,7 +570,7 @@ export class ReclamoTransportistaComponent implements OnInit {
               );
               
               // Solo incluir si no tiene reclamo y es estado 4
-              return inc.id_estado === 4 && !tieneReclamo;
+              return inc.id_estado === 4 && !tieneReclamo && inc.transportista !== 'HEAD';
             });
             
             console.log('Incidencias con reclamo:', this.incidenciasReclamadas.map(i => ({id: i.id, id_reclamo: (i as any).id_reclamo})));
