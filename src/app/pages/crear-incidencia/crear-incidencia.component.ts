@@ -37,7 +37,7 @@ export class CrearIncidenciaComponent {
   // Modelo para el formulario de incidencia
   incidencia: Incidencia = {
     id: 0,
-    id_bodega: undefined,
+    id_bodega: 0,
     origen_id_local: '',
     destino_id_bodega: '',
     ots: '',
