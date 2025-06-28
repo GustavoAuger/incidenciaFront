@@ -318,10 +318,6 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
       this.detalleIncidencia.pesoRecepcion);
   }
 
-  // Variables para controlar el estado de los campos
-  skuEnabled: boolean = false;
-  fieldsEnabled: boolean = false;
-
   limpiarErrores() { //limpia el recuadro rojo de los campos
     const tipoDiferencia = document.getElementsByClassName("tipoDiferencia");
     const sku = document.getElementsByClassName("sku");
@@ -437,7 +433,6 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
   
           if (cantidadIngresada > cantidadEnGuia) {
             this.mostrarToast(`La cantidad faltante no puede ser mayor a la cantidad en la guía: ${cantidadEnGuia}`, 'error');
-            this.detalleIncidencia.cantidad = null;
             const elementos = document.getElementsByClassName("cantidad");
             for (let i = 0; i < elementos.length; i++) {
               elementos[i].classList.add("campo-obligatorio-error");
@@ -654,31 +649,106 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     });
   }
     // Método que se ejecuta en el evento keydown
-    validateNumberInput(event: KeyboardEvent): void {
-      // Permitir teclas de navegación, borrado, tabulación, etc.
-      const allowedKeys = [
-        'Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End', 'Enter'
-      ];
-      
-      // Permitir combinaciones de teclas como Ctrl+C, Ctrl+V, Ctrl+A, etc.
-      if (event.ctrlKey || event.metaKey) {
-        return; // Permitir todas las combinaciones con Ctrl o Cmd
-      }
-      
-      // Permitir teclas de navegación y borrado
-      if (allowedKeys.includes(event.key)) {
-        return;
-      }
-      
-      // Solo permitir números y punto decimal
-      const charCode = event.key.charCodeAt(0);
-      if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode !== 46) {
-        event.preventDefault();
-      }
+  validateNumberInput(event: KeyboardEvent): void {
+    const input = event.target as HTMLInputElement;
+    const currentValue = input.value;
+    const selectionStart = input.selectionStart || 0;
+    const selectionEnd = input.selectionEnd || 0;
+  
+    // Permitir teclas de navegación, borrado, tabulación, etc.
+    const allowedKeys = [
+      'Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete', 'Home', 'End', 'Enter'
+    ];
+  
+    // Permitir combinaciones de teclas como Ctrl+C, Ctrl+V, Ctrl+A, etc.
+    if (event.ctrlKey || event.metaKey) {
+      return; // Permitir todas las combinaciones con Ctrl o Cmd
     }
+  
+    // Permitir teclas de navegación y borrado
+    if (allowedKeys.includes(event.key)) {
+      return;
+    }
+  
+    // Solo permitir números (0-9)
+    const charCode = event.key.charCodeAt(0);
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+      return;
+    }
+  
+    // Calcular el nuevo valor que se generaría
+    const newValue = currentValue.substring(0, selectionStart) + 
+                   event.key + 
+                   currentValue.substring(selectionEnd);
+  
+    // Verificar longitud máxima de 9 dígitos
+    if (newValue.length > 9) {
+      event.preventDefault();
+      return;
+    }
+  
+    // Prevenir que el primer dígito sea 0
+    if ((!currentValue || selectionStart === 0) && event.key === '0') {
+      event.preventDefault();
+      return;
+    }
+  }
 
+  // Método para manejar el pegado de texto en campos numéricos
+  onPaste(event: ClipboardEvent): void {
+    const input = event.target as HTMLInputElement;
+    const currentValue = input.value;
+    const selectionStart = input.selectionStart || 0;
+    const selectionEnd = input.selectionEnd || 0;
+    const pastedText = event.clipboardData?.getData('text/plain');
+  
+    if (!pastedText) {
+      event.preventDefault();
+      return;
+    }
+  
+    // Verificar si el texto pegado contiene solo números enteros
+    if (!/^\d+$/.test(pastedText)) {
+      event.preventDefault();
+      this.mostrarToast('Solo se permiten números enteros', 'warning');
+      return;
+    }
+  
+    // Prevenir pegado de ceros al inicio
+    if (pastedText.startsWith('0')) {
+      event.preventDefault();
+      this.mostrarToast('El número no puede comenzar con 0', 'warning');
+      return;
+    }
+  
+    // Calcular el nuevo valor después del pegado
+    const newValue = currentValue.substring(0, selectionStart) + 
+                    pastedText + 
+                    currentValue.substring(selectionEnd);
+  
+    // Verificar longitud máxima de 9 dígitos
+    if (newValue.length > 9) {
+      event.preventDefault();
+    }
+  }
 
- // metodo para actualizar el detalle de incidencia
+  // Método para validar cuando se quita el foco del input
+  onBlur(event: FocusEvent, field: string) {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+  
+    // Si el valor es 0 o está vacío, establecer como nulo y mostrar error
+    if (value === '0' || value === '') {
+      (this.detalleIncidencia as any)[field] = null;
+      this.mostrarToast('El valor debe ser mayor a 0', 'warning');
+    }
+  }
+
+  // Variables para controlar el estado de los campos
+  skuEnabled: boolean = false;
+  fieldsEnabled: boolean = false;
+
   actualizarIncidencia() {
     if (this.detalles.length === 0) {
       this.mostrarToast('Debe tener al menos un detalle en la incidencia', 'warning');

@@ -86,7 +86,15 @@
               <span class="label-text-alt text-error"> * </span><br>
               <input type="text" 
                      (keydown)="validateNumberInput($event)"
-                     class="input input-bordered w-full bg-white numGuia" [(ngModel)]="detalleIncidencia.numGuia" name="numGuia" min="1" placeholder="Ingrese N° documento" (change)="onGuiaChange()" />
+                     (paste)="onPaste($event)"
+                     (blur)="onBlur($event, 'numGuia')"
+                     class="input input-bordered w-full bg-white numGuia" 
+                     [(ngModel)]="detalleIncidencia.numGuia" 
+                     name="numGuia" 
+                     min="1" 
+                     maxlength="9"
+                     placeholder="Ingrese N° documento" 
+                     (change)="onGuiaChange()" />
             </div>
 
             <div class="form-control">
@@ -95,7 +103,15 @@
               <div class="flex gap-4">
                 <input type="text" 
                        (keydown)="validateNumberInput($event)"
-                       class="input input-bordered flex-1 bg-white sku" [(ngModel)]="detalleIncidencia.sku" name="sku" required placeholder="Ingrese SKU" [disabled]="!skuEnabled && (detalleIncidencia.tipoDiferencia=='faltante' || detalleIncidencia.tipoDiferencia=='')"  />
+                       (paste)="onPaste($event)"
+                       (blur)="onBlur($event, 'sku')"
+                       class="input input-bordered flex-1 bg-white sku" 
+                       [(ngModel)]="detalleIncidencia.sku" 
+                       name="sku" 
+                       required 
+                       maxlength="9"
+                       placeholder="Ingrese SKU" 
+                       [disabled]="!skuEnabled && (detalleIncidencia.tipoDiferencia=='faltante' || detalleIncidencia.tipoDiferencia=='')" />
                 <button type="button" 
                         class="btn btn-sm flex items-center space-x-2 bg-[#00AFD7] hover:bg-[#00AFD7]/90 text-white h-10 px-4"
                         (click)="buscarProducto()">
@@ -109,27 +125,72 @@
             <div class="form-control">
               <label class="label font-semibold text-gray-700">Cantidad </label>
               <span class="label-text-alt text-error"> * </span><br>
-              <input type="text" (keydown)="validateNumberInput($event)" class="input input-bordered w-full bg-white cantidad" [(ngModel)]="detalleIncidencia.cantidad" name="cantidad" required min="1" step="1" placeholder="Ingrese cantidad" (change)="validarCantidad()" [disabled]="!fieldsEnabled" />
+              <input type="text" 
+                     (keydown)="validateNumberInput($event)"
+                     (paste)="onPaste($event)"
+                     (blur)="onBlur($event, 'cantidad')"
+                     class="input input-bordered w-full bg-white cantidad" 
+                     [(ngModel)]="detalleIncidencia.cantidad" 
+                     name="cantidad" 
+                     required 
+                     min="1" 
+                     maxlength="9"
+                     step="1" 
+                     placeholder="Ingrese cantidad" 
+                     (change)="validarCantidad()" 
+                     [disabled]="!fieldsEnabled" />
             </div>
 
 
 
             <div class="form-control">
               <label class="label font-semibold text-gray-700">N° Bulto </label><br>
-              <input type="text" (keydown)="validateNumberInput($event)" class="input input-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.numBulto" name="numBulto" placeholder="Ingrese N° bulto" [disabled]="!fieldsEnabled" />
+              <input type="text" 
+                     (keydown)="validateNumberInput($event)"
+                     (paste)="onPaste($event)"
+                     (blur)="onBlur($event, 'numBulto')"
+                     class="input input-bordered w-full bg-white" 
+                     [(ngModel)]="detalleIncidencia.numBulto" 
+                     name="numBulto" 
+                     maxlength="9"
+                     placeholder="Ingrese N° bulto" 
+                     [disabled]="!fieldsEnabled" />
             </div>
             <div class="form-control">
               <label class="label font-semibold text-gray-700">Descripción</label><br>
-              <input type="text" class="input input-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.descripcion" name="descripcion" placeholder="Descripción del producto" readonly />
+              <input type="text" 
+                     class="input input-bordered w-full bg-white" 
+                     [(ngModel)]="detalleIncidencia.descripcion" 
+                     name="descripcion" 
+                     placeholder="Descripción del producto" 
+                     readonly />
             </div>
             <div class="form-control">
               <label class="label font-semibold text-gray-700">Peso Origen (Kg)</label><br>
-              <input type="text" (keydown)="validateNumberInput($event)" class="input input-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.pesoOrigen" name="pesoOrigen" min="0" step="0.01" placeholder="Ingrese peso origen" [disabled]="!fieldsEnabled" />
+              <input type="number" 
+                     (keydown)="validateNumberInput($event)"
+                     (paste)="onPaste($event)"
+                     class="input input-bordered w-full bg-white" 
+                     [(ngModel)]="detalleIncidencia.pesoOrigen" 
+                     name="pesoOrigen" 
+                     min="0" 
+                     step="0.01" 
+                     placeholder="Ingrese peso origen" 
+                     [disabled]="!fieldsEnabled" />
             </div>
 
             <div class="form-control">
               <label class="label font-semibold text-gray-700">Peso Recepción (Kg)</label><br>
-              <input type="text" (keydown)="validateNumberInput($event)" class="input input-bordered w-full bg-white" [(ngModel)]="detalleIncidencia.pesoRecepcion" name="pesoRecepcion" min="0" step="0.01" placeholder="Ingrese peso recepción" [disabled]="!fieldsEnabled"/>
+              <input type="number" 
+                     (keydown)="validateNumberInput($event)"
+                     (paste)="onPaste($event)"
+                     class="input input-bordered w-full bg-white" 
+                     [(ngModel)]="detalleIncidencia.pesoRecepcion" 
+                     name="pesoRecepcion" 
+                     min="0" 
+                     step="0.01" 
+                     placeholder="Ingrese peso recepción" 
+                     [disabled]="!fieldsEnabled"/>
             </div>
 
             <div class="form-control flex items-end">
