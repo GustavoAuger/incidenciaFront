@@ -415,6 +415,9 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
       descripcion: '',
       idIncidencia: this.incidenciaId
     };
+    this.fieldsEnabled = false;
+    this.skuEnabled = false;
+    this.detalleIncidencia.descripcion = '';
   }
   validarCantidad() {
     if (this.detalleIncidencia.tipoDiferencia === 'faltante') {
