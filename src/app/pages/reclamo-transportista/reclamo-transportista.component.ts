@@ -148,7 +148,7 @@ export class ReclamoTransportistaComponent implements OnInit {
   // Propiedad para almacenar los reclamos
   reclamos: ReclamoTransportista[] = [];
 
-  // Agregar esta propiedad para almacenar el mapeo de ID de usuario a nombre
+  // Propiedad para almacenar el mapeo de ID de usuario a nombre
   private usuarioMap: Map<number, string> = new Map();
 
   constructor(
@@ -496,7 +496,7 @@ export class ReclamoTransportistaComponent implements OnInit {
     }
   }
 
-  // Agregar un nuevo método para encontrar el ID de reclamo por ID de incidencia
+  // Método para encontrar el ID de reclamo por ID de incidencia
   private encontrarIdReclamo(idIncidencia: number): number | null {
     const reclamo = this.reclamos.find(r => r.id_incidencia === idIncidencia);
     return reclamo ? reclamo.id || null : null;
@@ -526,11 +526,10 @@ export class ReclamoTransportistaComponent implements OnInit {
             const todasLasIncidencias = [...incidencias]
               .filter(inc => inc.id_transportista !== 4);
 
-            //
             // Verificar si el filtro está funcionando
             const algunaIncidenciaCon4 = todasLasIncidencias.some(inc => inc.id_transportista === 4);
             console.log('¿Hay incidencias con id_transportista = 4 después del filtro?', algunaIncidenciaCon4);
-            
+          
             let incidenciasFiltradas = [...todasLasIncidencias];
             
             if (localStorage.getItem('id_rol') == '2') {
@@ -761,8 +760,7 @@ export class ReclamoTransportistaComponent implements OnInit {
         }
       }
       
-      // Resto de los filtros...
-      // Option 1: If you have a reclamos array, find the related claim
+      // Si se tiene un arreglo de reclamos, encuentra el reclamo relacionado a la incidencia
       const reclamoRelacionado2 = this.reclamos.find(r => r.id_incidencia === incidencia.id);
       const cumpleFiltroNumero = !this.filtros.numeroReclamo || 
         (reclamoRelacionado2 && 
@@ -1129,7 +1127,7 @@ export class ReclamoTransportistaComponent implements OnInit {
     // No es necesario hacer nada aquí, solo asegurarse de que Angular detecte los cambios
   }
 
-  // Get today's date in YYYY-MM-DD format
+  // Método para obtener la fecha de hoy en formato DD-MM-YYYY
   getTodayDate(): string {
     const today = new Date();
     const year = today.getFullYear();
@@ -1138,7 +1136,7 @@ export class ReclamoTransportistaComponent implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
-  // Get date 30 days ago in YYYY-MM-DD format
+  // Método para obtener la fecha de 30 días atrás en formato DD-MM-YYYY
   getThirtyDaysAgoDate(): string {
     const today = new Date();
     const thirtyDaysAgo = new Date(today);
@@ -1150,7 +1148,7 @@ export class ReclamoTransportistaComponent implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
-  // Initialize default dates
+  // Método para inicializar las fechas por defecto
   private initializeDefaultDates() {
     // Fechas para reclamos
     this.filtros.fechaReclamoDesde = this.getThirtyDaysAgoDate();

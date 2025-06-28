@@ -1,5 +1,4 @@
 <div class="w-full min-h-screen flex flex-col">
-    <!-- Navbar with fixed position -->
     <div class="navbar bg-base-100 shadow-sm px-8 py-2 fixed top-0 left-0 right-0 z-50">
         <div class="flex-none">
             <div class="flex items-center cursor-pointer" (click)="navigateToHome()">
@@ -26,7 +25,6 @@
                             class="btn btn-circle btn-xs p-1 bg-gray-100 hover:bg-gray-200 transition-all duration-200 shadow-sm hover:shadow-md active:shadow-sm active:translate-y-0.5">
                             <i class="fas fa-user-secret text-base"></i>
                         </button>
-                        <!-- Tooltip that shows on hover when not on home page -->
                         <div *ngIf="isHoveringRoleButton && !isHomePage" 
                              class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-800 text-white text-xs rounded whitespace-nowrap">
                             El cambio de rol solo se puede hacer desde la página de inicio
@@ -50,7 +48,6 @@
         </div>
     </div>
     
-    <!-- Main content with padding top to account for fixed navbar -->
     <div class="flex-grow pt-20">
         <router-outlet></router-outlet>
     </div>
@@ -84,7 +81,7 @@
             </select>
           </div>
 
-          <!-- Bodega Dropdown (only shown for Tienda role) -->
+          <!-- Bodega Dropdown (solo se muestra al rol tienda) -->
           <div class="form-control w-full max-w-xs mt-4" *ngIf="showBodegaDropdown">
             <label class="label">
               <span class="label-text">Bodega</span>

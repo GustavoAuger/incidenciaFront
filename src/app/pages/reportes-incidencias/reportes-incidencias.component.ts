@@ -27,7 +27,6 @@ export class ReportesIncidenciasComponent implements OnInit {
   activeTab: string = 'resumen';
   
   // ===== SECCIÓN DE RESÚMEN =====
-  // Fecha actual para el input date
   todayDate: string;
   metricasResumen: MetricasResumenIncidencia = {
     totalResumen: 0,
@@ -181,7 +180,7 @@ export class ReportesIncidenciasComponent implements OnInit {
     }]
   };
 
-  isLoading: boolean = true;  // Initialize as true since you're showing a loading state initially
+  isLoading: boolean = true;
   error: string | null = null;
 
   // ===== PROPIEDADES PARA EL RANKING DE BODEGAS =====
@@ -605,7 +604,7 @@ export class ReportesIncidenciasComponent implements OnInit {
     });
   }
 
-  // Helper method to get minimum value (can be used in template)
+  // Método para obtener el alor mínimo
   getMin(a: number, b: number): number {
     return Math.min(a, b);
   }
@@ -876,7 +875,7 @@ export class ReportesIncidenciasComponent implements OnInit {
     id_transportista: number;
     nombre: string;
     totalIncidencias: number;
-    totalReclamos?: number;  // Add this line
+    totalReclamos?: number;
     porcentaje?: number;
     recuentoEstados: { [key: string]: number };
   }> = [];
@@ -939,7 +938,7 @@ export class ReportesIncidenciasComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
     
-    // Set default date range if not set
+    // Establecer el rango de fechas por defecto
     if (!this.fechaDesdeRanking || !this.fechaHastaRanking) {
       const fechaHasta = new Date();
       const fechaDesde = new Date();
@@ -976,7 +975,7 @@ export class ReportesIncidenciasComponent implements OnInit {
                  (!this.fechaHastaRanking || fechaIncidencia <= this.fechaHastaRanking);
         });
         
-        // Count incidences per transportista
+        // Contar incidencias por transportista
         const incidenciasPorTransportista = new Map<number, number>();
         incidencias.forEach(incidencia => {
           if (incidencia.id_transportista) {
@@ -985,7 +984,7 @@ export class ReportesIncidenciasComponent implements OnInit {
           }
         });
         
-        // Map incidencia IDs to transportista IDs for claim lookup
+        // Asignar incidencia IDs a transportista IDs para la búsqueda de reclamos
         const incidenciaTransportistaMap = new Map<number, number>();
         incidencias.forEach(incidencia => {
           if (incidencia.id_transportista) {
@@ -993,7 +992,7 @@ export class ReportesIncidenciasComponent implements OnInit {
           }
         });
         
-        // Group claims by transportista
+        // Agrupar reclamos por transportista
         const transportistaReclamos = new Map<number, any[]>();
         reclamos.forEach(reclamo => {
           const transportistaId = incidenciaTransportistaMap.get(reclamo.id_incidencia);
@@ -1005,14 +1004,14 @@ export class ReportesIncidenciasComponent implements OnInit {
           }
         });
         
-        // Process each transportista with both incidences and claims
+        // Procesar cada transportista con ambas incidencias y reclamos
         const transportistasConDatos = transportistas
           .filter(t => incidenciasPorTransportista.has(t.id))  
           .map(transportista => {
             const totalIncidenciasLocal = incidenciasPorTransportista.get(transportista.id) || 0;
             const reclamosTransportista = transportistaReclamos.get(transportista.id) || [];
             
-            // Count claims by status
+            // Contar reclamos por estado
             const recuentoEstados: {[key: string]: number} = {
               'Reclamado': 0,
               'Aceptado': 0,
@@ -1024,7 +1023,7 @@ export class ReportesIncidenciasComponent implements OnInit {
             reclamosTransportista.forEach(reclamo => {
               const estado = estadosReclamo.find(e => e.id === reclamo.id_estado);
               if (estado) {
-                // Map to simplified status names
+                // Mapear a nombres de estado simplificados
                 let estadoSimple = estado.nombre;
                 if (estado.id === 1) estadoSimple = 'Reclamado';
                 else if (estado.id === 2) estadoSimple = 'Pagado';
@@ -1038,15 +1037,15 @@ export class ReportesIncidenciasComponent implements OnInit {
               }
             });
             
-            // Calculate totalReclamos as the sum of all statuses shown in the chart
+            // Calcular totalReclamos como la suma de todos los estados mostrados en el gráfico
             const totalReclamos = Object.entries(recuentoEstados)
               .filter(([key]) => ['Reclamado', 'Aceptado', 'Pagado', 'Rechazado'].includes(key))
               .reduce((sum, [_, count]) => sum + count, 0);
             
             return {
               transportista,
-              totalIncidencias: totalIncidenciasLocal,  // This is the actual count of incidents
-              totalReclamos: totalReclamos,  // This is the sum of all claims shown in the chart
+              totalIncidencias: totalIncidenciasLocal,  
+              totalReclamos: totalReclamos,  
               recuentoEstados
             };
           });
@@ -1055,20 +1054,19 @@ export class ReportesIncidenciasComponent implements OnInit {
       })
     ).subscribe({
       next: (resultados) => {
-        // Sort by number of incidences (descending)
+        // Ordenar por número de incidencias (descendente)
         const transportistasOrdenados = [...resultados].sort((a, b) => b.totalIncidencias - a.totalIncidencias);
         
-        // Update the rankingTransportistas array with the new data
+        // Actualizar el rankingTransportistas array con los nuevos datos
         this.rankingTransportistas = transportistasOrdenados.map(item => ({
           id_transportista: item.transportista.id,
           nombre: item.transportista.nombre,
           totalIncidencias: item.totalIncidencias,
           totalReclamos: item.totalReclamos,
           recuentoEstados: item.recuentoEstados,
-          porcentaje: 0 // Will be calculated below
+          porcentaje: 0 
         }));
         
-        // Calculate percentage of total claims for each transportista
         // Calcular el total de reclamos de todos los transportistas
         const totalReclamosEnSistema = this.rankingTransportistas.reduce((total, item) => total + item.totalReclamos!, 0);
 
@@ -1077,7 +1075,7 @@ export class ReportesIncidenciasComponent implements OnInit {
           porcentaje: totalReclamosEnSistema > 0 ? Math.round((t.totalReclamos! / totalReclamosEnSistema) * 100) : 0
         }));
         
-        // Update the chart with top 4 transportistas by incidences
+        // Actualizar el gráfico con los 4 transportistas con más incidencias
         this.actualizarGraficoTransportistas();
         
         this.cargandoRanking = false;

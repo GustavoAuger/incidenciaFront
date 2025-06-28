@@ -20,7 +20,7 @@ interface BackendResponse {
   providedIn: 'root'
 })
 export class IncidenciaService {
-  private incidenciaParcial: Incidencia | null = null; //nuevo para hacer 2 pasos
+  private incidenciaParcial: Incidencia | null = null;
   private apiUrl = environment.apiUrl;
   constructor(private http: HttpClient) { }
 
@@ -57,7 +57,7 @@ export class IncidenciaService {
     return this.http.get<Tipo_incidencia[]>(this.apiUrl+'/getTipoincidencias');
   }
 
-  //NUEVO
+  //Métodos para crear una incidencia (Paso 1, crear incidencia parcial)
   setIncidenciaParcial(incidencia: Incidencia): void { //CREAMOS UNA INCIDENCIA PARCIALMENTE
     this.incidenciaParcial = incidencia;
     console.log('Incidencia parcial guardada:', this.incidenciaParcial);
@@ -69,7 +69,7 @@ export class IncidenciaService {
   }
 
   // Método para obtener la incidencia parcial si la necesitas después
-  getIncidenciaParcial(): Incidencia | null { // AQUI LA LLAMAMOS
+  getIncidenciaParcial(): Incidencia | null { 
     return this.incidenciaParcial; 
   }
 
@@ -79,7 +79,7 @@ export class IncidenciaService {
   getDetallesIncidencia(idIncidencia: number): Observable<DetalleIncidencia[]> {
     return this.http.post<DetalleIncidencia[]>(this.apiUrl + '/getDetallesIncidencia', { id_incidencia: idIncidencia });
   }
-  //TERMINA LO NUEVO 
+
   private incidenciaForm: any = null;
 
   setIncidenciaForm(formData: any): void {
@@ -114,7 +114,6 @@ export class IncidenciaService {
   }
 
   getMovimiento(id_incidencia: number): Observable<any> {
-    // Ensure the id_incidencia is sent as a number
     const body = {
       id_incidencia: Number(id_incidencia)
     };
@@ -128,7 +127,7 @@ export class IncidenciaService {
     }, 0);
   }
 
-  // Método para calcular el valorizado total --- REVISAR PUES ES POCO  EFICIENTE TRAER TODAS LAS GUIAS (PRECIO EN GUIA Y EN PRODUCTO)
+  // Método para calcular el valorizado total 
   calcularValorizado(detalles: DetalleIncidencia[], guias: any[]): number {
     return detalles.reduce((total, detalle) => {
       // Buscar el SKU en cualquier guía
@@ -149,7 +148,7 @@ export class IncidenciaService {
     const body = {
       id_incidencia: data.id_incidencia,
       id_estado: data.id_estado,
-      observaciones: data.observaciones || '' // Incluir las observaciones en el cuerpo de la petición
+      observaciones: data.observaciones || '' 
     };
     return this.http.post<boolean>(this.apiUrl + '/update-estado-incidencia', body);
   }

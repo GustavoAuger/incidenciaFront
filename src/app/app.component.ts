@@ -20,16 +20,19 @@ import { Bodega } from './interfaces/bodega';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, OnDestroy {
+
   title='proyecto';
   isAuthenticated: boolean = false;
   isNotLogin: boolean = false;
   username: string = '';
   userBodega: string = '';
   userRol: string = '';
-  roles: Rol[] = []; // Roles completos para el navbar
-  modalRoles: Rol[] = []; // Roles filtrados para el modal
+  roles: Rol[] = []; 
+  modalRoles: Rol[] = [];
   selectedRoleId: number | null = null;
+
   private routerSubscription: Subscription | undefined;
+
   showBodegaDropdown = false;
   selectedBodegaId: number | null = null;
   tiendaBodegas: any[] = [];
@@ -38,6 +41,7 @@ export class AppComponent implements OnInit, OnDestroy {
   isHomePage: boolean = false;
   showTooltip: boolean = false;
   isHoveringRoleButton: boolean = false;
+  
   private tooltipTimeout: any;
 
   private _isAdmin: boolean = false;
@@ -186,7 +190,7 @@ export class AppComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error al cargar las bodegas:', error);
-        this.bodegasLoaded = true; // Asegurarse de no bloquear la aplicación
+        this.bodegasLoaded = true; 
       }
     });
   }

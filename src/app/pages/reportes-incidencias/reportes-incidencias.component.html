@@ -602,13 +602,13 @@
               </div>
             </div>
           
-            <!-- Loading State -->
+            <!-- Estado de carga -->
             <div *ngIf="cargandoRanking" class="text-center py-12">
               <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mb-4"></div>
               <p class="text-gray-600">Cargando ranking de transportistas...</p>
             </div>
           
-            <!-- Error State -->
+            <!-- Estado de error -->
             <div *ngIf="error && !cargandoRanking" class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
               <div class="flex">
                 <div class="flex-shrink-0">
@@ -622,7 +622,7 @@
               </div>
             </div>
           
-            <!-- Transportistas Table -->
+            <!-- Tabla de transportistas -->
             <div class="overflow-x-auto mt-6">
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">

@@ -74,13 +74,9 @@ export class VerIncidenciasComponent implements OnInit {
   bodegasOrigen: Bodega[] = [];
   bodegasDestino: Bodega[] = [];
 
-  // Tipos de incidencia
+  // Listas que se obtienen de la base de datos
   tiposIncidencia: Tipo_incidencia[] = [ ];
-
-  // Estados (ahora se obtienen del servicio)
   estados: EstadoIncidencia[] = [];
-
-  // Transportes (ahora se obtienen del servicio)
   transportistas: Transportista[] = [];
 
   // Objeto para almacenar los filtros
@@ -114,7 +110,7 @@ export class VerIncidenciasComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Mostrar loader
+    // Mostrar pantalla de carga
     this.isLoading = true;
     
     const userIdString = localStorage.getItem('id_usuario');
@@ -577,7 +573,7 @@ async exportToExcel(): Promise<void> {
     }
   }
   
-  // Nueva función para generar Excel usando exceljs
+  // Función para generar Excel usando exceljs
   private generarExcelConDetalles(data: any[]): void {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('data');

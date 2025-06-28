@@ -162,9 +162,9 @@ export class AdministrarUsuariosComponent {
     });
   }
 
-  // Get bodegas filtered by name starting with 'L' and exclude already used bodegas
+  // Obtiene bodegas filtrado por nombre que empieza con 'L' y que no esten usadas
   get filteredBodegas(): Bodega[] {
-    // Get the list of used bodega IDs
+    // Obtiene la lista de IDs de bodegas usadas
     const usedBodegaIds = this.bodegaUsers.map(bu => bu.id);
     
     return this.bodegas.filter(bodega => 
@@ -404,7 +404,7 @@ deleteUser(user: User): void {
     this.passwordsMatch = this.newUser.password === this.confirmPassword;
   }
 
-  // Prevent typing beyond max length
+  // Prevenir la entrada de más de 10 caracteres
   onPasswordKeyDown(event: KeyboardEvent): void {
     const input = event.target as HTMLInputElement;
     if (input.value.length >= 10 && event.key !== 'Backspace' && event.key !== 'Delete' && !event.ctrlKey) {
@@ -555,16 +555,16 @@ deleteUser(user: User): void {
     return this.sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
   }
 
-  // Update the role change handler
+  // Manejar cambio de rol
   onRoleChange(): void {
-    this.isTiendaRole = this.newUser.id_rol === 4; // Assuming 4 is the ID for 'Tienda' role
+    this.isTiendaRole = this.newUser.id_rol === 4;
     
-    // Reset bodega selection if role is not Tienda
+    // Reinicia la bodega si el rol no es 'Tienda'
     if (!this.isTiendaRole) {
       this.newUser.id_bodega = 0;
     }
 
-    // Set specific bodega IDs based on role
+    // Asigna una bodega específica según el rol
     if (this.newUser.id_rol === 2) {
       this.newUser.id_bodega = 22;
     } else if (this.newUser.id_rol === 3) {
@@ -574,15 +574,15 @@ deleteUser(user: User): void {
     }
   }
 
-  // Manejar cambio de rol en edición
+  // Maneja el cambio de rol en la edición
   onEditRoleChange(): void {
     if (!this.userToEdit) return;
     
-    // Obtener el objeto rol completo para el ID seleccionado
+    // Obtiene el objeto rol completo para el ID seleccionado
     const selectedRole = this.roles.find(r => r.id === this.userToEdit!.id_rol);
     this.editIsTiendaRole = selectedRole?.nombre.toLowerCase() === 'tienda';
     
-    // Asignar bodega según el rol
+    // Asigna una bodega específica según el rol
     if (selectedRole) {
       switch(selectedRole.nombre.toLowerCase()) {
         case 'emisor':

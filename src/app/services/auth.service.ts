@@ -68,7 +68,7 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    // Always check localStorage directly for the most current state
+    // Siempre verificar localStorage directamente para el estado más actual
     const hasToken = this.hasValidToken();
     this.loggedIn = hasToken;
     
