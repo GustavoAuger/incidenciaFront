@@ -623,7 +623,6 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
 
     if (!skuEnGuia && this.detalleIncidencia.tipoDiferencia === 'faltante') {
       this.mostrarToast('El SKU ingresado no existe en la guía seleccionada', 'error');
-      this.detalleIncidencia.sku = null;
       this.detalleIncidencia.descripcion = '';
       this.fieldsEnabled = false;
       return;
@@ -642,6 +641,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
           this.fieldsEnabled = true;
         } else {
           this.mostrarToast('No se encontró la descripción del producto', 'error');
+          // No limpiar el SKU, solo la descripción
           this.detalleIncidencia.descripcion = '';
           this.fieldsEnabled = false;
         }
