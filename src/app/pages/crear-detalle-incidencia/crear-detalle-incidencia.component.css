@@ -30,6 +30,15 @@
     font-size: 0.9rem;
     background-color: #ffffff;
     transition: all 0.3s ease;
+    border: 1px solid #d1d5db; /* Borde gris claro por defecto */
+    outline: none; /* Elimina el contorno por defecto */
+  }
+  
+  /* Estilos para el foco en inputs y selects */
+  .select:focus, .input:focus {
+    border-color: #00AFD7; /* Color azul de la marca al hacer foco */
+    box-shadow: 0 0 0 2px rgba(0, 175, 215, 0.2); /* Sutil sombra azul */
+    outline: none; /* Asegura que no aparezca el contorno por defecto */
   }
   
   .select:disabled, .input:disabled {
@@ -37,11 +46,12 @@
     color: #666666;
     cursor: not-allowed;
     opacity: 0.7;
+    border-color: #d1d5db; /* Mantener el mismo borde que los campos normales */
   }
   
   .select[readonly], .input[readonly] {
     background-color: #f5f5f5;
-    border: 1px solid #cccccc;
+    border: 1px solid #d1d5db; /* Mismo color de borde que los campos normales */
     cursor: not-allowed;
   }
   
@@ -55,6 +65,15 @@
     resize: vertical;
     font-size: 0.9rem;
     background-color: #ffffff;
+    border: 1px solid #d1d5db; /* Mismo estilo que los inputs */
+    outline: none; /* Elimina el contorno por defecto */
+  }
+  
+  /* Estilo para textarea al hacer foco */
+  .textarea:focus {
+    border-color: #00AFD7;
+    box-shadow: 0 0 0 2px rgba(0, 175, 215, 0.2);
+    outline: none;
   }
   
   .image {
@@ -68,7 +87,7 @@
     padding: 0.35rem;
     border-radius: 0.25rem;
     font-size: 0.9rem;
-    
+    border: 1px solid #d1d5db; /* Mismo estilo que los inputs */
   }
   
   .text-xl {
@@ -76,7 +95,6 @@
     color: #000000;
   }
   
-
   .btna{
     color: white;
     gap: 8px;
@@ -94,6 +112,8 @@
     background-color: #ffffff;
     color: rgb(207, 0, 0);
   }
+  
   .campo-obligatorio-error {
-    border-color: red !important; /* Asegúrate de usar !important si otros estilos están afectando el borde */
+    border-color: #ef4444 !important; /* Rojo para campos con error */
+    box-shadow: 0 0 0 1px #ef4444; /* Sombra roja para resaltar el error */
   }
