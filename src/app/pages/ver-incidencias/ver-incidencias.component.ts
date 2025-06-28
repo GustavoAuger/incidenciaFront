@@ -285,7 +285,8 @@ getTipoIncidencia() {
           id_bodega: incidencia.d_id_bodega,     
           ruta: incidencia.ruta,
           observaciones: incidencia.observaciones
-        }
+        },
+        fromRoute: 'ver-incidencias'
       }
     };
     

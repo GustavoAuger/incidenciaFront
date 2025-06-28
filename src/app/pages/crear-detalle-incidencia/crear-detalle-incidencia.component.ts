@@ -21,7 +21,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
   searchTerm: string = '';
   guias: Guia[] = [];
   originalIdBodega: string = '';
-  fromRoute: string = 'ver-incidencias'; // Valor por defecto
+  fromRoute: string = 'crear-incidencia'; // Valor por defecto
   isLoading: boolean = true;
   movimientoNumero: string | null = null;
   
@@ -240,6 +240,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
               this.completeLoading();
             }
             console.log('idIncidencia:', this.incidencia.id);
+            console.log(this.router.url)
           }
         });
       } else {
@@ -248,8 +249,9 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
         if (incidenciaParcial) {
           this.incidenciaId = incidenciaParcial.id || 0;
           this.detalleIncidencia.idIncidencia = this.incidenciaId;
-          this.router.navigate(['/crear-incidencia']);
+          console.log(this.router.url)
         } else {
+          console.log(this.router.url)
           this.fromRoute = this.router.url;
         }
       }
@@ -270,23 +272,13 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
   private completeLoading() {
     this.isLoading = false;
   }
-
-  // se almacena la ruta desde la que venimos, antes de navegar
-  navigateTo(route: string): void {
-    this.fromRoute = this.router.url; // Guarda la ruta actual antes de redirigir
-    
-    if (route === '/crear-incidencia' && (this.detalles.length > 0 || this.hayDatosIngresados())) {
-      if (confirm('¿Estás seguro de volver? Se perderán todos los datos ingresados.')) {
-        this.router.navigate([route]);
-      }
-    } else {
-      this.router.navigate([route]);
-    }
-  }
-  
-  // Si la ruta es la de creación, luego de terminar rediriges a la ruta almacenada
   goBack(): void {
-    if (this.fromRoute) {
+    if (this.fromRoute) { //retorno si tenemos datos guarados y no queremos perder desde crear incidencias
+      if (this.fromRoute === 'crear-incidencia' && (this.detalles.length > 0 || this.hayDatosIngresados())) {
+         if (confirm('¿Estás seguro de volver? Se perderán todos los datos ingresados.')) {
+            this.router.navigate([this.fromRoute]);
+           }
+      } else {
       // Dividir la URL en baseRoute y queryParamsString
       const [baseRoute, queryParamsString] = this.fromRoute.split('?');
       
@@ -298,15 +290,11 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
             return acc;
           }, {} as { [key: string]: string }) // Definir el tipo explícitamente aquí
         : {};
-  
       // Redirigir a la baseRoute con los queryParams
       this.router.navigate([baseRoute], { queryParams });
-    } else {
-      // Si no hay ruta guardada, redirigir a una ruta por defecto (por ejemplo, la página principal)
-      this.router.navigate(['/']);
+      } 
     }
   }
-
   private hayDatosIngresados(): boolean {
     // Verifica si hay datos ingresados en el formulario
     return !!(this.detalleIncidencia.tipoDiferencia ||
@@ -517,7 +505,8 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     this.incidenciaService.createIncidenciaCompleta(datosParaEnviar, file).subscribe({
       next: (response) => {
         this.mostrarToast(response.mensaje, 'success', () => {
-          this.navigateTo(this.fromRoute);
+          this.fromRoute = 'ver-incidencias';
+          this.router.navigate([this.fromRoute]);
           this.isLoading = false;
         });
       },

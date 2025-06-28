@@ -300,7 +300,8 @@ export class CrearIncidenciaComponent {
           tipo_estado: "nuevo",
           observaciones: this.incidencia.observaciones,
           file: this.selectedImages.length > 0 ? this.selectedImages[0].file : null
-        }
+        },
+        fromRoute: 'crear-incidencia'
       }
     };
      // Guardar los datos en el servicio
