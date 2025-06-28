@@ -333,6 +333,19 @@
       </div>
     </div>
 
+    <!-- Modal de Confirmación -->
+    <input type="checkbox" id="modal-confirmar-regreso" class="modal-toggle" [(ngModel)]="mostrarModalConfirmacion">
+    <div class="modal" *ngIf="mostrarModalConfirmacion">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg">¿Estás seguro de volver?</h3>
+        <p class="py-4">Se perderán todos los datos ingresados.</p>
+        <div class="modal-action">
+          <button class="btn bg-[#00AFD7] hover:bg-[#00AFD7]/90 text-white" (click)="confirmarRegreso()">Sí, volver</button>
+          <button class="btn" (click)="cancelarRegreso()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Botones de acción -->
     <div class="px-8 py-6 bg-[#f5f5f5] -mx-8 mt-8 flex justify-between items-center">
 

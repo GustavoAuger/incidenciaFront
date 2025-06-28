@@ -67,6 +67,9 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
 
   bodegaNombreForm: string = '';
 
+  // Variable para el modal de confirmación
+  mostrarModalConfirmacion: boolean = false;
+
   // Método para abrir la imagen en el modal
   openImageModal(imageUrl: string): void {
     this.modalImageUrl = imageUrl;
@@ -80,6 +83,17 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     this.showImageModal = false;
     // Restaurar el scroll del body
     document.body.style.overflow = 'auto';
+  }
+
+  // Método para confirmar y volver
+  confirmarRegreso(): void {
+    this.mostrarModalConfirmacion = false;
+    this.router.navigate([this.fromRoute]);
+  }
+
+  // Método para cancelar
+  cancelarRegreso(): void {
+    this.mostrarModalConfirmacion = false;
   }
 
   // Variable para el toast
@@ -286,25 +300,23 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     this.isLoading = false;
   }
   goBack(): void {
-    if (this.fromRoute) { //retorno si tenemos datos guarados y no queremos perder desde crear incidencias
+    if (this.fromRoute) {
       if (this.fromRoute === 'crear-incidencia' && (this.detalles.length > 0 || this.hayDatosIngresados())) {
-         if (confirm('¿Estás seguro de volver? Se perderán todos los datos ingresados.')) {
-            this.router.navigate([this.fromRoute]);
-           }
+        this.mostrarModalConfirmacion = true;
       } else {
-      // Dividir la URL en baseRoute y queryParamsString
-      const [baseRoute, queryParamsString] = this.fromRoute.split('?');
-      
-      // Si hay parámetros de consulta, convertirlos en un objeto
-      const queryParams: { [key: string]: string } = queryParamsString
-        ? queryParamsString.split('&').reduce((acc, param) => {
-            const [key, value] = param.split('=');
-            acc[key] = decodeURIComponent(value); // Decodificar los valores
-            return acc;
-          }, {} as { [key: string]: string }) // Definir el tipo explícitamente aquí
-        : {};
-      // Redirigir a la baseRoute con los queryParams
-      this.router.navigate([baseRoute], { queryParams });
+        // Dividir la URL en baseRoute y queryParamsString
+        const [baseRoute, queryParamsString] = this.fromRoute.split('?');
+        
+        // Si hay parámetros de consulta, convertirlos en un objeto
+        const queryParams: { [key: string]: string } = queryParamsString
+          ? queryParamsString.split('&').reduce((acc, param) => {
+              const [key, value] = param.split('=');
+              acc[key] = decodeURIComponent(value);
+              return acc;
+            }, {} as { [key: string]: string })
+          : {};
+        // Redirigir a la baseRoute con los queryParams
+        this.router.navigate([baseRoute], { queryParams });
       } 
     }
   }
@@ -516,7 +528,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     this.incidenciaService.createIncidenciaCompleta(datosParaEnviar, file).subscribe({
       next: (response) => {
         this.mostrarToast(response.mensaje, 'success', () => {
-          this.fromRoute = 'ver-incidencias';
+          this.fromRoute = 'home';
           this.router.navigate([this.fromRoute]);
           this.isLoading = false;
         });
