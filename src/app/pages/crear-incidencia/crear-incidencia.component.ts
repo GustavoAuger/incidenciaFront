@@ -243,25 +243,23 @@ export class CrearIncidenciaComponent {
     reader.readAsDataURL(file);
   }
 
-  subirSoloImagen(): void { // este metodo nunca se usa, se usó para pruebas
+  subirSoloImagen(): void { 
     if (this.selectedImages.length === 0) {
-      alert('Debes seleccionar al menos una imagen.');
+      this.showToastMessage('Debes seleccionar al menos una imagen.', 'error');
       return;
     }
-  
+
     const formData = new FormData();
     formData.append('file', this.selectedImages[0].file);
-  
+
     this._incidenciaService.subirImagenes(formData).subscribe({
       next: (res) => {
-        console.log('Imagen subida con éxito:');
-        alert('Imagen subida correctamente.');
-        // Opcional: limpiar arreglo
-        // this.selectedImages = [];
+        console.log('Imagen subida:', res);
+        this.showToastMessage('Imagen subida correctamente.', 'success');
       },
       error: (err) => {
         console.error('Error al subir imagen:', err);
-        alert('Error al subir imagen');
+        this.showToastMessage('Error al subir la imagen. Inténtalo de nuevo.', 'error');
       }
     });
   }
@@ -377,5 +375,15 @@ export class CrearIncidenciaComponent {
       id_transportista: this.incidencia.id_transportista,
       id_tipo_incidencia: this.incidencia.id_tipo_incidencia
     });
+  }
+
+  // Método para limitar la longitud de las observaciones a 250 caracteres
+  limitObservationsLength() {
+    if (this.incidencia.observaciones && this.incidencia.observaciones.length > 250) {
+      // Si se supera el límite, mostrar mensaje de error
+      this.showToastMessage('El límite de caracteres es de 250', 'error');
+      // Cortar el texto a 250 caracteres
+      this.incidencia.observaciones = this.incidencia.observaciones.substring(0, 250);
+    }
   }
 }

@@ -79,6 +79,63 @@ select option {
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 } */
 
+/* Estilo para el texto de placeholder en selects */
+select option[value=""] {
+  color: #9ca3af; /* gray-400 */
+}
+
+/* Estilo para el texto en el select cuando no hay valor seleccionado */
+select:invalid, 
+select option[value=""] {
+  color: #9ca3af; /* gray-400 */
+}
+
+/* Restaurar el color del texto cuando hay una selección */
+select:not(:invalid) {
+  color: inherit;
+}
+
+/* Asegurarse de que las opciones tengan el color de texto normal */
+select option:not([value=""]) {
+  color: #1f2937; /* gray-800 */
+}
+
+/* Estilo para el texto de placeholder en textareas */
+textarea::placeholder {
+  color: #9ca3af; /* gray-400 */
+  opacity: 1; /* Firefox */
+}
+
+/* Estilo para el texto de placeholder en inputs */
+input::placeholder {
+  color: #9ca3af; /* gray-400 */
+  opacity: 1; /* Firefox */
+}
+
+/* Estilo para el texto del select cuando está deshabilitado */
+select:disabled {
+  color: #9ca3af; /* gray-400 */
+  background-color: #f3f4f6; /* gray-100 */
+  cursor: not-allowed;
+}
+
+/* Estilos para mensajes de validación */
+.label-text-alt {
+  font-size: 0.7rem; /* Tamaño más pequeño */
+  line-height: 1.25; /* Espaciado de línea ajustado */
+}
+
+/* Asegurarse de que los mensajes de error sean rojos */
+.text-error {
+  color: #ef4444; /* Rojo de error */
+}
+
+/* Opcional: Ajustar el espaciado vertical de los mensajes de error */
+.label {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
 /* Toast styling */
 .toast {
   position: fixed;

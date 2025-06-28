@@ -163,12 +163,16 @@
               <div class="form-control w-full grid-cols-2">
                 <label class="label">
                   <span class="label-text">Observaciones</span>
+                  <span class="text-xs" [ngClass]="(incidencia.observaciones?.length || 0) > 250 ? 'text-error' : 'text-cyan-500'">
+                    {{ incidencia.observaciones?.length || 0 }}/250
+                  </span>
                 </label>
                 <textarea 
                   [(ngModel)]="incidencia.observaciones" 
                   name="observaciones" 
                   class="textarea textarea-bordered h-24 w-full"
-                  
+                  maxlength="250"
+                  (input)="limitObservationsLength()"
                 ></textarea>
               </div>
             </div>
