@@ -694,7 +694,7 @@ export class CrearDetalleIncidenciaComponent implements OnInit, AfterViewInit {
     }
   
     // Prevenir que el primer dígito sea 0
-    if ((!currentValue || selectionStart === 0) && event.key === '0') {
+    if (currentValue.length === 0 && event.key === '0') {
       event.preventDefault();
       return;
     }
