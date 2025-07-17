@@ -247,7 +247,7 @@
 </div>
 
 <!-- Toast -->
-<div class="toast toast-center toast-middle" *ngIf="toast?.visible">
+<div class="toast toast-bottom toast-end" *ngIf="toast?.visible">
   <div class="alert" [ngClass]="getToastClass(toast.tipo)">
     <div class="flex-1">
       <label>{{ toast.mensaje }}</label>
