@@ -387,6 +387,7 @@ export class ReportesIncidenciasComponent implements OnInit {
     this.userService.getBodegas().subscribe({
       next: (bodegas: Bodega[]) => {
         console.log('Bodegas recibidas:', bodegas);
+        
         // Filtrar para excluir la bodega virtual con ID 'LO-000'
         this.bodegas = bodegas.filter(bodega => bodega.id_bodega !== 'LO-000');
         if (this.bodegas.length > 0) {
@@ -732,28 +733,34 @@ export class ReportesIncidenciasComponent implements OnInit {
       this.fechaDesdeRanking = fechaDesde.toISOString().split('T')[0];
     }
     
-    // Obtener todas las bodegas
-    this.userService.getBodegas().pipe(
-      switchMap(bodegas => {
-        if (bodegas.length === 0) {
-          return of([]);
+    // Obtener todas las incidencias una sola vez
+    this.incidenciaService.getAllIncidencias().pipe(
+      switchMap(incidencias => {
+        // Filtrar por fecha una sola vez
+        let incidenciasFiltradas = incidencias;
+        
+        if (this.fechaDesdeRanking && this.fechaHastaRanking) {
+          const desde = new Date(this.fechaDesdeRanking);
+          const hasta = new Date(this.fechaHastaRanking);
+          hasta.setDate(hasta.getDate() + 1); // Incluir el día completo
+          
+          incidenciasFiltradas = incidencias.filter(incidencia => {
+            if (!incidencia.fecha_recepcion) return false;
+            const fechaIncidencia = new Date(incidencia.fecha_recepcion);
+            return fechaIncidencia >= desde && fechaIncidencia <= hasta;
+          });
         }
         
-        // Para cada bodega, obtener sus incidencias
-        const requests = bodegas.map(bodega => 
-          this.obtenerIncidenciasPorBodega(
-            bodega.id,
-            this.fechaDesdeRanking, 
-            this.fechaHastaRanking
-          ).pipe(
-            map(incidencias => ({
+        // Obtener todas las bodegas
+        return this.userService.getBodegas().pipe(
+          map(bodegas => {
+            // Para cada bodega, filtrar las incidencias
+            return bodegas.map(bodega => ({
               bodega,
-              incidencias
-            }))
-          )
+              incidencias: incidenciasFiltradas.filter(i => i.destino === bodega.id.toString())
+            }));
+          })
         );
-        
-        return forkJoin(requests);
       })
     ).subscribe({
       next: (resultados) => {
@@ -774,46 +781,36 @@ export class ReportesIncidenciasComponent implements OnInit {
     resultados: Array<{ bodega: Bodega; incidencias: GetIncidencia[] }>
   ): void {
     // Calcular totales por bodega
-    this.rankingBodegas = resultados.map(({ bodega, incidencias }) => {
-      const incidenciasPorEstado = {
-        'Nuevas': 0,
-        'En Revisión': 0,
-        'Aprobadas': 0,
-        'Rechazadas': 0
-      };
-      
-      incidencias.forEach(incidencia => {
-        switch (incidencia.id_estado) {
-          case 1: incidenciasPorEstado['Nuevas']++; break;
-          case 2: incidenciasPorEstado['En Revisión']++; break;
-          case 4: incidenciasPorEstado['Aprobadas']++; break;
-          case 3: incidenciasPorEstado['Rechazadas']++; break;
-        }
-      });
-      
-      const totalIncidencias = incidencias.length;
-      
-      return {
-        id_bodega: bodega.id,
-        nombre: bodega.nombre,
-        totalIncidencias,
-        porcentaje: 0, // Se calculará después
-        incidenciasPorEstado
-      };
-    });
-    
-    // Ordenar por total de incidencias (de mayor a menor)
-    this.rankingBodegas.sort((a, b) => b.totalIncidencias - a.totalIncidencias);
-    
-    // Calcular porcentajes
-    const totalGeneral = this.rankingBodegas.reduce((sum, b) => sum + b.totalIncidencias, 0);
-    this.rankingBodegas = this.rankingBodegas.map(bodega => ({
-      ...bodega,
-      porcentaje: totalGeneral > 0 ? Math.round((bodega.totalIncidencias / totalGeneral) * 100) : 0
-    }));
-    
-    // Actualizar gráfico
-    this.actualizarGraficoRanking();
+    this.rankingBodegas = resultados
+      .map(({ bodega, incidencias }) => {
+        if (!incidencias || incidencias.length === 0) return null;
+        
+        const incidenciasPorEstado = {
+          'Nuevas': 0,
+          'En Revisión': 0,
+          'Aprobadas': 0,
+          'Rechazadas': 0
+        };
+        
+        // Contar incidencias por estado
+        incidencias.forEach(incidencia => {
+          switch (incidencia.id_estado) {
+            case 1: incidenciasPorEstado['Nuevas']++; break;
+            case 2: incidenciasPorEstado['En Revisión']++; break;
+            case 3: incidenciasPorEstado['Aprobadas']++; break;
+            case 4: incidenciasPorEstado['Rechazadas']++; break;
+          }
+        });
+        
+        return {
+          id_bodega: Number(bodega.id_bodega),  // Convert to number
+          nombre: bodega.nombre,
+          totalIncidencias: incidencias.length,
+          porcentaje: 0, // Asegúrate de calcular este valor si es necesario
+          incidenciasPorEstado
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
   }
   
   private actualizarGraficoRanking(): void {
@@ -825,9 +822,9 @@ export class ReportesIncidenciasComponent implements OnInit {
     this.barChartData = {
       labels: this.barChartLabels,
       datasets: [
-        {
+        { 
           data: topBodegas.map(b => b.totalIncidencias),
-          label: 'Total de incidencias',
+          label: 'Total de incidencias', 
           backgroundColor: 'rgba(20, 184, 166, 0.7)',
           borderColor: 'rgba(20, 184, 166, 1)',
           borderWidth: 1
@@ -1166,5 +1163,10 @@ export class ReportesIncidenciasComponent implements OnInit {
     if (this.chart) {
       this.chart.update();
     }
+  }
+
+  // Método para mejorar el rendimiento del *ngFor
+  trackByBodegaId(index: number, bodega: any): number {
+    return bodega.id_bodega;
   }
 }

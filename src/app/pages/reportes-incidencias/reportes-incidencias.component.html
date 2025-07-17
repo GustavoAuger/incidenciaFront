@@ -502,18 +502,18 @@
                     <tr>
                       <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
                       <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bodega</th>
-                      <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total Incidencias</th>
-                      <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">% del Total</th>
-                      <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Distribución</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Incidencias</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">% del Total</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Distribución</th>
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200">
                     <tr *ngIf="cargandoRanking">
-                      <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                      <td colspan="5" class="px-6 py-4 text-center">
                         <div class="flex justify-center">
-                          <div class="loading loading-spinner loading-sm text-cyan-500"></div>
-                          <span class="ml-2">Cargando ranking de bodegas...</span>
+                          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
                         </div>
+                        <p class="mt-2 text-sm text-gray-500">Cargando ranking de bodegas...</p>
                       </td>
                     </tr>
                     <tr *ngIf="!cargandoRanking && rankingBodegas.length === 0">
@@ -522,7 +522,7 @@
                       </td>
                     </tr>
                     <ng-container *ngIf="!cargandoRanking && rankingBodegas.length > 0">
-                      <tr *ngFor="let bodega of rankingBodegas | slice:0:10; let i = index" class="hover:bg-gray-50">
+                      <tr *ngFor="let bodega of rankingBodegas | slice:0:50; trackBy: trackByBodegaId; let i = index" class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {{ i + 1 }}
                         </td>
