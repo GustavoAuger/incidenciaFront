@@ -516,13 +516,13 @@
                         <p class="mt-2 text-sm text-gray-500">Cargando ranking de bodegas...</p>
                       </td>
                     </tr>
-                    <tr *ngIf="!cargandoRanking && rankingBodegas.length === 0">
+                    <tr *ngIf="!cargandoRanking && bodegasOrdenadas.length === 0">
                       <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
                         No hay datos disponibles para mostrar el ranking.
                       </td>
                     </tr>
-                    <ng-container *ngIf="!cargandoRanking && rankingBodegas.length > 0">
-                      <tr *ngFor="let bodega of rankingBodegas | slice:0:50; trackBy: trackByBodegaId; let i = index" class="hover:bg-gray-50">
+                    <ng-container *ngIf="!cargandoRanking && bodegasOrdenadas.length > 0">
+                      <tr *ngFor="let bodega of bodegasOrdenadas | slice:0:50; trackBy: trackByBodegaId; let i = index" class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {{ i + 1 }}
                         </td>

@@ -817,8 +817,10 @@ export class ReportesIncidenciasComponent implements OnInit {
   }
   
   private actualizarGraficoRanking(): void {
-    // Tomar las primeras 10 bodegas para el gráfico
-    const topBodegas = [...this.rankingBodegas].slice(0, 10);
+    // Ordenar bodegas por totalIncidencias en orden descendente y tomar las primeras 10
+    const topBodegas = [...this.rankingBodegas]
+      .sort((a, b) => b.totalIncidencias - a.totalIncidencias)
+      .slice(0, 10);
     
     // Actualizar etiquetas y datos del gráfico
     this.barChartLabels = topBodegas.map(b => `${b.nombre} (${b.totalIncidencias})`);
@@ -1171,5 +1173,10 @@ export class ReportesIncidenciasComponent implements OnInit {
   // Método para mejorar el rendimiento del *ngFor
   trackByBodegaId(index: number, bodega: any): number {
     return bodega.id_bodega;
+  }
+
+  // Getter para obtener las bodegas ordenadas por totalIncidencias
+  get bodegasOrdenadas() {
+    return [...this.rankingBodegas].sort((a, b) => b.totalIncidencias - a.totalIncidencias);
   }
 }
