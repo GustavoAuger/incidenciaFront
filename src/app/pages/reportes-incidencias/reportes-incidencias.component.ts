@@ -803,14 +803,17 @@ export class ReportesIncidenciasComponent implements OnInit {
         });
         
         return {
-          id_bodega: Number(bodega.id_bodega),  // Convert to number
+          id_bodega: Number(bodega.id_bodega),
           nombre: bodega.nombre,
           totalIncidencias: incidencias.length,
-          porcentaje: 0, // Asegúrate de calcular este valor si es necesario
+          porcentaje: 0,
           incidenciasPorEstado
         };
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
+    
+    // Actualizar el gráfico después de procesar los datos
+    this.actualizarGraficoRanking();
   }
   
   private actualizarGraficoRanking(): void {
