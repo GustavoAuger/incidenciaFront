@@ -162,3 +162,43 @@
 .text-black {
   color: #1f2937;
 }
+
+/* Estilos para el contenedor del contenido de la pestaña */
+.tab-content {
+  position: relative;
+  min-height: 300px; /* Ajusta según sea necesario */
+}
+
+/* Estilos para el indicador de carga */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.loading-spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 0.25rem solid rgba(0, 188, 212, 0.2);
+  border-radius: 50%;
+  border-top-color: #00bcd4;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 1rem;
+  color: #4b5563;
+  font-size: 0.875rem;
+}

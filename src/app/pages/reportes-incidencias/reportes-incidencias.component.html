@@ -1,15 +1,9 @@
 <!-- Contenedor principal -->
 <div class="resumen-incidencias">
-  <!-- Pantalla de carga -->
-  <div *ngIf="isLoading" class="fixed inset-0 bg-[#f5f5f5] bg-opacity-90 flex items-center justify-center z-50">
-    <div class="text-center">
-        <div class="loading loading-spinner loading-lg" style="color: #00bcd4;"></div>
-        <p class="mt-2 text-gray-600">Cargando ...</p>
-    </div>
-  </div>
+  <!-- Pantalla de carga removida de aquí -->
 
   <!-- Contenido principal -->
-  <div [class.opacity-0]="isLoading" [class.invisible]="isLoading">
+  <div>
     <!-- Mensaje de error -->
     <div *ngIf="error && !isLoading" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
       <p class="font-bold">Error</p>
@@ -48,8 +42,8 @@
             class="tab-button graficos"
             [class.active]="activeTab === 'graficos'"
           >
-            <i class="fas fa-chart-line mr-2"></i>
-            Desempeño bodegas
+            <i class="fas fa-chart-bar mr-2"></i>
+            Ranking de bodegas
           </button>
 
           <button 
@@ -58,12 +52,20 @@
             [class.active]="activeTab === 'transportistas'"
           >
             <i class="fas fa-truck mr-2"></i>
-            Desempeño transportistas
+            Incidencias por transportista
           </button>
         </div>
 
         <!-- Contenido de las pestañas -->
-        <div class="tab-content">
+        <div class="tab-content relative">
+          <!-- Pantalla de carga para el contenido de la pestaña -->
+          <div *ngIf="isLoading" class="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center z-10">
+            <div class="text-center">
+                <div class="loading loading-spinner loading-lg" style="color: #00bcd4;"></div>
+                <p class="mt-2 text-gray-600">Cargando ...</p>
+            </div>
+          </div>
+          
           <!-- Pestaña Resumen -->
           <div *ngIf="activeTab === 'resumen'" class="p-6 bg-gray-50">
             <!-- Filtros en la parte superior -->
